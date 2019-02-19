@@ -9,8 +9,11 @@ This repo contains a fixture to enable testing REST services with JSON, XML or T
 5. Build all projects in the solution Rest (Release)
 6. Ensure you have Java installed (1.7 or higher)
 7. Start FitNesse with the root repo folder as the data folder as well as the current directory:
+
 	cd /D C:\Data\FitNesseDemo
+
 	java -jar C:\Apps\FitNesse\fitnesse-standalone.jar -d .
+    
 8. Open a browser and enter the URL http://localhost:8080/FitSharpDemos.RestSuite?suite
 
 # Contribute
