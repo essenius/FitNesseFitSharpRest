@@ -1,0 +1,54 @@
+|Scenario|Send         |command|to|resource|expect code|responseCode|
+|Send    |@command     |to     |@resource                           |
+|check   |response code|@responseCode                               |
+
+!|table:Rest Config                              |
+|DefaultAccept         |application/atom+xml     |
+|DefaultContentType    |application/atom+xml     |
+|DefaultUserAgent      |FitNesseRest             |
+|DefaultXmlNameSpaceKey|a                        |
+|XmlValueTypeAttribute |m:type                   |
+|Encoding              |iso-8859-1               |
+|ContentTypeMapping    |application/atom+xml: Xml|
+
+
+!|script      |RestTester                  |http://services.odata.org               |
+|$serviceBase=|echo                        |/OData/OData.svc                        |
+|Send         |Get                         |to|$serviceBase/Products|expect code|200|
+|$title=      |value from response matching|//a:entry[1]/a:title                    |
+|$id=         |value from response matching|//a:entry[1]//d:ID                      |
+|$price=      |value from response matching|//a:entry[1]//d:Price                   |
+|$response=   |Response Object                                                      |
+
+!|script                                                                        |
+|show|property value|/a:feed/a:entry[2]/a:content/m:properties/d:ID|of|$response|
+|show|properties    |/a:feed/a:entry[2]//*                         |of|$response|
+
+!|script                                               |
+|$title=|echo              |/a:feed/a:entry[2]/a:title |
+|check  |property value    |$title|of|$response|Milk   |
+|ensure |set property value|$title|of|$response|to|Melk|
+
+!|table:properties for object|$response|/a:feed/a:entry[2]//*|
+
+!|query: properties for object|$response|/a:feed/a:entry[2]/a:content/m:properties/a:contributor[1]//*|
+|Property                     |Type     |Value                                                        |
+
+!|script                                                                             |
+|$xml=      |echo    |<?xml version="1.0" encoding="utf-8"?>                         |
+|$namespace=|echo    |xmlns="http://www.w3.org/2005/Atom"                            |
+|$content=  |echo    |$xml<contributor $namespace><name>John Doe</name></contributor>|
+|$xpath=    |echo    |/a:feed[1]/a:entry[2]/a:content[1]/m:properties[1]             |
+|Add        |$content|to           |$response          |at          |$xpath          |
+
+!|query: properties for object    |$response    |$xpath/a:contributor[1]//*|
+|Property                         |Type         |Value                     |
+|$xpath/a:contributor[1]/a:name[1]|System.String|John Doe                  |
+
+!|table:properties for object|$response|/a:feed/a:entry[2]//*|
+
+!|script                 |
+|show|serialize|$response|
+
+!|script                                |
+|show|properties|/a:feed//*|of|$response|

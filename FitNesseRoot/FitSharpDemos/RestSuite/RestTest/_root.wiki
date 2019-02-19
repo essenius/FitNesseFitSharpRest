@@ -1,0 +1,38 @@
+|Scenario|Send         |command|to|resource|expect code|responseCode|
+|Send    |@command     |to     |@resource                           |
+|check   |response code|@responseCode                               |
+
+Set some configuration parameters for the REST queries we want to make.
+We are going to be using Json.
+
+!|table:Rest Config                 |
+|DefaultAccept     |application/json|
+|DefaultContentType|application/json|
+|DefaultUserAgent  |FitNesseRest    |
+|DefaultMatcher    |Json            |
+|Encoding          |iso-8859-1      |
+|Headers                            |!-header1:value1
+header2:value2-!|
+|ContentTypeMapping|!-application/xml:XML
+application/json:JSON
+text/plain:TEXT
+default:JSON-!|
+
+A nice trick to create a Json object from a Wiki table: use a FitNesse REST API.
+
+!|script|RestTester|http://localhost:${Port}                                           |
+|Send   |Get       |to|FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code|200|
+|$body= |Response object                                                               |
+
+Show the object that the FitNesse REST service created
+
+!|table: properties for object|$body|
+
+!|subset query: properties for object|$body |tables[0].Customer.addr|
+|Property                            |Type  |Value                  |
+|tables[0].Customer.addr             |Object|                       |
+|tables[0].Customer.addr.Street      |String|555 Witherspoon st.    |
+|tables[0].Customer.addr.state       |String|IL                     |
+|tables[0].Customer.addr.city        |String|Anyville               |
+
+

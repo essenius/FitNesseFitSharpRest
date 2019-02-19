@@ -1,0 +1,37 @@
+|Scenario|Send         |command|to|resource|expect code|responseCode|
+|Send    |@command     |to     |@resource                           |
+|check   |response code|@responseCode                               |
+
+!|table:Rest Config                              |
+|DefaultAccept         |application/atom+xml     |
+|DefaultContentType    |application/atom+xml     |
+|DefaultUserAgent      |FitNesseRest             |
+|DefaultXmlNameSpaceKey|a                        |
+|XmlValueTypeAttribute |m:type                   |
+|Encoding              |iso-8859-1               |
+|ContentTypeMapping    |application/atom+xml: Xml|
+
+!|script      |RestTester                  |http://services.odata.org                 |
+|$serviceBase=|echo                        |OData/OData.svc/                          |
+|Send         |Get                         |to|$serviceBase/Categories|expect code|200|
+|$id=         |value from response matching|//a:entry[1]//d:Id                        |
+|$response=   |Response Object                                                        |
+
+!|script                                                                                                                                          |
+|show              |property value                                  |/a:feed/a:entry[2]/a:content/m:properties/d:Id|of       |$response           |
+|show              |properties                                      |/a:feed/a:entry[2]//*                         |of       |$response           |
+|set property value|/a:feed/a:entry[2]/a:content/m:properties/d:Name|of                                            |$response|to|New Property Name|
+
+!|table:properties for object|$response|/a:feed/a:entry[2]//*|
+
+!|script                                                                                 |
+|$content=|echo    |<?xml version="1.0"?><contributor><name>John Doe</name></contributor>|
+|Add      |$content|to   |$response   |at   |/a:feed/a:entry[2]/a:content/m:properties   |
+
+!|table:properties for object|$response|/a:feed/a:entry[2]//*|
+
+!|script                 |
+|show|serialize|$response|
+
+!|script                                |
+|show|properties|/a:feed//*|of|$response|

@@ -1,0 +1,78 @@
+Lots of REST services use Json these days. This fixture makes handling that a bit easier.
+
+We can create objects from assemblies. Parameters are supported if they are strings, integers or booleans (note there is no new line between 'in' and 'assembly').
+
+!|script     |Content Handler                                                                              |
+|$testobject=|Create|json|object from type|RestTests.ManyTypes|in assembly|${RestTestDll}|with params|[true]|
+
+|script                    |
+|show|serialize|$testobject|
+
+Check whether the properties of the created object meet the expectation
+
+!|decision: properties for object|$testobject        |
+|Property                        |Type? |Value?      |
+|StringArray                     |Array |[hi, there] |
+|DecimalValue                    |Float |300.5       |
+|StringValue                     |String|string value|
+|DoubleValue                     |Float |~=3.14159   |
+
+Show all the properties with their types and values
+
+!|table: properties for object|$testobject|StringArray|
+
+Alternative way of checking values: a subset query.
+ 
+!|subset query: properties for object|$testobject                |
+|Property                            |Type   |Value              |
+|LongValue                           |Integer|-223372036854775808|
+|ULongValue                          |Integer|8446744073709551615|
+|StringValue                         |String |string value       |
+|StringArray                         |Array  |[hi, there]        |
+|DoubleValue                         |Float  |$pi=          |
+
+We can also set values in objects using the decision tables.
+
+!|decision: properties for object|$testobject     |
+|Property                        |Value           |
+|LongValue                       |9007199254740992|
+|DecimalValue                    |450.3           |
+|StringValue                     |clean code      |
+
+!|decision: properties for object|$testobject                           |
+|Property                        |Value           |Value was set?|Value?|
+|LongValue                       |9007199254740992|true          |      |
+|DecimalValue                    |450.3           |true          |      |
+|ShortValue                      |-32768          |true          |      |
+|StringValue                     |clean code      |true          |      |
+
+!|decision: properties for object|$testobject                                              |
+|Property                        |Value                               |Value was set?|Type?|
+|NonExistingValue                |irrelevant value                    |false         |     |
+|GuidValue                       |CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE|true          |Guid |
+|DateValue                       |23-02-1965 16:10                    |true          |Date |
+
+Check whether the values were indeed set on the object
+
+!|subset query: properties for object|$testobject                                 |
+|Property                            |Type   |Value                               |
+|LongValue                           |Integer|9007199254740992                    |
+|StringValue                         |String |clean code                          |
+|GuidValue                           |Guid   |cafecafe-cafe-cafe-cafe-cafecafecafe|
+
+
+!| query: properties for object|$testobject|StringArray|
+|Property                      |Type       |Value      |
+|StringArray                   |Array      |[hi, there]|
+|StringArray[0]                |String     |hi         |
+|StringArray[1]                |String     |there      |
+
+!|script                               |
+|delete|StringArray[1]|from|$testobject|
+|delete|TimeSpanValue |from|$testobject|
+
+
+Now show the Json serialization
+
+!|script                   |
+|show|serialize|$testobject|

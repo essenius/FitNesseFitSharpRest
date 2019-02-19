@@ -1,0 +1,9 @@
+!|Customer                        |
+||name |Bob Someone               |
+||id   |8402                      |
+||addr                            |
+||     |Street|555 Witherspoon st.|
+||     |city  |Anyville           |
+||     |state |IL                 |
+||     |zip   |60083              |
+||phone|555-1212                  |

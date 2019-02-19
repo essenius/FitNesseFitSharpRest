@@ -1,0 +1,22 @@
+|Scenario|Send         |command|to|resource|expect code|responseCode|
+|Send    |@command     |to     |@resource                           |
+|check   |response code|@responseCode                               |
+
+!|script           |Rest Tester                 |http://localhost:${Port}                                                              |
+|Send              |Get                         |to                          |FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code|200       |
+|$response=        |Response Object                                                                                                    |
+|show              |property value              |tables[0].Customer.addr.city|of                                |$response             |
+|set property value|tables[0].Customer.addr.city|of                          |$response                         |to         |Smallville|
+|show              |Serialize                   |$response                                                                             |
+
+!|script                                                        |
+|$body=|create object from  |{}                                 |
+|show  |Serialize           |$body                              |
+|Add   |$response           |to|$body|at|                       |
+|show  |Serialize           |$body                              |
+|Add   |{"phone":"withheld"}|to|$body|at|tables[0].Customer.addr|
+|show  |Serialize           |$body                              |
+
+!|script                                                                                                                                                  |
+|$testobject=|Create object|json|from type|RestTests.ManyTypes|in assembly|${RestTestDll}|
+|show        |serialize    |$testobject                                                                                                                   |

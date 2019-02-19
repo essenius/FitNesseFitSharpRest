@@ -1,0 +1,14 @@
+---
+Suite: no
+---
+We need !-RestTests-! for the Echo function. 
+Normally you could also use the !-SupportFunctions-! fixture, but I don't want to take a dependency on another repo here.
+
+!|import             |
+|rest                |
+|rest.ContentHandlers|
+|RestTests           |
+
+|library        |
+|Echo Support   |
+|Content Handler|

@@ -1,0 +1,17 @@
+!define regex {((\b\d+(\.\d+)?)|true|numbers)}
+!define multiregex {(?:${regex}.*?)}
+
+!|script|ContentHandler                                                            |
+|$obj=  |create object from|contains 21, 3000000000, 51.6 and no other true numbers|
+
+|query:properties for object|$obj          |${regex}  |
+|Property                   |Type          |Value     |
+|${multiregex}!-{1}-!       |System.Int32  |21        |
+|${multiregex}!-{2}-!       |System.Int64  |3000000000|
+|${multiregex}!-{3}-!       |System.Double |51.6      |
+|${multiregex}!-{4}-!       |System.Boolean|true      |
+|${multiregex}!-{5}-!       |System.String |numbers   |
+
+|decision:properties for object|$obj                |
+|Property                      |Type?        |Value?|
+|${multiregex}!-{3}-!          |System.Double|51.6  |

@@ -1,0 +1,3 @@
+!path "Rest\Rest\bin\Release\Rest.dll;Rest\RestTests\bin\release\RestTests.dll"
+!define RestTestDll {Rest\RestTests\bin\Release\RestTests.dll}
+!contents -R2 -g -p -f -h

@@ -1,0 +1,83 @@
+---
+Test
+---
+|Scenario|Send         |command|to|resource|expect code|responseCode|
+|Send    |@command     |to     |@resource                           |
+|check   |response code|@responseCode                               |
+
+Set some configuration parameters for the REST queries we want to make.
+We are going to be using Json.
+
+!|table:Rest Config                 |
+|DefaultAccept     |application/json|
+|DefaultContentType|application/json|
+|DefaultUserAgent  |FitNesseRest    |
+|DefaultMatcher    |Json            |
+|Encoding          |iso-8859-1      |
+|Headers                            |!-header1:value1
+header2:value2-!|
+|ContentTypeMapping|!-application/xml:XML
+application/json:JSON
+text/plain:TEXT
+default:JSON-!|
+
+Post some data to a test service, and capture its response into a JSon object. Also show some response headers and the request body (handy for debugging)
+
+!|script         |RestTester                  |http://jsonplaceholder.typicode.com/|
+|Set Request Body|{"title": "Test Data", "body": "Test Body", "userId":96 }        |
+|Send            |POST                        |to              |posts              |
+|check           |response code               |201                                 |
+|$id=            |value from response matching|id                                  |
+
+|script                                                      |
+|show|response                                               |
+|show|response headers        |[Content-Length, Content-Type]|
+|show|response headers without|[Content-Length]            |
+
+|script                                                                    |
+|show  |request headers  without  |[Authorization]                         |
+|show  |value from request header |Accept        |matching|application/(.+)|
+|$size=|value from response header|Content-Length|matching|(\d+)           |
+|show  |request body                                                       |
+
+Delete an object, which should (pretend to) work
+
+!|script                                  |
+|Send|DELETE|to|/posts/$id|expect code|200|
+
+We have the ability to show a few headers, all the headers, or all except some.
+We can also use regular expressions (regex) to parse response values.
+
+!|script                                                                 |
+|show  |Request Headers without   |[Authorization]                       |
+|show  |request headers           |[Accept, Content-Type, Content-Length]|
+|$size=|value from response header|Content-Length   |matching   |(\d+)   |
+|check |response                  |                                      |
+
+|Script                        |
+|show|response code            |
+|show|response code description|
+
+Let's get a list of all the users that are stored in the test service.
+The response is a Json array, so we use the default property name _
+
+!|script                                 |
+|Send      |GET|to|/users|expect code|200|
+|$response=|Response Object              |
+|show|response|
+
+|table: properties for object|$response|_[0].address|
+
+A Put command updates an existing element. Do that, and then check if the element was indeed (pretended to be) updated.
+
+!|script                                                                      |
+|$body=|echo                        |New Body Text                            |
+|Send  |Put                         |to  |/posts/1|with Body|{ "body":"$body"}|
+|check |response code               |200                                      |
+|check |value from response matching|body|$body                               |
+
+#HEAD is not supported by this server, so check if it returns the right error
+
+#!|script                                                       |
+#|set request body|                                             |
+#|Send            |HEAD|to|/RestService.svc/Data|expect code|404|

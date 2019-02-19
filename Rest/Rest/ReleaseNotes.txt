@@ -1,0 +1,7 @@
+﻿1.0.2.0 Migration to Git
+1.0.2.1 Fix null reference in Json Object GetProperty
+1.0.3.0 Restructured to use Rest.Model (making clearer which classes are controllers and which are part of the the (internal) model). Left controllers in the Rest namespace for compatibility with FitSharp tests
+1.0.3.2 Added ContentHandler.PropertySetOfContainsValueLike
+1.0.3.3 Implemented ReSharper suggestions
+2.0.0 Introduced semantic versioning
+2.1.0 Prepared for publishing on GitHub; included Echo function in RestTests assembly; increased code coverage to 98%

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<items>
+  <MatchParser input="  abc  " expectedMethod="" expectedLocator="abc" />
+  <MatchParser input="abc:def" expectedMethod="abc" expectedLocator="def" />
+  <MatchParser input="abc : def" expectedMethod="abc" expectedLocator="def" />
+  <MatchParser input="abc:def:ghi" expectedMethod="abc" expectedLocator="def:ghi" />
+  <MatchParser input="abc : def:ghi" expectedMethod="abc" expectedLocator="def:ghi" />
+  <MatchParser input="abc : def : ghi" expectedMethod="abc" expectedLocator="def : ghi" />
+  <MatchParser input=":abc" expectedMethod="" expectedLocator="abc" />
+  <MatchParser input="abc:" expectedMethod="abc" expectedLocator="" />
+  <MatchParser input=":" expectedMethod="" expectedLocator="" />
+  <MatchParser input=":abc" expectedMethod="" expectedLocator="abc" />
+  <MatchParser input="" expectedMethod="" expectedLocator="" />
+</items>

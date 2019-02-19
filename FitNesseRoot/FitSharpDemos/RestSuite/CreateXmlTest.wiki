@@ -1,0 +1,14 @@
+!|table:rest config|
+|XmlValueTypeAttribute||
+
+|library     |
+|Echo Support|
+
+|script   |Content Handler                                                                                                 |
+|$response=|Create Object From|<?xml version="1.0" encoding="utf-8" ?><data ><person id='1'><name>Tatjana</name></person><person id='2'><name>John</name></person></data>         |
+|show      |serialize         |$response                                                                                |
+|ensure    |Add               |<?xml version="1.0" encoding="utf-8" ?><age>24</age>|to|$response|at|//person[@id='1']|
+|ensure    |Add               |<?xml version="1.0" encoding="utf-8" ?><age>24</age>|to|$response|at|//person[@id='1']|
+|show      |serialize         |$response                                                                                |
+
+|table:properties for object|$response|/data/person[1]//*|
