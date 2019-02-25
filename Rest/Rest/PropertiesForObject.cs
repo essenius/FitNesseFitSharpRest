@@ -23,42 +23,35 @@ namespace Rest
         private readonly ContentObject _contentObject;
         private readonly string _locator;
 
-        // this constructor is not for decision tables - locator will be ignored if you do
+        // 
+        [Documentation("Reports on properties in query or table table. This constructor is not for decision tables - locator will be ignored if you do")]
         public PropertiesForObject(ContentObject contentObject, string locator)
         {
             _contentObject = contentObject;
             _locator = locator;
         }
 
+        [Documentation("Reports on properties in decision, query or table table.")]
         public PropertiesForObject(ContentObject contentObject) : this(contentObject, string.Empty)
         {
         }
 
-        public static Dictionary<string, string> FixtureDocumentation { get; } = new Dictionary<string, string>
-        {
-            {string.Empty, "Reports on properties in decision, query or table interface"},
-            {nameof(DoTable), "Table interface returning properties for the object"},
-            {nameof(Execute), "Support for the Decision interface"},
-            {nameof(Property), "Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)"},
-            {nameof(Query), "Query interface returning properties for the object"},
-            {nameof(Reset), "Support for the Decision interface"},
-            {
-                nameof(Type),
-                "Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value"
-            },
-            {nameof(Value), "Decision column: Value of the property (output only for Text objects)"},
-            {nameof(ValueWasSet), "Decision column: Whether the value of the property was changed by this line"}
-        };
-
-        // Decision Table columns
+        [Documentation("Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)")]
         public string Property { set; private get; }
+
+        [Documentation("Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value")]
         public string Type { private set; get; }
+
+        [Documentation("Decision column: Value of the property (output only for Text objects)")]
         public string Value { set; get; }
+
+        [Documentation("Decision column: Whether the value of the property was changed by this line")]
         public bool ValueWasSet { get; private set; }
 
         private static string Report(string input) => "report:" + input;
 
         [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "Table Table interface")]
+        [Documentation("Table interface returning properties for the object")]
         public List<object> DoTable(List<List<string>> table)
         {
             var returnList = _contentObject.GetProperties(_locator).Select(property => new List<string>
@@ -71,7 +64,7 @@ namespace Rest
             return returnList;
         }
 
-        // Decision Table row execution
+        [Documentation("Support for the Decision interface")]
         public void Execute()
         {
             ValueWasSet = false;
@@ -84,7 +77,7 @@ namespace Rest
             Type = _contentObject.GetPropertyType(Property);
         }
 
-        // Query Table interface
+        [Documentation("Query interface returning properties for the object")]
         public List<object> Query()
         {
             return _contentObject.GetProperties(_locator).Select(property => new List<object>
@@ -95,7 +88,7 @@ namespace Rest
             }).Cast<object>().ToList();
         }
 
-        //Decision table new row start
+        [Documentation("Support for the Decision interface; new row start")]
         public void Reset()
         {
             Property = null;

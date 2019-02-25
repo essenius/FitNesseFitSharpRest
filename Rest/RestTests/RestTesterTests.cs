@@ -107,13 +107,5 @@ namespace RestTests
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
         }
-
-        [TestMethod, TestCategory("Unit")]
-        public void RestTesterDocumentationTest()
-        {
-            var doc = RestTester.FixtureDocumentation;
-            Assert.IsTrue(doc.Count > 0);
-            Assert.IsTrue(doc.ContainsKey(nameof(RestTester.RequestUri)));
-        }
     }
 }

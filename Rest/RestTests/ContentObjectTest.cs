@@ -44,14 +44,5 @@ namespace RestTests
             Assert.AreEqual("XML Object", c.ToString());
             Assert.AreEqual("<a>test</a>", c.Serialize());
         }
-
-
-        [TestMethod, TestCategory("Unit")]
-        public void ContentObjectDocumentationTest()
-        {
-            var doc = ContentObject.FixtureDocumentation;
-            Assert.IsTrue(doc.Count > 0);
-            Assert.IsTrue(doc.ContainsKey(nameof(ContentObject.Parse)));
-        }
     }
 }

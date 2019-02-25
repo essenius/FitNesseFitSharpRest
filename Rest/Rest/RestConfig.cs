@@ -22,18 +22,12 @@ namespace Rest
     {
         private readonly SessionContext _context;
 
+        [Documentation("Configuration for the Rest Tester")]
         public RestConfig() => _context = Injector.InjectSessionContext();
 
-        public static Dictionary<string, string> FixtureDocumentation { get; } = new Dictionary<string, string>
-        {
-            {string.Empty, "Configuration for the Rest Tester"},
-            {
-                nameof(DoTable),
-                "Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout"
-            }
-        };
-
         [SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global", Justification = "FitSharp doesn't handle that")]
+        [Documentation("Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey, " +
+                       "XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout")]
         public List<object> DoTable(List<List<string>> table) => table.Select(ProcessLine).Cast<object>().ToList();
 
         private List<string> ProcessLine(List<string> line)

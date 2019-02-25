@@ -151,8 +151,7 @@ namespace Rest.ContentObjects
             return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current.TypedValue : null;
         }
 
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases",
-            Justification = "missing cases not handled (too esoteric; caught by default clause)")]
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "missing cases not handled (caught by default clause)")]
         private string FindXPath(XPathNavigator node)
         {
             var builder = new StringBuilder();

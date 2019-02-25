@@ -156,13 +156,5 @@ namespace RestTests
             var value = ContentHandler.PropertyValueOf("/a/b", baseObj);
             Assert.AreEqual("test", value);
         }
-
-        [TestMethod, TestCategory("Unit")]
-        public void ContentHandlerDocumentationTest()
-        {
-            var doc = ContentHandler.FixtureDocumentation;
-            Assert.IsTrue(doc.Count > 0);
-            Assert.IsTrue(doc.ContainsKey(nameof(ContentHandler.Evaluate)));
-        }
     }
 }

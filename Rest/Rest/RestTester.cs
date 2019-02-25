@@ -25,67 +25,44 @@ namespace Rest
         private readonly ContentObjectFactory _contentObjectFactory;
         private readonly RestSession _session;
 
+        [Documentation("Script fixture for REST testing, instantiated with endpoint URL")]
         public RestTester(string endPoint)
         {
-            // Taking a dependency on the injector since this is an entry point for FitNesse,
+            // Taking a dependency on the injector since this is an entry point for FitNesse, 
             // so we don't want the dependencies to be injected via the constructor here
             _session = Injector.InjectRestSession(endPoint);
             _contentObjectFactory = Injector.InjectContentObjectFactory();
         }
 
+        [Documentation("Script fixture for REST testing, not instantiated with endpoint URL")]
         public RestTester() : this(null)
         {
         }
 
-        public static Dictionary<string, string> FixtureDocumentation { get; } = new Dictionary<string, string>
-        {
-            {string.Empty, "Script fixture for REST testing. Instantiated with or without endpoint URL"},
-            {nameof(EndPoint), "Set/get endpoint for the service (base URL)"},
-            {nameof(RequestBody), "Set/get the payload for the REST request"},
-            {nameof(RequestHeaders), "All request headers separated by newlines"},
-            {nameof(RequestHeaders) + "`1", "All request headers in the list separated by newlines"},
-            {nameof(RequestHeadersWithout), "The request headers except those specified in the list"},
-            {nameof(RequestUri), "The absolute URI used for the request"},
-            {nameof(Response), "The response payload (serialized to string). Can only be used after executing a Send To command"},
-            {nameof(ResponseCode), "The HTTP response code of the REST request"},
-            {nameof(ResponseCodeDescription), "Description of the HTTP response code"},
-            {nameof(ResponseHeaders), "All response headers"},
-            {nameof(ResponseHeaders) + "`1", "All response headers in the list separated by newlines"},
-            {nameof(ResponseHeadersWithout), "The response headers except for those in the list"},
-            {nameof(ResponseObject), "Try to create a JSON, XML or Text object from the response by parsing the response string"},
-            {nameof(SendTo), "Send a REST request to an endpoint"},
-            {nameof(SendToWithBody), "Send a REST request to an endpoint using specified payload"},
-            {nameof(SetRequestHeaderTo), "Set a request header"},
-            {
-                nameof(ValueFromRequestHeaderMatching),
-                "Extracts a value from a request header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted"
-            },
-            {
-                nameof(ValueFromResponseHeaderMatching),
-                "Extracts a value from a response header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted"
-            },
-            {
-                nameof(ValueFromResponseMatching),
-                "Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type"
-            }
-        };
-
+        [Documentation("Set / get endpoint for the service(base URL)")]
         public string EndPoint
         {
             set => _session.EndPoint = new Uri(value);
             get => _session.EndPoint?.OriginalString;
         }
 
+        [Documentation("Set/get the payload for the REST request")]
         public string RequestBody
         {
             get => _session.Body;
             set => _session.Body = value;
         }
 
+        [Documentation("The absolute URI used for the request")]
         public string RequestUri => _session?.Request?.RequestUri.AbsoluteUri;
+
+        [Documentation("The HTTP response code of the REST request")]
         public int ResponseCode => (int) _session.Response.StatusCode;
+
+        [Documentation("Description of the HTTP response code")]
         public string ResponseCodeDescription => _session.Response.StatusDescription;
 
+        [Documentation("Try to create a JSON, XML or Text object from the response by parsing the response string")]
         public ContentObject ResponseObject
         {
             get
@@ -95,43 +72,58 @@ namespace Rest
             }
         }
 
+        [Documentation("All request headers separated by newlines")]
         public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.Request.Headers);
+
+        [Documentation("All request headers in the list separated by newlines")]
         public string RequestHeaders(List<string> requiredHeaders) => FitNesseFormatter.HeaderList(_session.Request.Headers, requiredHeaders);
 
+        [Documentation("The request headers except those specified in the list")]
         public string RequestHeadersWithout(List<string> headersToOmit) =>
             FitNesseFormatter.HeaderListWithout(_session.Request.Headers, headersToOmit);
 
+        [Documentation("The response payload (serialized to string). Can only be used after executing a Send To command")]
         public string Response() => _session.ResponseText;
+
+        [Documentation("All response headers")]
         public string ResponseHeaders() => FitNesseFormatter.HeaderList(_session.Response.Headers);
 
+        [Documentation("All response headers in the list separated by newlines")]
         public string ResponseHeaders(List<string> requiredHeaders) =>
             FitNesseFormatter.HeaderList(_session.Response.Headers, requiredHeaders);
 
+        [Documentation("The response headers except for those in the list")]
         public string ResponseHeadersWithout(List<string> headersToOmit) =>
             FitNesseFormatter.HeaderListWithout(_session.Response.Headers, headersToOmit);
 
+        [Documentation("Send a REST request to an endpoint")]
         public bool SendTo(string requestType, string resource) => _session.MakeRequest(requestType, resource);
 
+        [Documentation("Send a REST request to an endpoint using specified payload")]
         public bool SendToWithBody(string requestType, string resource, string body)
         {
             _session.Body = body;
             return _session.MakeRequest(requestType, resource);
         }
 
+        [Documentation("Set a request header")]
         public void SetRequestHeaderTo(string header, string value) => _session.RequestHeadersToAdd[header] = value;
 
+        [Documentation("Extracts a value from a request header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
         public string ValueFromRequestHeaderMatching(string header, string matcher)
         {
             var headerValue = _session.RequestHeaderValue(header);
             return _contentObjectFactory.Create("text", headerValue).Evaluate(matcher);
         }
 
+        [Documentation("Extracts a value from a response header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
         public string ValueFromResponseHeaderMatching(string header, string matcher)
         {
             var headerValue = _session.ResponseHeaderValue(header);
             return _contentObjectFactory.Create("text", headerValue).Evaluate(matcher);
         }
 
+        [Documentation( "Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type")]
         public string ValueFromResponseMatching(string matcher)
         {
             var responseContentType = _session.Response.GetResponseHeader("Content-Type");

@@ -55,6 +55,7 @@
     <Compile Include="ContentObjects\JsonObject.cs" />
     <Compile Include="ContentObjects\TextObject.cs" />
     <Compile Include="ContentObjects\XmlObject.cs" />
+    <Compile Include="DocumentationAttribute.cs" />
     <Compile Include="Model\IRestRequestFactory.cs" />
     <Compile Include="Model\RestRequest.cs" />
     <Compile Include="Model\RestRequestFactory.cs" />

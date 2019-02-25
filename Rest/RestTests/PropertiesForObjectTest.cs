@@ -112,13 +112,5 @@ namespace RestTests
             var myList = a.DoTable(new List<List<string>>());
             AssertListEqualsArray(myList, expected);
         }
-
-        [TestMethod, TestCategory("Unit")]
-        public void PropertiesForObjectDocumentationTest()
-        {
-            var doc = PropertiesForObject.FixtureDocumentation;
-            Assert.IsTrue(doc.Count > 0);
-            Assert.IsTrue(doc.ContainsKey(nameof(PropertiesForObject.Execute)));
-        }
     }
 }

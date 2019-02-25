@@ -54,14 +54,5 @@ namespace RestTests
             Assert.IsNotNull(lastLine);
             Assert.AreEqual(string.Empty, lastLine[1]);
         }
-
-
-        [TestMethod, TestCategory("Unit")]
-        public void RestConfigDocumentationTest()
-        {
-            var doc = RestConfig.FixtureDocumentation;
-            Assert.IsTrue(doc.Count > 0);
-            Assert.IsTrue(doc.ContainsKey(nameof(RestConfig.DoTable)));
-        }
     }
 }

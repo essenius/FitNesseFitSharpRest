@@ -5,3 +5,4 @@
 1.0.3.3 Implemented ReSharper suggestions
 2.0.0 Introduced semantic versioning
 2.1.0 Prepared for publishing on GitHub; included Echo function in RestTests assembly; increased code coverage to 98%
+2.1.1 Replaced FixtureDocumentation dictionary by [Documentation] attribute 

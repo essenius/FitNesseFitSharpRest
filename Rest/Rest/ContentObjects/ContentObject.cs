@@ -18,16 +18,12 @@ using Rest.Utilities;
 namespace Rest.ContentObjects
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
+    [Documentation("Abstract content object")]
     public abstract class ContentObject
     {
-        public static Dictionary<string, string> FixtureDocumentation { get; } = new Dictionary<string, string>
-        {
-            {string.Empty, "Abstract content object"},
-            {nameof(Parse), "Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT"}
-        };
-
         // We need this one since FitNesse uses it to try and parse parameter values into objects
         // The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be parsed
+        [Documentation("Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT")]
         public static ContentObject Parse(string input)
         {
             var factory = Injector.InjectContentObjectFactory();
