@@ -103,14 +103,14 @@ namespace RestTests
         {
             var h = new ContentHandler();
             var baseObj = h.CreateObjectFrom("<a><b/><b class='q'>test</b></a>");
-            var value = ContentHandler.Evaluate(baseObj, "/a/b[@class='q']");
+            var value = ContentHandler.EvaluateOn("/a/b[@class='q']", baseObj);
             Assert.AreEqual("test", value);
         }
 
         [TestMethod, TestCategory("Unit")]
         public void ContentHandlerGetClassesTest()
         {
-            var classCollection = ContentHandler.GetClasses("RestTests.dll");
+            var classCollection = ContentHandler.ClassesIn("RestTests.dll");
             Assert.IsTrue(classCollection.Contains("RestTests.FewTypes"));
             Assert.IsTrue(classCollection.Contains("RestTests.ManyTypes"));
         }

@@ -32,6 +32,13 @@ namespace Rest
         [Documentation("Add the content of an object into another object")]
         public static bool AddToAt(ContentObject objToAdd, ContentObject baseObj, string locator) => baseObj.AddAt(objToAdd, locator);
 
+        [Documentation("A list of the classes in an assembly")]
+        public static List<string> ClassesIn(string assembly)
+        {
+            var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
+            return asm.GetTypes().Select(type => type.Namespace + "." + type.Name).ToList();
+        }
+
         [Documentation("Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats, " +
                        "and using the format for which parsing succeeds")]
         public ContentObject CreateObjectFrom(string source) => CreateObjectFrom(null, source);
@@ -59,15 +66,14 @@ namespace Rest
         [Documentation("Delete a property from an object")]
         public static bool DeleteFrom(string locator, ContentObject obj) => obj.Delete(locator);
 
-        [Documentation("Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)")]
-        public static string Evaluate(ContentObject obj, string matcher) => obj.Evaluate(matcher);
+        [Obsolete("Use EvaluateOn instead")]
+        public static string Evaluate(ContentObject obj, string matcher) => EvaluateOn(matcher, obj);
 
-        [Documentation("A list of the classes in an assembly")]
-        public static List<string> GetClasses(string assembly)
-        {
-            var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
-            return asm.GetTypes().Select(type => type.Namespace + "." + type.Name).ToList();
-        }
+        [Documentation("Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)")]
+        public static string EvaluateOn(string matcher, ContentObject obj) => obj.Evaluate(matcher);
+
+        [Obsolete("Use ClassesIn instead")]
+        public static List<string> GetClasses(string assembly) => ClassesIn(assembly);
 
         [Documentation("Locators to all properties of a certain element in the object")]
         public static IEnumerable<string> PropertiesOf(string locator, ContentObject obj) => obj.GetProperties(locator);
