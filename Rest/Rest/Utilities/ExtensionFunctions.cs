@@ -58,16 +58,16 @@ namespace Rest.Utilities
 
         public static string StripAfter(this string input, string delimiter)
         {
-            var pos = input.IndexOf(delimiter, StringComparison.Ordinal);
-            return pos >= 0 ? input.Substring(0, pos) : input;
+            var position = input.IndexOf(delimiter, StringComparison.Ordinal);
+            return position >= 0 ? input.Substring(0, position) : input;
         }
 
         public static IEnumerable<string> SplitLines(this string s)
         {
-            using (var sr = new StringReader(s))
+            using (var stringReader = new StringReader(s))
             {
                 string line;
-                while ((line = sr.ReadLine()) != null)
+                while ((line = stringReader.ReadLine()) != null)
                 {
                     yield return line;
                 }

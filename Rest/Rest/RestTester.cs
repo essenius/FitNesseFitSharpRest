@@ -12,6 +12,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Reflection;
 using Rest.ContentObjects;
 using Rest.Model;
 using Rest.Utilities;
@@ -59,6 +61,25 @@ namespace Rest
         [Documentation("The HTTP response code of the REST request")]
         public int ResponseCode => (int) _session.Response.StatusCode;
 
+        [Documentation("Get all cookies in the response")]
+        public string ResponseCookies() => FitNesseFormatter.CookieList(_session.Response.Cookies);
+
+        [Documentation("Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class can be used")]
+        public object PropertyOfResponseCookie(string propertyName, object cookieName)
+        {
+            Cookie cookie;
+            if (cookieName is int id)
+            {
+                cookie = _session.Response.Cookies[id];
+            }
+            else
+            {
+                cookie = _session.Response.Cookies[cookieName.ToString()];
+            } 
+            var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            return method?.GetValue(cookie);
+        }
+
         [Documentation("Description of the HTTP response code")]
         public string ResponseCodeDescription => _session.Response.StatusDescription;
 
@@ -71,6 +92,9 @@ namespace Rest
                 return _contentObjectFactory.Create(contentType, _session.ResponseText);
             }
         }
+
+        [Documentation("Get all cookie names and values in the request (for debugging)")]
+        public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
 
         [Documentation("All request headers separated by newlines")]
         public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.Request.Headers);

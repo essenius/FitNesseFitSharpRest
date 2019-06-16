@@ -60,5 +60,29 @@ namespace RestTests
             Assert.IsNotNull(iProxy);
             Assert.AreEqual(proxyAddress, iProxy.GetProxy(new Uri("http://www.google.com")));
         }
+
+        [TestMethod, TestCategory("Unit")]
+        public void SessionContextCookieTest()
+        {
+            var context = new SessionContext();
+            var target = new PrivateObject(context);
+            context.SetConfig("CookieDomain", "localhost");
+            context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
+            var cookieContainer = target.GetFieldOrProperty("CookieContainer") as CookieContainer;
+            Assert.IsNotNull(cookieContainer);
+            Assert.AreEqual(2, cookieContainer.Count);
+            var collection = cookieContainer.GetCookies(new Uri("http://localhost"));
+            Assert.AreEqual(2, collection.Count);
+            Assert.AreEqual("value1", collection["cookie1"]?.Value);
+            Assert.AreEqual("value2", collection["cookie2"]?.Value);
+        }
+
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void SessionContextCookieWithoutDomainTest()
+        {
+            var context = new SessionContext();
+            context.SetConfig("Cookies", "cookie1=value1");
+        }
+
     }
 }

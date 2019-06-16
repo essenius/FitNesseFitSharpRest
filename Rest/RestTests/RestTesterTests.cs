@@ -10,10 +10,10 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
-using Rest.ContentObjects;
 using Rest.Model;
 
 namespace RestTests
@@ -24,9 +24,9 @@ namespace RestTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            // SessionContext is a singleton, so could have been set by other tests
+            // SessionContext is a singleton, so could have been set by other tests. Make sure it is pristine.
             Injector.CleanSessionContext();
-            var c = new RestConfig();
+            var _ = new RestConfig();
         }
 
         [TestMethod, TestCategory("Integration")]
@@ -39,6 +39,7 @@ namespace RestTests
             };
             rt.SetRequestHeaderTo("header1", "dummy");
             rt.SetRequestHeaderTo("header1", "value for header 1");
+            Assert.IsTrue(string.IsNullOrEmpty(rt.RequestCookies), "Request Cookies empty");
             rt.SendTo("POST", "posts");
             var requestHeaders = rt.RequestHeaders();
             Assert.IsTrue(requestHeaders.Contains("User-Agent:"), "request header contains User Agent");
@@ -55,6 +56,12 @@ namespace RestTests
             Assert.AreEqual("Content-Length: 78\nContent-Type: application/json; charset=utf-8\n", responseHeaders);
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
+
+            Assert.IsTrue(rt.ResponseCookies().StartsWith("__cfduid="));
+            Debug.Print(rt.RequestCookies);
+            Assert.IsTrue(rt.PropertyOfResponseCookie("value", "__cfduid").ToString().Length > 0);
+            Debug.Print(rt.PropertyOfResponseCookie("Value", "__cfduid").ToString());
+            Assert.IsTrue(rt.PropertyOfResponseCookie("value", 0).ToString().Length > 0);
         }
 
         [TestMethod, TestCategory("Integration")]

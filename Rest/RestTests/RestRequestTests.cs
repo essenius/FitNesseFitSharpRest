@@ -68,7 +68,8 @@ namespace RestTests
                 {"header1", "value1"},
                 {"User-Agent", "UnitTest"},
                 {"accept", "plain/text"},
-                {"content-type", "application/xml"}
+                {"content-type", "application/xml"},
+                {"Authorization", "my-hash" }
             };
             Assert.IsTrue(string.IsNullOrEmpty(target.HeaderValue("header1")), "header1 doesn't exist upfront");
             Assert.IsTrue(target.HeaderValue("Accept").Contains("application/json"),
@@ -78,6 +79,7 @@ namespace RestTests
             Assert.AreEqual("UnitTest", target.HeaderValue("User-Agent"), "User-Agent changed");
             Assert.AreEqual("plain/text", target.HeaderValue("Accept"), "Accept changed");
             Assert.AreEqual("application/xml", target.HeaderValue("Content-Type"), "Content-Type changed");
+            Assert.AreEqual("my-hash", target.HeaderValue("Authorization"), "Authorization changed");
         }
 
         [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]

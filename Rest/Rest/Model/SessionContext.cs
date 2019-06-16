@@ -15,7 +15,6 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Text;
 using Rest.Utilities;
-using Action = System.Action;
 
 namespace Rest.Model
 {
@@ -43,6 +42,7 @@ namespace Rest.Model
         }
 
         private NameValueCollection ContentTypeMap { get; }
+        private string CookieDomain { get; set; }
         private CookieContainer CookieContainer { get; }
         private ICredentials Credentials { get; }
         private string DefaultAccept { get; set; }
@@ -74,7 +74,13 @@ namespace Rest.Model
                 {@"DEFAULTXMLNAMESPACEKEY", v => { DefaultXmlNameSpaceKey = v; return true; }},
                 {@"XMLVALUETYPEATTRIBUTE", v => { XmlValueTypeAttribute = v; return true; }},
                 {@"HEADERS", v => { Headers.Add(FitNesseFormatter.ParseNameValueCollection(value)); return true; }},
-                {@"CONTENTTYPEMAPPING", v => { ContentTypeMap.Add(FitNesseFormatter.ParseNameValueCollection(v)); return true; }}
+                {@"CONTENTTYPEMAPPING", v => { ContentTypeMap.Add(FitNesseFormatter.ParseNameValueCollection(v)); return true; }},
+                {@"COOKIEDOMAIN", v => { CookieDomain = v; return true; }},
+                {@"COOKIES", v => {
+                    var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
+                    CookieContainer.Add(cookies);
+                    return true;
+                }}
             };
 
             var upperKey = key.ToUpperInvariant();

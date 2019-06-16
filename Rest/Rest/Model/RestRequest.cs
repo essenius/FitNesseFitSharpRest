@@ -31,6 +31,8 @@ namespace Rest.Model
             _context.SetDefaults(_request);
         }
 
+        public CookieCollection Cookies => _request.CookieContainer.GetCookies(RequestUri);
+
         public NameValueCollection Headers => _request.Headers;
 
         public Uri RequestUri => _request.RequestUri;

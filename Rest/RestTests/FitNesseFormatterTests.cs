@@ -9,6 +9,7 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,6 +57,44 @@ namespace RestTests
             };
             var result = FitNesseFormatter.HeaderListWithout(headerList, new List<string> {"header2"});
             Assert.AreEqual("header1: value1\nheader3: value3\n", result);
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void FitNesseFormatterParseCookiesTest()
+        {
+            const string input =
+                "id=abc;expires=Sun, 14 Jun 2020 20:45:30 GMT;path=/;   domain=.example.com; HttpOnly\r\n" +
+                "cookie2=test\r\n" +
+                "_qa=name=john&age=47;domain=voorbeeld.nl;secure;path=/a/b\r\n" +
+                "maxAgeTest1=ok;max-Age=86400\r\n" +
+                "maxAgeTest2=good; max-Age=86401; Expires=bogus value with 12:34:56\r\n" + 
+                "maxAgeTest3=bad; max-Age=86402; MyExpires=bogus value with 12:34:56\r\n" +
+                "maxAgeTest4=ugly;Expires=; max-Age=86403";
+            var actual = FitNesseFormatter.ParseCookies(input,"default.org", new DateTime(2019, 6, 16, 11, 12, 13));
+            Assert.AreEqual(7, actual.Count);
+            var cookieList = FitNesseFormatter.CookieList(actual);
+            Assert.AreEqual(
+                "id=abc; Expires=Sun, 14 Jun 2020 20:45:30 GMT; Path=/; Domain=.example.com; HttpOnly\r\n" +
+                "cookie2=test; Path=/; Domain=default.org\r\n" +
+                "_qa=name=john&age=47; Path=/a/b; Domain=voorbeeld.nl; Secure\r\n" +
+                "maxAgeTest1=ok; Expires=Mon, 17 Jun 2019 11:12:13 GMT; Path=/; Domain=default.org\r\n" +
+                "maxAgeTest2=good; Expires=Mon, 17 Jun 2019 11:12:14 GMT; Path=/; Domain=default.org\r\n" + 
+                "maxAgeTest3=bad; Expires=Mon, 17 Jun 2019 11:12:15 GMT; Path=/; Domain=default.org\r\n" +
+                "maxAgeTest4=ugly; Expires=Mon, 17 Jun 2019 11:12:16 GMT; Path=/; Domain=default.org", cookieList);
+        }
+
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void FitNesseFormatterParseCookiesNoDomainTest()
+        {
+            const string input = "cookie2=test";
+            var _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
+        }
+
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void FitNesseFormatterParseCookiesErrorTest()
+        {
+            const string input = "=";
+            var _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
         }
 
         [TestMethod, TestCategory("Unit")]

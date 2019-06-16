@@ -10,6 +10,7 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
 
@@ -19,7 +20,7 @@ namespace RestTests
     public class JsonObjectTests
     {
         private const string JsonTest =
-            "{ \"Id\": 0, \"SiteId\": 0, \"Name\": null, \"UserId\": 0, \"ReportTypeId\": 0, \"DurationValue\": 0, \"DurationPeriodId\": 25, \"CompletedByFilter\": null, \"CommentFilter\": null, \"AlternateDurationValue\": null, \"AlternateDurationPeriodId\": null, \"ExceptionsOnly\": false, \"ColorCoding\": null, \"ScheduleJobDefinitionId\": null, \"IsShared\": false, \"ScheduleRecipients\": null, \"ShowItemNames\": false, \"IsTrendDataSmoothed\": true, \"TrendSmoothingFactor\": 65536, \"TrendDataDensity\": 0, \"LastModifiedDate\": \"0001-01-01T00:00:00\", \"LastModifiedName\": \"John Doe\", \"Site\": null, \"Owner\": null, \"ReportType\": null, \"DurationPeriod\": null, \"AlternateDurationPeriod\": null, \"ActivityCompletionFlags\": [], \"ReportConfigurationGroupOptions\": [], \"ScheduleJobDefinition\": null }";
+        "{ \"Id\": 0, \"Name\": null, \"IsShared\": false, \"LastModifiedDate\": \"0001-01-01T00:00:00\", \"LastModifiedName\": \"John Doe\", \"Flags\": [] }";
 
         private const string JsonTest2 =
             "{ \"Test\" : [ [ \"hi\", \"there\" ], [ \"hello\", \"too\" ] ], \"DateValue\": \"2015-01-01T00:00:00\" }";
@@ -69,8 +70,8 @@ namespace RestTests
             var jsonObj = new JsonObject(JsonTest);
             Assert.IsFalse(jsonObj.Delete(string.Empty), "Can't delete empty locator");
             Assert.IsFalse(jsonObj.Delete(@"nonexisting"), @"Can't delete nonexisting locator");
-            Assert.IsTrue(jsonObj.Delete("CompletedByFilter"));
-            Assert.IsNull(jsonObj.GetPropertyType("CompletedByFilter"));
+            Assert.IsTrue(jsonObj.Delete("LastModifiedDate"));
+            Assert.IsNull(jsonObj.GetPropertyType("LastModifiedDate"));
         }
 
         [TestMethod, TestCategory("Unit")]
@@ -87,20 +88,20 @@ namespace RestTests
         public void JsonObjectGetPropertiesTest()
         {
             var jsonObj = new JsonObject(JsonTest);
-            var props = jsonObj.GetProperties("");
-            foreach (var entry in props)
-            {
-                Debug.Print(entry);
-            }
-        }
+            var props = jsonObj.GetProperties("").ToList();
+            Assert.AreEqual(7, props.Count);
+            Assert.IsTrue(props.Contains("Id"));
+            Assert.IsTrue(props.Contains("Flags"));
+        } 
 
         [TestMethod, TestCategory("Unit")]
         public void JsonObjectSetPropertyTest()
         {
             var jsonObj = new JsonObject(JsonTest);
             Assert.IsFalse(jsonObj.SetProperty(string.Empty, null), "set empty property returns false");
-            Assert.IsTrue(jsonObj.SetProperty("CompletedByFilter", "text value"), "Set valid property succeeds");
-            Assert.AreEqual("String", jsonObj.GetPropertyType("CompletedByFilter"), "property type is correct");
+            Assert.IsTrue(jsonObj.SetProperty("Name", "John Smith"), "Set property succeeds where current value is null");
+            Assert.AreEqual("John Smith", jsonObj.GetProperty("Name"));
+            Assert.AreEqual("String", jsonObj.GetPropertyType("Name"), "property type is correct");
         }
     }
 }
