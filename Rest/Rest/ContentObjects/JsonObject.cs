@@ -9,32 +9,68 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rest.Utilities;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Rest.ContentObjects
 {
     internal class JsonObject : ContentObject
     {
-        private readonly JObject _obj;
+        private JObject _obj;
 
-        public JsonObject(object sourceObject)
+        private bool SetObject(string content)
         {
-            if (sourceObject is string)
+            // not using JOBject.Parse because that changes date formats
+            using (var reader = new JsonTextReader(new StringReader(content)) {DateParseHandling = DateParseHandling.None})
             {
                 try
                 {
-                    _obj = JObject.Parse(sourceObject.ToString());
+                    _obj = JObject.Load(reader);
+                    return true;
                 }
                 catch (JsonReaderException)
                 {
-                    // not an object, assume it's an array
-                    var array = JArray.Parse(sourceObject.ToString());
-                    _obj = new JObject(new JProperty("_", array));
+                    try
+                    {
+                        // not an object, assume it's an array
+                        var array = JArray.Load(reader);
+                        _obj = new JObject(new JProperty("_", array));
+                        return true;
+                    }
+                    catch (JsonReaderException)
+                    {
+                        // Unable to parse as JSON
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public JsonObject(object sourceObject)
+        {
+            if (sourceObject is string sourceString)
+            {
+                if (!SetObject(sourceString))
+                {
+                    // Try if this is an  XML document, and convert to JSON if so
+                    var doc = new XmlDocument();
+                    try
+                    {
+                        doc.LoadXml(sourceString);
+                    }
+                    catch (XmlException)
+                    {
+                        throw new ArgumentException("Unable to convert content to JSON");
+                    }
+                    SetObject(JsonConvert.SerializeXmlNode(doc));
                 }
             }
             else
@@ -112,9 +148,16 @@ namespace Rest.ContentObjects
         internal override string GetProperty(string locator)
         {
             if (_obj.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
-            if (!(_obj.SelectToken(locator) is JArray tokenArray)) return null;
-            var values = tokenArray.Select(entry => GetProperty(entry.Path)).ToList();
-            return "[" + string.Join(", ", values) + "]";
+            var container = _obj.SelectToken(locator) as JContainer;
+            return container?.ToString(Formatting.None);
+            //if (_obj.SelectToken(locator) is JArray tokenArray)
+            //{
+            //    return tokenArray.ToString(Formatting.None);
+                //var values = tokenArray.Select(entry => GetProperty(entry.Path)).ToList();
+                //return "[" + string.Join(", ", values) + "]";
+                //}
+            if (_obj.SelectToken(locator) is JObject subObject) return subObject.ToString(Formatting.None);
+            return "no JValue, JArray or JObject";
         }
 
         internal override string GetPropertyType(string locator)
@@ -125,7 +168,7 @@ namespace Rest.ContentObjects
             return jVal?.Type.ToString() ?? token.Type.ToString();
         }
 
-        internal override string Serialize() => _obj?.ToString();
+        internal override string Serialize() => _obj?.ToString(Formatting.None);
 
         internal override bool SetProperty(string locator, string value)
         {

@@ -2,12 +2,12 @@
 |Send    |@command     |to     |@resource                           |
 |check   |response code|@responseCode                               |
 
-!|script           |Rest Tester                 |http://localhost:${Port}                                                              |
+!|script           |Rest Tester                 |http://localhost:${Port}                                                                            |
 |Send              |Get                         |to                          |FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code|200       |
-|$response=        |Response Object                                                                                                    |
-|show              |property value              |tables[0].Customer.addr.city|of                                |$response             |
-|set property value|tables[0].Customer.addr.city|of                          |$response                         |to         |Smallville|
-|show              |Serialize                   |$response                                                                             |
+|$response=        |Response Object                                                                                                                  |
+|show              |property value              |tables[0].Customer.addr.city|of                                              |$response             |
+|set property value|tables[0].Customer.addr.city|of                          |$response                                       |to         |Smallville|
+|show              |Serialize                   |$response                                                                                           |
 
 !|script                                                        |
 |$body=|create object from  |{}                                 |
@@ -17,6 +17,12 @@
 |Add   |{"phone":"withheld"}|to|$body|at|tables[0].Customer.addr|
 |show  |Serialize           |$body                              |
 
-!|script                                                                                                                                                  |
+!|script                                             |
+|$xml= |create   |xml  |object from|{"id":1}         |
+|check |serialize|$xml |<id>1</id>                   |
+|$json=|create   |json |object from|<name>John</name>|
+|check |serialize|$json|{"name":"John"}              |
+
+!|script                                                                                 |
 |$testobject=|Create object|json|from type|RestTests.ManyTypes|in assembly|${RestTestDll}|
-|show        |serialize    |$testobject                                                                                                                   |
+|show        |serialize    |$testobject                                                  |

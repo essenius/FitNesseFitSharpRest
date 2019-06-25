@@ -33,7 +33,7 @@ namespace Rest.Utilities
                 var secure = cookie.Secure ? "Secure; " : string.Empty;
                 result.Add($"{cookie.Name}={cookie.Value}; {expires}{path}Domain={cookie.Domain}; {httpOnly}{secure}".Trim().TrimEnd(';'));
             }
-            return string.Join("\r\n", result);
+            return string.Join("\n", result);
         }
 
         public static string HeaderList(NameValueCollection headers) => HeaderListWithout(headers, new List<string>());

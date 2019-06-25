@@ -55,30 +55,14 @@ namespace Rest
             set => _session.Body = value;
         }
 
+        [Documentation("Get all cookie names and values in the request (for debugging)")]
+        public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
+
         [Documentation("The absolute URI used for the request")]
         public string RequestUri => _session?.Request?.RequestUri.AbsoluteUri;
 
         [Documentation("The HTTP response code of the REST request")]
         public int ResponseCode => (int) _session.Response.StatusCode;
-
-        [Documentation("Get all cookies in the response")]
-        public string ResponseCookies() => FitNesseFormatter.CookieList(_session.Response.Cookies);
-
-        [Documentation("Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class can be used")]
-        public object PropertyOfResponseCookie(string propertyName, object cookieName)
-        {
-            Cookie cookie;
-            if (cookieName is int id)
-            {
-                cookie = _session.Response.Cookies[id];
-            }
-            else
-            {
-                cookie = _session.Response.Cookies[cookieName.ToString()];
-            } 
-            var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            return method?.GetValue(cookie);
-        }
 
         [Documentation("Description of the HTTP response code")]
         public string ResponseCodeDescription => _session.Response.StatusDescription;
@@ -93,8 +77,21 @@ namespace Rest
             }
         }
 
-        [Documentation("Get all cookie names and values in the request (for debugging)")]
-        public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
+        [Documentation("Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class can be used")]
+        public object PropertyOfResponseCookie(string propertyName, object cookieName)
+        {
+            Cookie cookie;
+            if (cookieName is int id)
+            {
+                cookie = _session.Response.Cookies[id];
+            }
+            else
+            {
+                cookie = _session.Response.Cookies[cookieName.ToString()];
+            }
+            var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            return method?.GetValue(cookie);
+        }
 
         [Documentation("All request headers separated by newlines")]
         public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.Request.Headers);
@@ -108,6 +105,9 @@ namespace Rest
 
         [Documentation("The response payload (serialized to string). Can only be used after executing a Send To command")]
         public string Response() => _session.ResponseText;
+
+        [Documentation("Get all cookies in the response")]
+        public string ResponseCookies() => FitNesseFormatter.CookieList(_session.Response.Cookies);
 
         [Documentation("All response headers")]
         public string ResponseHeaders() => FitNesseFormatter.HeaderList(_session.Response.Headers);
@@ -133,25 +133,31 @@ namespace Rest
         [Documentation("Set a request header")]
         public void SetRequestHeaderTo(string header, string value) => _session.RequestHeadersToAdd[header] = value;
 
-        [Documentation("Extracts a value from a request header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
+        [Documentation(
+            "Extracts a value from a request header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
         public string ValueFromRequestHeaderMatching(string header, string matcher)
         {
             var headerValue = _session.RequestHeaderValue(header);
             return _contentObjectFactory.Create("text", headerValue).Evaluate(matcher);
         }
 
-        [Documentation("Extracts a value from a response header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
+        [Documentation(
+            "Extracts a value from a response header using a regular expression (regex) matcher. In the expression, use parentheses () to indicate the section to be extracted")]
         public string ValueFromResponseHeaderMatching(string header, string matcher)
         {
             var headerValue = _session.ResponseHeaderValue(header);
             return _contentObjectFactory.Create("text", headerValue).Evaluate(matcher);
         }
 
-        [Documentation( "Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type")]
+        [Documentation("Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type")]
         public string ValueFromResponseMatching(string matcher)
         {
             var responseContentType = _session.Response.GetResponseHeader("Content-Type");
             return _contentObjectFactory.Create(responseContentType, _session.ResponseText).Evaluate(matcher);
         }
+
+        [Documentation("Returns the version info of the fixture. " +
+                       "SHORT: just the version, EXTENDED: name, version, description, copyright. Anything else: name, version")]
+        public static string VersionInfo(string qualifier) => ApplicationInfo.VersionInfo(qualifier);
     }
 }

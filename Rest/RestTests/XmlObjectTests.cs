@@ -134,6 +134,21 @@ namespace RestTests
             Assert.AreEqual("<root><a>test</a><b>test</b></root>", a.Serialize());
         }
 
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void XmlObjectWrongXmlTest()
+        {
+            var _ = new XmlObject("qwe", null, null);
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void XmlObjectCreateFromJsonTest()
+        {
+            var a = new XmlObject("{ \"test\": 1 }", null, null);
+            Assert.AreEqual("<test>1</test>", a.Serialize());
+            var b = new XmlObject("{ \"test\": 1, \"a\": \"b\" }", null, null);
+            Assert.AreEqual("<root><test>1</test><a>b</a></root>", b.Serialize());
+        }
+
         [TestMethod, TestCategory("Unit")]
         public void XmlObjectCreatePlainTest()
         {
@@ -144,8 +159,11 @@ namespace RestTests
         [TestMethod, TestCategory("Unit")]
         public void XmlObjectEvaluateTest()
         {
-            const string source = "<data><item id='myId'>3349</item><item id='otherId'>2268</item><item id='bool'>false</item></data>";
+            const string items = "<item id=\"myId\">3349</item>\r\n<item id=\"otherId\">2268</item>\r\n<item id=\"bool\">false</item>";
+            const string source = "<data>" + items + "</data>";
             var xmlObject = new XmlObject(source, null, null);
+            var evaluation = xmlObject.Evaluate("/data");
+            Assert.AreEqual(items,evaluation);
             Assert.AreEqual("3349", xmlObject.Evaluate("/data/item[@id='myId']"));
             Assert.AreEqual("2268", xmlObject.Evaluate("/data/item[@id='otherId']"));
             Assert.AreEqual("True", xmlObject.Evaluate("5 > 2"));

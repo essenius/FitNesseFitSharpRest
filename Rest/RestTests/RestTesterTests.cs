@@ -58,9 +58,8 @@ namespace RestTests
             Assert.AreEqual("JSON Object", ro.ToString());
 
             Assert.IsTrue(rt.ResponseCookies().StartsWith("__cfduid="));
-            Debug.Print(rt.RequestCookies);
+            Assert.IsTrue(rt.RequestCookies.Contains("Path=/; Domain=.typicode.com; HttpOnly"), "Request Cookie exists");
             Assert.IsTrue(rt.PropertyOfResponseCookie("value", "__cfduid").ToString().Length > 0);
-            Debug.Print(rt.PropertyOfResponseCookie("Value", "__cfduid").ToString());
             Assert.IsTrue(rt.PropertyOfResponseCookie("value", 0).ToString().Length > 0);
         }
 
@@ -113,6 +112,12 @@ namespace RestTests
             Assert.IsTrue(requestHeaders.Contains("Content-Type: application/json; foo=2"));
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void RestTesterVersionInfoTest()
+        {
+            Assert.AreEqual(ApplicationInfo.Version , RestTester.VersionInfo("SHORT"));
         }
     }
 }

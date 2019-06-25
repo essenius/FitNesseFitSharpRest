@@ -9,3 +9,6 @@
 2.2.0 Added EvaluateOn to replace Evaluate and switched parameters; added ClassesIn to replace GetClasses. Deprecated Evaluate and GetClasses.
 2.3.0 Introduced more explicit support for cookies: Cookies and CookieDomain entries in RestConfig, RequestCookies, ResponseCookies and 
       PropertyOfResponseCookie in RestTester. Cleaned up tests for JsonObjects and added test for DocumentationAttribute.
+2.4.0 Fixed serialization issues in JSON objects (dates, arrays, objects). Added capability to create JSON objects from XML strings, and XML objects from JSON strings. Added VersionInfo in RestTester.
+      Introduced mechanism to return JSON or XML objects in GetProperties, which involves a change in the way JSON Arrays (now with quotes) and Objects (no longer empty) are represented in the results.
+	  This may break tests in obscure cases, but makes the behavior more consistent (it is now possible to extract parts of JSON and XML objects). Fixed line break issue in CookieList.

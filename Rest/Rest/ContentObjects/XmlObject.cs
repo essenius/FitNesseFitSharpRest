@@ -16,8 +16,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.Xml.XPath;
+using Newtonsoft.Json;
 
 namespace Rest.ContentObjects
 {
@@ -59,6 +61,27 @@ namespace Rest.ContentObjects
                 if (xe.Message.Contains("multiple root elements"))
                 {
                     _xmlDocument.LoadXml("<root>" + content + "</root>");
+                } else if (xe.Message.Contains("Data at the root level is invalid"))
+                {
+                    // No XML. Try if it is JSON
+                    XDocument node;
+                    try
+                    {
+                        node = JsonConvert.DeserializeXNode(contentString);
+                    }
+                    catch (JsonSerializationException)
+                    {
+                        node = JsonConvert.DeserializeXNode(contentString, "root");
+                    }
+                    catch (JsonReaderException)
+                    {
+                        // no JSON.
+                        throw new ArgumentException("Unable to convert content to XML");
+                    }
+                    using (var xmlReader = node.CreateReader())
+                    {
+                        _xmlDocument.Load(xmlReader);
+                    }
                 }
             }
             _navigator = _xmlDocument.CreateNavigator();
@@ -148,7 +171,7 @@ namespace Rest.ContentObjects
                 case string _:
                     return eval;
             }
-            return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current.TypedValue : null;
+            return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current.InnerXml : null;
         }
 
         [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "missing cases not handled (caught by default clause)")]
