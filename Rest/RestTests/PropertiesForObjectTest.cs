@@ -14,6 +14,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
 using Rest.ContentObjects;
+using ContentHandler = Rest.ContentHandler;
 
 namespace RestTests
 {

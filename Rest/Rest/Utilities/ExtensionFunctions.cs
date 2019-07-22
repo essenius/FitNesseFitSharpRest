@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace Rest.Utilities
 {
@@ -72,6 +73,23 @@ namespace Rest.Utilities
                     yield return line;
                 }
             }
+        }
+
+        // This is a secure implementation of the LoadXml function - see https://github.com/dotnet/roslyn-analyzers/issues/2477
+        public static XmlDocument ToXmlDocument(this string xmlString)
+        {
+            using (var stringReader = new StringReader(xmlString))
+            using (var xmlReader = XmlReader.Create(stringReader, new XmlReaderSettings {XmlResolver = null}))
+            {
+                return xmlReader.ToXmlDocument();
+            }
+        }
+
+        public static XmlDocument ToXmlDocument(this XmlReader xmlReader)
+        {
+            var document = new XmlDocument { XmlResolver = null };
+            document.Load(xmlReader);
+            return document;
         }
     }
 }

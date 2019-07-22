@@ -24,7 +24,7 @@ namespace RestTests
          SuppressMessage("ReSharper", "UnusedVariable", Justification = "Forcing exception")]
         public void TextObjectCreateWithNonStringThrowsException()
         {
-            var obj = new TextObject(25);
+            var _ = new TextObject(25);
         }
 
         [TestMethod, TestCategory("Unit")]

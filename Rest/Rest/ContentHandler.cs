@@ -64,34 +64,34 @@ namespace Rest
         }
 
         [Documentation("Delete a property from an object")]
-        public static bool DeleteFrom(string locator, ContentObject obj) => obj.Delete(locator);
+        public static bool DeleteFrom(string locator, ContentObject contentObject) => contentObject.Delete(locator);
 
         [Obsolete("Use EvaluateOn instead")]
-        public static string Evaluate(ContentObject obj, string matcher) => EvaluateOn(matcher, obj);
+        public static string Evaluate(ContentObject contentObject, string matcher) => EvaluateOn(matcher, contentObject);
 
         [Documentation("Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)")]
-        public static string EvaluateOn(string matcher, ContentObject obj) => obj.Evaluate(matcher);
+        public static string EvaluateOn(string matcher, ContentObject contentObject) => contentObject.Evaluate(matcher);
 
         [Obsolete("Use ClassesIn instead")]
         public static List<string> GetClasses(string assembly) => ClassesIn(assembly);
 
         [Documentation("Locators to all properties of a certain element in the object")]
-        public static IEnumerable<string> PropertiesOf(string locator, ContentObject obj) => obj.GetProperties(locator);
+        public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) => contentObject.GetProperties(locator);
 
         [Documentation("true if one of the specified properties contains a value with the specified glob pattern")]
-        public static bool PropertySetOfContainsValueLike(string locator, ContentObject obj, string value) => 
-            obj.PropertyContainsValueLike(locator, value);
+        public static bool PropertySetOfContainsValueLike(string locator, ContentObject contentObject, string value) => 
+            contentObject.PropertyContainsValueLike(locator, value);
 
         [Documentation("Type of a property")]
-        public static string PropertyTypeOf(string locator, ContentObject obj) => obj.GetPropertyType(locator);
+        public static string PropertyTypeOf(string locator, ContentObject contentObject) => contentObject.GetPropertyType(locator);
 
         [Documentation("Value of a property")]
-        public static string PropertyValueOf(string locator, ContentObject obj) => obj.GetProperty(locator);
+        public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
 
         [Documentation("A text representation of the object")]
-        public static string Serialize(ContentObject obj) => obj.Serialize();
+        public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
         [Documentation("Set the value of an existing property")]
-        public static bool SetPropertyValueOfTo(string locator, ContentObject obj, string value) => obj.SetProperty(locator, value);
+        public static bool SetPropertyValueOfTo(string locator, ContentObject contentObject, string value) => contentObject.SetProperty(locator, value);
     }
 }

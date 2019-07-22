@@ -97,15 +97,15 @@ namespace Rest.Model
                 }
                 else
                 {
-                    switch (entry.ToLowerInvariant())
+                    switch (entry.ToUpperInvariant())
                     {
-                        case "content-type":
+                        case "CONTENT-TYPE":
                             _request.ContentType = requestHeadersToAdd[entry];
                             break;
-                        case "accept":
+                        case "ACCEPT":
                             _request.Accept = requestHeadersToAdd[entry];
                             break;
-                        case "user-agent":
+                        case "USER-AGENT":
                             _request.UserAgent = requestHeadersToAdd[entry];
                             break;
                         default:

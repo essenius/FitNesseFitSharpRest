@@ -19,6 +19,7 @@ namespace RestTests
      SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
     public class ManyTypes
     {
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public bool BoolValue;
         public byte ByteValue;
         public char CharValue;
@@ -38,6 +39,7 @@ namespace RestTests
         public ulong ULongValue;
         //public Uri UriValue;
         public ushort UShortValue;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public ManyTypes()
         {

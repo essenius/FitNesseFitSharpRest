@@ -10,7 +10,6 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
@@ -197,12 +196,11 @@ namespace RestTests
             Assert.AreEqual(1, props.Count);
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException)),
-         SuppressMessage("ReSharper", "UnusedVariable", Justification = "Forcing exception")]
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
         public void XmlObjectGetPropertiesUnknownElementTest()
         {
             var a = new XmlObject("<?pi test?>", "q", null);
-            var props = a.GetProperties("processing-instruction('pi')");
+            var _ = a.GetProperties("processing-instruction('pi')");
         }
 
         [TestMethod, TestCategory("Unit")]

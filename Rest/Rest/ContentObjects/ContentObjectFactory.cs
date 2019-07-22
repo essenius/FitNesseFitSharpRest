@@ -17,7 +17,7 @@ using Rest.Utilities;
 
 namespace Rest.ContentObjects
 {
-    public enum ContentHandlers
+    public enum ContentHandler
     {
         Json,
         Xml,
@@ -30,47 +30,41 @@ namespace Rest.ContentObjects
 
         public ContentObjectFactory(SessionContext context) => _sessionContext = context;
 
-        public static ContentHandlers InferType(string input)
+        public static ContentHandler InferType(string input)
         {
-            if (JsonObject.IsValid(input)) return ContentHandlers.Json;
-            if (XmlObject.IsValid(input)) return ContentHandlers.Xml;
-            if (TextObject.IsValid(input)) return ContentHandlers.Text;
+            if (JsonObject.IsValid(input)) return ContentHandler.Json;
+            if (XmlObject.IsValid(input)) return ContentHandler.Xml;
+            if (TextObject.IsValid(input)) return ContentHandler.Text;
             throw new ArgumentException("Could not parse the input to XML, JSON or Text");
+        }
+
+        private ContentHandler InferContentHandler(string contentType, object content)
+        {
+            if (contentType == null)
+            {
+                if (content is string) return InferType(content.ToString());
+                throw new ArgumentNullException(nameof(contentType), "Content type cannot be null when serializing binary objects");
+            }
+            if (Enum.TryParse(contentType, true, out ContentHandler validContentHandler)) return validContentHandler;
+
+            // we only want the main content type - eliminate additional descriptors as feed etc.
+            contentType = contentType.StripAfter(";");
+            var rawContentHandler = _sessionContext.ContentHandler(contentType);
+            // rawContentHandler should now be a valid content handler, so TryParse should always succeed
+            var succeeded = Enum.TryParse(rawContentHandler, true, out validContentHandler);
+            Debug.Assert(succeeded, "TryParse on ContentHandler succeeded");
+            return validContentHandler;
         }
 
         [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "default handles the rest")]
         public ContentObject Create(string contentType, object source)
         {
-            ContentHandlers validContentHandler;
-            if (contentType == null)
+            var contentHandler = InferContentHandler(contentType, source);
+            switch (contentHandler)
             {
-                if (source is string)
-                {
-                    validContentHandler = InferType(source.ToString());
-                }
-                else
-                {
-                    throw new ArgumentNullException(nameof(contentType), "Content type cannot be null when serializing binary objects");
-                }
-            }
-            else
-            {
-                if (!Enum.TryParse(contentType, true, out validContentHandler))
-                {
-                    // we only want the main content type - eliminate additional descriptors as feed etc.
-                    contentType = contentType.StripAfter(";");
-                    var rawContentHandler = _sessionContext.ContentHandler(contentType);
-                    // rawContentHandler should now be a valid content handler, so TryParse should always succeed
-                    var succeeded = Enum.TryParse(rawContentHandler, true, out validContentHandler);
-                    Debug.Assert(succeeded, "TryParse on ContentHandler failed");
-                }
-            }
-
-            switch (validContentHandler)
-            {
-                case ContentHandlers.Json:
+                case ContentHandler.Json:
                     return new JsonObject(source);
-                case ContentHandlers.Xml:
+                case ContentHandler.Xml:
                     return new XmlObject(source, _sessionContext.DefaultXmlNameSpaceKey, _sessionContext.XmlValueTypeAttribute);
                 default:
                     return new TextObject(source);

@@ -10,7 +10,7 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
@@ -21,6 +21,8 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature")]
+        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Test framework signature")]
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {

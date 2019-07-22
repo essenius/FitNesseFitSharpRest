@@ -36,6 +36,7 @@ namespace Rest
         {
         }
 
+        [SuppressMessage("Design", "CA1044:Properties should not be write only", Justification = "Test case")]
         [Documentation("Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)")]
         public string Property { set; private get; }
 
@@ -50,6 +51,8 @@ namespace Rest
 
         private static string Report(string input) => "report:" + input;
 
+        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Table Table interface")]
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Table Table interface")]
         [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "Table Table interface")]
         [Documentation("Table interface returning properties for the object")]
         public List<object> DoTable(List<List<string>> table)

@@ -24,7 +24,8 @@ namespace Rest.ContentObjects
 {
     internal class JsonObject : ContentObject
     {
-        private JObject _obj;
+        private JObject _jsonObject;
+
 
         private bool SetObject(string content)
         {
@@ -33,7 +34,7 @@ namespace Rest.ContentObjects
             {
                 try
                 {
-                    _obj = JObject.Load(reader);
+                    _jsonObject = JObject.Load(reader);
                     return true;
                 }
                 catch (JsonReaderException)
@@ -42,7 +43,7 @@ namespace Rest.ContentObjects
                     {
                         // not an object, assume it's an array
                         var array = JArray.Load(reader);
-                        _obj = new JObject(new JProperty("_", array));
+                        _jsonObject = new JObject(new JProperty("_", array));
                         return true;
                     }
                     catch (JsonReaderException)
@@ -58,24 +59,23 @@ namespace Rest.ContentObjects
         {
             if (sourceObject is string sourceString)
             {
-                if (!SetObject(sourceString))
+                if (SetObject(sourceString)) return;
+
+                // Fallback: try if this is an  XML document, and convert to JSON if so
+                XmlDocument doc;
+                try
                 {
-                    // Try if this is an  XML document, and convert to JSON if so
-                    var doc = new XmlDocument();
-                    try
-                    {
-                        doc.LoadXml(sourceString);
-                    }
-                    catch (XmlException)
-                    {
-                        throw new ArgumentException("Unable to convert content to JSON");
-                    }
-                    SetObject(JsonConvert.SerializeXmlNode(doc));
+                    doc = sourceString.ToXmlDocument();
                 }
+                catch (XmlException)
+                {
+                    throw new ArgumentException("Unable to convert content to JSON");
+                }
+                SetObject(JsonConvert.SerializeXmlNode(doc));
             }
             else
             {
-                _obj = JObject.FromObject(sourceObject);
+                _jsonObject = JObject.FromObject(sourceObject);
             }
         }
 
@@ -97,22 +97,22 @@ namespace Rest.ContentObjects
             JObject location;
             if (string.IsNullOrEmpty(locator))
             {
-                location = _obj;
+                location = _jsonObject;
             }
             else
             {
-                location = _obj.SelectToken(locator) as JObject;
+                location = _jsonObject.SelectToken(locator) as JObject;
             }
 
             if (location == null) return false;
-            location.Add(((JsonObject) objToAdd)._obj.Children());
+            location.Add(((JsonObject) objToAdd)._jsonObject.Children());
             return true;
         }
 
         internal override bool Delete(string locator)
         {
             if (string.IsNullOrEmpty(locator)) return false;
-            var location = _obj.SelectToken(locator);
+            var location = _jsonObject.SelectToken(locator);
             if (location == null) return false;
             // for arrays this works a bit differently than for properties
             // With arrays we need to remove the value, and with properties we need to remove the property.
@@ -127,12 +127,12 @@ namespace Rest.ContentObjects
             return true;
         }
 
-        internal override string Evaluate(string matcher) => (string) _obj.SelectToken(matcher);
+        internal override string Evaluate(string matcher) => (string) _jsonObject.SelectToken(matcher);
 
         internal override IEnumerable<string> GetProperties(string locator)
         {
             var result = new List<string>();
-            var tokens = _obj.SelectTokens(locator);
+            var tokens = _jsonObject.SelectTokens(locator);
             foreach (var token in tokens)
             {
                 result.Add(token.Path);
@@ -147,32 +147,32 @@ namespace Rest.ContentObjects
 
         internal override string GetProperty(string locator)
         {
-            if (_obj.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
-            var container = _obj.SelectToken(locator) as JContainer;
+            if (_jsonObject.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
+            var container = _jsonObject.SelectToken(locator) as JContainer;
             return container?.ToString(Formatting.None);
-            //if (_obj.SelectToken(locator) is JArray tokenArray)
+            //if (_jsonObject.SelectToken(locator) is JArray tokenArray)
             //{
             //    return tokenArray.ToString(Formatting.None);
                 //var values = tokenArray.Select(entry => GetProperty(entry.Path)).ToList();
                 //return "[" + string.Join(", ", values) + "]";
                 //}
-            if (_obj.SelectToken(locator) is JObject subObject) return subObject.ToString(Formatting.None);
-            return "no JValue, JArray or JObject";
+            //if (_jsonObject.SelectToken(locator) is JObject subObject) return subObject.ToString(Formatting.None);
+            //return "no JValue, JArray or JObject";
         }
 
         internal override string GetPropertyType(string locator)
         {
-            var token = _obj.SelectToken(locator);
+            var token = _jsonObject.SelectToken(locator);
             if (token == null) return null;
             var jVal = token as JValue;
             return jVal?.Type.ToString() ?? token.Type.ToString();
         }
 
-        internal override string Serialize() => _obj?.ToString(Formatting.None);
+        internal override string Serialize() => _jsonObject?.ToString(Formatting.None);
 
         internal override bool SetProperty(string locator, string value)
         {
-            if (!(_obj.SelectToken(locator) is JValue key)) return false;
+            if (!(_jsonObject.SelectToken(locator) is JValue key)) return false;
 
             if (key.Value == null)
             {

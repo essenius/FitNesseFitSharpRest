@@ -58,6 +58,7 @@ namespace Rest
         [Documentation("Get all cookie names and values in the request (for debugging)")]
         public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
 
+        [SuppressMessage("Design", "CA1056:Uri properties should not be strings", Justification = "Interface to FitNesse")]
         [Documentation("The absolute URI used for the request")]
         public string RequestUri => _session?.Request?.RequestUri.AbsoluteUri;
 

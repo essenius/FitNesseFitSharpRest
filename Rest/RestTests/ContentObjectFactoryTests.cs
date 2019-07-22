@@ -23,13 +23,13 @@ namespace RestTests
         [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentNullException))]
         public void ContentObjectFactoryCreateNullTest()
         {
-            var a = new ContentObjectFactory(null).Create(null, 1);
+            var _ = new ContentObjectFactory(null).Create(null, 1);
         }
 
         [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
         public void ContentObjectFactoryCreateWrongTypeTest()
         {
-            var a = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
+            var _ = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
         } 
     }
 }

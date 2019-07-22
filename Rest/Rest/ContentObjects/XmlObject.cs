@@ -20,6 +20,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using Newtonsoft.Json;
+using Rest.Utilities;
 
 namespace Rest.ContentObjects
 {
@@ -33,57 +34,12 @@ namespace Rest.ContentObjects
 
         public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute)
         {
-            string contentString;
-            if (content is string)
-            {
-                contentString = content.ToString();
-            }
-            else
-            {
-                var x = new XmlSerializer(content.GetType());
-                using (var sw = new StringWriter())
-                {
-                    x.Serialize(sw, content);
-                    contentString = sw.ToString();
-                }
-            }
+            var contentString = StringContent(content);
             _defaultNameSpaceKey = defaultNameSpaceKey;
             _valueTypeAttribute = valueTypeAttribute;
 
             // we need to create the navigator from an XML document because we want to be able to write.
-            _xmlDocument = new XmlDocument();
-            try
-            {
-                _xmlDocument.LoadXml(contentString);
-            }
-            catch (XmlException xe)
-            {
-                if (xe.Message.Contains("multiple root elements"))
-                {
-                    _xmlDocument.LoadXml("<root>" + content + "</root>");
-                } else if (xe.Message.Contains("Data at the root level is invalid"))
-                {
-                    // No XML. Try if it is JSON
-                    XDocument node;
-                    try
-                    {
-                        node = JsonConvert.DeserializeXNode(contentString);
-                    }
-                    catch (JsonSerializationException)
-                    {
-                        node = JsonConvert.DeserializeXNode(contentString, "root");
-                    }
-                    catch (JsonReaderException)
-                    {
-                        // no JSON.
-                        throw new ArgumentException("Unable to convert content to XML");
-                    }
-                    using (var xmlReader = node.CreateReader())
-                    {
-                        _xmlDocument.Load(xmlReader);
-                    }
-                }
-            }
+            _xmlDocument = ParseContent(contentString);
             _navigator = _xmlDocument.CreateNavigator();
             _navigator.MoveToFollowing(XPathNodeType.Element);
             var namespaces = _navigator.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
@@ -92,20 +48,69 @@ namespace Rest.ContentObjects
             _namespaceManager = new XmlNamespaceManager(_navigator.NameTable);
             foreach (var entry in namespaces)
             {
-                _namespaceManager.AddNamespace(string.IsNullOrEmpty(entry.Key) ? defaultNameSpaceKey : entry.Key, entry.Value);
+                _namespaceManager.AddNamespace(string.IsNullOrEmpty(entry.Key) ? defaultNameSpaceKey : entry.Key,
+                    entry.Value);
                 if (string.IsNullOrEmpty(entry.Key)) DefaultNameSpace = entry.Value;
             }
         }
 
         private string DefaultNameSpace { get; }
 
+        private static XmlDocument ConvertJsonToXml(string contentString)
+        {
+            XDocument node;
+            try
+            {
+                node = JsonConvert.DeserializeXNode(contentString);
+            }
+            catch (JsonSerializationException)
+            {
+                node = JsonConvert.DeserializeXNode(contentString, "root");
+            }
+            catch (JsonReaderException)
+            {
+                // no JSON.
+                throw new ArgumentException("Unable to convert content to XML");
+            }
+
+            using (var xmlReader = node.CreateReader())
+            {
+                return xmlReader.ToXmlDocument();
+            }
+        }
+
+        private static string StringContent(object content)
+        {
+            if (content is string) return content.ToString();
+            var x = new XmlSerializer(content.GetType());
+            using (var sw = new StringWriter())
+            {
+                x.Serialize(sw, content);
+                return sw.ToString();
+            }
+        }
+
+        private static XmlDocument ParseContent(string contentString)
+        {
+            try
+            {
+                return contentString.ToXmlDocument();
+            }
+            catch (XmlException xe)
+            {
+                if (xe.Message.Contains("multiple root elements"))
+                    return ("<root>" + contentString + "</root>").ToXmlDocument();
+                if (xe.Message.Contains("Data at the root level is invalid"))
+                    // No XML. Try if it is JSON
+                    return ConvertJsonToXml(contentString);
+                throw new ArgumentException("Unable to parse content as XML");
+            }
+        }
+
         private static int FindElementIndex(XPathNavigator element)
         {
             var parentNode = FindParent(element);
-            if (parentNode.NodeType == XPathNodeType.Root)
-            {
-                return 1;
-            }
+            if (parentNode.NodeType == XPathNodeType.Root) return 1;
             var index = 1;
             var children = parentNode.SelectChildren(XPathNodeType.Element);
             while (children.MoveNext())
@@ -114,7 +119,9 @@ namespace Rest.ContentObjects
                 if (element.ComparePosition(children.Current) == XmlNodeOrder.Same) return index;
                 index++;
             }
-            throw new ArgumentException("FindElementIndex: Couldn't find element within parent. This was not expected to happen.");
+
+            throw new ArgumentException(
+                "FindElementIndex: Couldn't find element within parent. This was not expected to happen.");
         }
 
         private static XPathNavigator FindParent(XPathNavigator node)
@@ -127,8 +134,7 @@ namespace Rest.ContentObjects
         {
             try
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(input);
+                var _ = input.ToXmlDocument();
                 return true;
             }
             catch (XmlException)
@@ -157,7 +163,10 @@ namespace Rest.ContentObjects
             return true;
         }
 
-        internal override string Evaluate(string matcher) => EvaluateInternal(matcher)?.ToString();
+        internal override string Evaluate(string matcher)
+        {
+            return EvaluateInternal(matcher)?.ToString();
+        }
 
         private object EvaluateInternal(string matcher)
         {
@@ -171,15 +180,16 @@ namespace Rest.ContentObjects
                 case string _:
                     return eval;
             }
+
             return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current.InnerXml : null;
         }
 
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "missing cases not handled (caught by default clause)")]
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification =
+            "missing cases not handled (caught by default clause)")]
         private string FindXPath(XPathNavigator node)
         {
             var builder = new StringBuilder();
             while (node != null)
-            {
                 switch (node.NodeType)
                 {
                     case XPathNodeType.Attribute:
@@ -200,7 +210,7 @@ namespace Rest.ContentObjects
                     default:
                         throw new ArgumentException("FindXPath: Unsupported node type");
                 }
-            }
+
             throw new ArgumentException("FindXPath: Node was not in a document. This was not expected to happen.");
         }
 
@@ -208,15 +218,9 @@ namespace Rest.ContentObjects
         {
             var result = new List<string>();
             // special case: if nothing was specified, we return everything
-            if (string.IsNullOrEmpty(locator))
-            {
-                locator = "//*";
-            }
+            if (string.IsNullOrEmpty(locator)) locator = "//*";
             var element = SelectElement(locator);
-            while (element.MoveNext())
-            {
-                result.Add(FindXPath(element.Current));
-            }
+            while (element.MoveNext()) result.Add(FindXPath(element.Current));
             return result;
         }
 
@@ -244,9 +248,15 @@ namespace Rest.ContentObjects
             return stringBuilder.ToString();
         }
 
-        private XPathNodeIterator SelectElement(string xPath) => _navigator.Select(xPath, _namespaceManager);
+        private XPathNodeIterator SelectElement(string xPath)
+        {
+            return _navigator.Select(xPath, _namespaceManager);
+        }
 
-        internal override string Serialize() => _xmlDocument.OuterXml;
+        internal override string Serialize()
+        {
+            return _xmlDocument.OuterXml;
+        }
 
         internal override bool SetProperty(string locator, string value)
         {
@@ -256,6 +266,9 @@ namespace Rest.ContentObjects
             return true;
         }
 
-        public override string ToString() => "XML Object";
+        public override string ToString()
+        {
+            return "XML Object";
+        }
     }
 }

@@ -46,7 +46,7 @@ namespace Rest.Model
                 }
                 // Json doesn't like newlines, so remove those. Leave them in for XML and Text
                 var contentType = ContentObjectFactory.InferType(value);
-                _body = contentType == ContentHandlers.Json ? FitNesseFormatter.ReplaceNewLines(value, string.Empty) : value;
+                _body = contentType == ContentObjects.ContentHandler.Json ? FitNesseFormatter.ReplaceNewLines(value, string.Empty) : value;
             }
         }
 
