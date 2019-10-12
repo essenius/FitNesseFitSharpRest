@@ -23,7 +23,7 @@ default:JSON-!|
 
 Post some data to a test service, and capture its response into a JSon object. Also show some response headers and the request body (handy for debugging)
 
-!|script         |RestTester                  |http://jsonplaceholder.typicode.com/|
+!|script         |RestTester                  |https://jsonplaceholder.typicode.com/|
 |Set Request Body|{"title": "Test Data", "body": "Test Body", "userId":96 }        |
 |Send            |POST                        |to              |posts              |
 |check           |response code               |201                                 |

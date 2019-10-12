@@ -150,14 +150,6 @@ namespace Rest.ContentObjects
             if (_jsonObject.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
             var container = _jsonObject.SelectToken(locator) as JContainer;
             return container?.ToString(Formatting.None);
-            //if (_jsonObject.SelectToken(locator) is JArray tokenArray)
-            //{
-            //    return tokenArray.ToString(Formatting.None);
-                //var values = tokenArray.Select(entry => GetProperty(entry.Path)).ToList();
-                //return "[" + string.Join(", ", values) + "]";
-                //}
-            //if (_jsonObject.SelectToken(locator) is JObject subObject) return subObject.ToString(Formatting.None);
-            //return "no JValue, JArray or JObject";
         }
 
         internal override string GetPropertyType(string locator)

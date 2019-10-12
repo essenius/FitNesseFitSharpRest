@@ -78,8 +78,7 @@ namespace Rest.Utilities
                     };
                     if (string.IsNullOrEmpty(cookie.Domain))
                     {
-                        throw new ArgumentException(
-                            $"Cookie domain can't be null. Set CookieDomain or specify domain in the cookie specification for '{line}'");
+                        throw new ArgumentException($"Set CookieDomain or specify domain in the cookie specification for '{line}'");
                     }
                     collection.Add(cookie);
                 }

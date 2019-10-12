@@ -77,6 +77,15 @@ namespace RestTests
             Assert.AreEqual("value2", collection["cookie2"]?.Value);
         }
 
+        [TestMethod, TestCategory("Unit")]
+        public void SessionContextSecurityProtocolTest()
+        {
+            var context = new SessionContext();
+            Assert.IsTrue(context.SecurityProtocol.Contains("Tls12"));
+            context.SecurityProtocol = "SystemDefault";
+            Assert.IsFalse(context.SecurityProtocol.Contains("Tls12"));
+        }
+
         [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
         public void SessionContextCookieWithoutDomainTest()
         {

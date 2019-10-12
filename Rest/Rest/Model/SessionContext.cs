@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
 using Rest.Utilities;
@@ -39,6 +40,10 @@ namespace Rest.Model
             ContentTypeMap.Set("multipart/mixed", "text");
             ContentTypeMap.Set("default", "json");
             Headers = new NameValueCollection();
+            // SystemDefault doesn't enable TLS 1.2, and we want at least that by default.
+            // See e.g. https://stackoverflow.com/questions/28286086/default-securityprotocol-in-net-4-5
+            // By using |=, we ensure this is future proof - it will use the highest.
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
 
         private NameValueCollection ContentTypeMap { get; }
@@ -61,6 +66,18 @@ namespace Rest.Model
             return string.IsNullOrEmpty(contentHandler) ? ContentTypeMap.Get("default") : contentHandler;
         }
 
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Consistency with other properties, and hiding of side effect")]
+        public string SecurityProtocol
+        {
+            get => $"{ServicePointManager.SecurityProtocol}";
+            set
+            {
+                const bool ignoreCase = true;
+                var protocol = (SecurityProtocolType) Enum.Parse(typeof(SecurityProtocolType), value, ignoreCase);
+                ServicePointManager.SecurityProtocol = protocol;
+            }
+        }
+
         public bool SetConfig(string key, string value)
         {
             var actionDictionary = new Dictionary<string, Func<string, bool>>
@@ -80,7 +97,8 @@ namespace Rest.Model
                     var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
                     CookieContainer.Add(cookies);
                     return true;
-                }}
+                }},
+                {@"SECURITYPROTOCOL", v => { SecurityProtocol = v; return true; } }
             };
 
             var upperKey = key.ToUpperInvariant();

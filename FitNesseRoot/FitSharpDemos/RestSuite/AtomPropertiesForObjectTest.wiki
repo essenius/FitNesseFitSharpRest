@@ -11,7 +11,7 @@
 |Encoding              |iso-8859-1               |
 |ContentTypeMapping    |application/atom+xml: Xml|
 
-!|script   |RestTester|http://services.odata.org                         |
+!|script   |RestTester|https://services.odata.org                        |
 |Send      |Get       |to  |OData/OData.svc/Categories |expect code |200 |
 |$response=|Response Object                                              |
 |$prefix=  |echo      |/a:feed[1]/a:entry[1]/a:content[1]/m:properties[1]|

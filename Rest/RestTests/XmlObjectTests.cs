@@ -71,7 +71,7 @@ namespace RestTests
                                         "<title type=\"text\">Categories</title>" +
                                         "<updated>2015-02-19T07:36:45Z</updated>" +
                                         "<link rel=\"self\" title=\"Categories\" href=\"Categories\" />" +
-                                        "<entry>+ +" +
+                                        "<entry>" +
                                         "<id>https://localhost/Model.svc/Categories(41)</id>" +
                                         "<category term=\"Context.Category\" scheme=\"http://schemas.microsoft.com/ado/2007/08/dataservices/scheme\" />" +
                                         "<link rel=\"edit\" title=\"Category\" href=\"Categories(41)\" />" +

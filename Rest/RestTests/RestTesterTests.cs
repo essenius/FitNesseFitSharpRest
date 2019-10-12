@@ -34,9 +34,10 @@ namespace RestTests
         [TestMethod, TestCategory("Integration")]
         public void RestTesterTypicodeTest1()
         {
+            // we need at least one test using https
             var rt = new RestTester
             {
-                EndPoint = "http://jsonplaceholder.typicode.com/",
+                EndPoint = "https://jsonplaceholder.typicode.com/",
                 RequestBody = "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }"
             };
             rt.SetRequestHeaderTo("header1", "dummy");

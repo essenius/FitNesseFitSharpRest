@@ -12,7 +12,7 @@
 |ContentTypeMapping    |application/atom+xml: Xml|
 
 
-!|script      |RestTester                  |http://services.odata.org               |
+!|script      |RestTester                  |https://services.odata.org              |
 |$serviceBase=|echo                        |/OData/OData.svc                        |
 |Send         |Get                         |to|$serviceBase/Products|expect code|200|
 |$title=      |value from response matching|//a:entry[1]/a:title                    |

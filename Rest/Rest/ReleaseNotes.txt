@@ -13,3 +13,5 @@
       Introduced mechanism to return JSON or XML objects in GetProperties, which involves a change in the way JSON Arrays (now with quotes) and Objects (no longer empty) are represented in the results.
 	  This may break tests in obscure cases, but makes the behavior more consistent (it is now possible to extract parts of JSON and XML objects). Fixed line break issue in CookieList.
 2.4.1 Migrated to Roslyn based code analysis, fixed (or suppressed, with justification) issues and reduced complexity of some methods to get all below 8.
+2.4.2 Added SecurityProtocol in RestConfig to allow overruling of security protocol to be used, and set default to Tls12.
+      Used https instead of http in a number of tests to identify future issues with that earlier.
