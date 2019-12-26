@@ -36,6 +36,7 @@ namespace RestTests
         public void SessionContextProxyTest()
         {
             var context = new SessionContext();
+            // We could do this via SetDefaults, but that is a bit elaborate. So cheating with a PrivateObject
             var target = new PrivateObject(context);
             // default should be system; check how we get to google.
             var iProxy = target.GetFieldOrProperty("Proxy") as IWebProxy;
@@ -65,13 +66,16 @@ namespace RestTests
         public void SessionContextCookieTest()
         {
             var context = new SessionContext();
-            var target = new PrivateObject(context);
+            var uri = new Uri("http://localhost");
             context.SetConfig("CookieDomain", "localhost");
             context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
-            var cookieContainer = target.GetFieldOrProperty("CookieContainer") as CookieContainer;
+            var request = WebRequest.Create(uri) as HttpWebRequest;
+            Assert.IsNotNull(request);
+            context.SetDefaults(request);
+            var cookieContainer = request.CookieContainer;
             Assert.IsNotNull(cookieContainer);
             Assert.AreEqual(2, cookieContainer.Count);
-            var collection = cookieContainer.GetCookies(new Uri("http://localhost"));
+            var collection = cookieContainer.GetCookies(uri);
             Assert.AreEqual(2, collection.Count);
             Assert.AreEqual("value1", collection["cookie1"]?.Value);
             Assert.AreEqual("value2", collection["cookie2"]?.Value);
