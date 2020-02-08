@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -9,6 +9,8 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
@@ -113,6 +115,33 @@ namespace RestTests
             var classCollection = ContentHandler.ClassesIn("RestTests.dll");
             Assert.IsTrue(classCollection.Contains("RestTests.FewTypes"));
             Assert.IsTrue(classCollection.Contains("RestTests.ManyTypes"));
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void ContentHandlerLoadObjectFromTest()
+        {
+            const string jsonTest = "{ \"Id\": 0, \"Name\": \"Joe\", \"IsShared\": true }";
+            var file = Path.GetTempFileName();
+            File.WriteAllText(file, jsonTest);
+            var h = new ContentHandler();
+            var baseObj = h.LoadObjectFrom(file);
+            Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Id matches");
+            Assert.AreEqual("Joe", ContentHandler.PropertyValueOf("Name", baseObj), "Name matches");
+            Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "IsShared matches");
+        }
+
+        [TestMethod, TestCategory("Unit"),
+        ExpectedException(typeof(ArgumentException))]
+        public void ContentHandlerLoadBinaryObjectFromTest()
+        {
+            var file = Path.GetTempFileName();
+
+            using (var writer = new BinaryWriter(File.Open(file, FileMode.Create)))
+            {
+                writer.Write(0);
+            }
+            var h = new ContentHandler();
+            _ = h.LoadObjectFrom(file);
         }
 
         [TestMethod, TestCategory("Unit")]

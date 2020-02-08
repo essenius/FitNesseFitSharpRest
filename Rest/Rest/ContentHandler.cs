@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -74,6 +74,13 @@ namespace Rest
 
         [Obsolete("Use ClassesIn instead")]
         public static List<string> GetClasses(string assembly) => ClassesIn(assembly);
+
+        [Documentation("Load an object from a file. It will establish the format (JSON, XML, TEXT) by parsing it")]
+        public ContentObject LoadObjectFrom(string sourceFile)
+        {
+            var sourceText = File.ReadAllText(sourceFile);
+            return CreateObjectFrom(null, sourceText);
+        }
 
         [Documentation("Locators to all properties of a certain element in the object")]
         public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) => contentObject.GetProperties(locator);
