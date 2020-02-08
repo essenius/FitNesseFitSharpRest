@@ -118,8 +118,9 @@ namespace RestTests
         }
 
         [TestMethod, TestCategory("Unit")]
-        public void ContentHandlerLoadObjectFromTest()
+        public void ContentHandlerLoadObjectFromSaveObjectToTest()
         {
+
             const string jsonTest = "{ \"Id\": 0, \"Name\": \"Joe\", \"IsShared\": true }";
             var file = Path.GetTempFileName();
             File.WriteAllText(file, jsonTest);
@@ -128,6 +129,15 @@ namespace RestTests
             Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Id matches");
             Assert.AreEqual("Joe", ContentHandler.PropertyValueOf("Name", baseObj), "Name matches");
             Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "IsShared matches");
+            Assert.IsTrue(ContentHandler.SetPropertyValueOfTo("Name", baseObj,"Jane"), "Change name");
+            var fileOut = Path.GetTempFileName();
+            ContentHandler.SaveObjectTo(baseObj, fileOut);
+            var h2 = new ContentHandler();
+            var changedObj = h2.LoadObjectFrom(fileOut);
+            Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Unchaned Id matches");
+            Assert.AreEqual("Jane", ContentHandler.PropertyValueOf("Name", baseObj), "Changed name matches");
+            Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "Unchaned IsShared matches");
+
         }
 
         [TestMethod, TestCategory("Unit"),

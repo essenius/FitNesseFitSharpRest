@@ -95,6 +95,14 @@ namespace Rest
         [Documentation("Value of a property")]
         public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
 
+        [Documentation("Save an object to a file.")]
+        public static bool SaveObjectTo(ContentObject contentObject, String targetFile)
+        {
+            var saveText = Serialize(contentObject);
+            File.WriteAllText(targetFile, saveText);
+            return true;
+        }
+
         [Documentation("A text representation of the object")]
         public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
