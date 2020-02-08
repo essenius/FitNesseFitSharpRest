@@ -95,12 +95,16 @@ namespace Rest
         [Documentation("Value of a property")]
         public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
 
-        [Documentation("Save an object to a file.")]
-        public static bool SaveObjectTo(ContentObject contentObject, String targetFile)
+        [Documentation("Save an object to a file. Returns the full path to the file. If file name is empty, it uses a temporary file")]
+        public static string SaveObjectTo(ContentObject contentObject, string targetFile)
         {
             var saveText = Serialize(contentObject);
+            if (string.IsNullOrEmpty(targetFile))
+            {
+                targetFile = Path.GetTempFileName();
+            }
             File.WriteAllText(targetFile, saveText);
-            return true;
+            return Path.GetFullPath(targetFile);
         }
 
         [Documentation("A text representation of the object")]

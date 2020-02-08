@@ -1,0 +1,11 @@
+!|import|
+|rest   |
+
+!|script  |Content Handler                                                              |
+|$object1=|Create Object From|{"Id":0,"Name":"Joe","IsShared":true}                     |
+|$file=   |Save Object       |$object1|To|                                              |
+|$object2=|Load Object From  |$file                                                     |
+|check    |property value    |        |of|$object2|{"Id":0,"Name":"Joe","IsShared":true}|
+|check    |Property Value    |Id      |of|$object2|0                                    |
+|check    |Property Value    |Name    |of|$object2|Joe                                  |
+|check    |Property Value    |IsShared|of|$object2|True                                 |
