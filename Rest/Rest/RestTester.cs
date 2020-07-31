@@ -20,6 +20,7 @@ using Rest.Utilities;
 
 namespace Rest
 {
+    /// <summary>Script fixture for REST testing</summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp"),
      SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global", Justification = "Enumerables not understood by FitSharp")]
     public class RestTester
@@ -28,21 +29,21 @@ namespace Rest
         private readonly RestSession _session;
 
 
-        /// <summary>Script fixture for REST testing, instantiated with endpoint URL</summary>
+        /// <summary>Instantiate REST tester with endpoint URL</summary>
         /// <param name="endPoint">URL of the end point (base URL) of the REST server</param>
         /// <remarks>
         /// Taking a dependency on the injector since this is an entry point for FitNesse, 
         /// so we don't want the dependencies to be injected via the constructor here
         /// </remarks>
-        [Documentation("Script fixture for REST testing, instantiated with endpoint URL")]
+        [Documentation("Instantiate REST tester with endpoint URL")]
         public RestTester(string endPoint)
         {
             _session = Injector.InjectRestSession(endPoint);
             _contentObjectFactory = Injector.InjectContentObjectFactory();
         }
 
-        /// <summary>Script fixture for REST testing, not instantiated with endpoint URL</summary>
-        [Documentation("Script fixture for REST testing, not instantiated with endpoint URL")]
+        /// <summary>Instantiate REST tester without endpoint URL</summary>
+        [Documentation("Instantiate REST tester without endpoint URL")]
         public RestTester() : this(null)
         {
         }

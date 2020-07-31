@@ -31,6 +31,7 @@ namespace Rest
         [Documentation("Handle content in JSON, XML and TEXT format")]
         public ContentHandler() => _contentObjectFactory = Injector.InjectContentObjectFactory();
 
+        /// <summary>Add the content of an object into another object</summary>
         /// <param name="objToAdd">object to be added</param>
         /// <param name="baseObj">object to be added to</param>
         /// <param name="locator">specification of the location in baseObj where objToAdd has to be added</param>
@@ -48,12 +49,15 @@ namespace Rest
             return asm.GetTypes().Select(type => type.Namespace + "." + type.Name).ToList();
         }
 
+        /// <summary>Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats,
+        /// and using the format for which parsing succeeds</summary>
         /// <param name="source">object to be parsed</param>
         /// <returns>Content object representing the parsed source</returns>
         [Documentation("Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats, " +
                        "and using the format for which parsing succeeds")]
         public ContentObject CreateObjectFrom(string source) => CreateObjectFrom(null, source);
 
+        /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>
         /// <param name="contentType">TEXT, JSON, XML, null or empty string.</param>
         /// <param name="source">the TEXT, JSON or XML representation of the object</param>
         /// <guarantees>If contentType is empty, it tries to establish the right content type</guarantees>
@@ -61,6 +65,7 @@ namespace Rest
         [Documentation("Create a new object of the specified type (TEXT, JSON, XML) from a string")]
         private ContentObject CreateObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
 
+        /// <summary>Create an object modeled after a type in a .Net assembly</summary>
         /// <param name="contentType"></param>
         /// <param name="objectType">the name of the type to be created</param>
         /// <param name="assembly">the path to the assembly</param>
@@ -69,6 +74,7 @@ namespace Rest
         public ContentObject CreateObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
             CreateObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
 
+        /// <summary>Create an object modeled after a type in a .Net assembly with constructor parameters</summary>
         /// <param name="contentType">TEXT, JSON, XML</param>
         /// <param name="objectType">>the name of the type to be created</param>
         /// <param name="assembly">the path to the assembly</param>
@@ -86,26 +92,29 @@ namespace Rest
             return _contentObjectFactory.Create(contentType, instance);
         }
 
+        /// <summary>Delete a property from an object</summary>
         /// <param name="locator">specification of the property that needs to be deleted</param>
         /// <param name="contentObject">the object that the property needs to be deleted from</param>
         /// <returns>whether or not the deletion succeeded</returns>
         [Documentation("Delete a property from an object")]
         public static bool DeleteFrom(string locator, ContentObject contentObject) => contentObject.Delete(locator);
 
-        /// <summary>Don't use. Will be removed in a future release</summary>
+        /// <remarks>Don't use. Will be removed in a future release</remarks>
         [Obsolete("Use EvaluateOn instead")]
         public static string Evaluate(ContentObject contentObject, string matcher) => EvaluateOn(matcher, contentObject);
 
+        /// <summary>Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)</summary>
         /// <param name="matcher">the query to be evaluated</param>
         /// <param name="contentObject">the object to evaluate the query on</param>
         /// <returns>the result of the query</returns>
         [Documentation("Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)")]
         public static string EvaluateOn(string matcher, ContentObject contentObject) => contentObject.Evaluate(matcher);
 
-        /// <summary>Don't use. Will be removed in a future release</summary>
+        /// <remarks>Don't use. Will be removed in a future release</remarks>
         [Obsolete("Use ClassesIn instead")]
         public static List<string> GetClasses(string assembly) => ClassesIn(assembly);
 
+        /// <summary>Load an object from a file. It will establish the format (JSON, XML, TEXT) by parsing it</summary>
         /// <param name="sourceFile">the path of the file to be loaded</param>
         /// <requires>File must exist and be readable</requires>
         /// <returns>The loaded object</returns>
@@ -118,14 +127,14 @@ namespace Rest
 
         /// <param name="locator">the specification of the element</param>
         /// <param name="contentObject">the object the element is in</param>
-        /// <returns>the list of properties of the element</returns>
+        /// <returns>Locators to all properties of a certain element in the object</returns>
         [Documentation("Locators to all properties of a certain element in the object")]
         public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) => contentObject.GetProperties(locator);
 
         /// <param name="locator">the specification of the property to look at</param>
         /// <param name="contentObject">the object to look in</param>
         /// <param name="value">the glob pattern</param>
-        /// <returns>whether the glob pattern matches</returns>
+        /// <returns>whether one of the specified properties contains a value with the specified glob pattern</returns>
         [Documentation("true if one of the specified properties contains a value with the specified glob pattern")]
         public static bool PropertySetOfContainsValueLike(string locator, ContentObject contentObject, string value) => 
             contentObject.PropertyContainsValueLike(locator, value);
@@ -142,6 +151,7 @@ namespace Rest
         [Documentation("Value of a property")]
         public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
 
+        /// <summary>Save an object to a file. If file name is empty, it uses a temporary file</summary>
         /// <param name="contentObject">the object to be saved</param>
         /// <param name="targetFile">the path of the file (can be relative)</param>
         /// <returns>the absolute path to the saved file</returns>
@@ -158,10 +168,11 @@ namespace Rest
         }
 
         /// <param name="contentObject">the object to be represented in text</param>
-        /// <returns>a seialized version of the object that can be saved or transmitted</returns>
+        /// <returns>a serialized version of the object that can be saved or transmitted</returns>
         [Documentation("A text representation of the object")]
         public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
+        /// <summary>Set the value of an existing property</summary>
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to set a property value of</param>
         /// <param name="value">the value to be set</param>

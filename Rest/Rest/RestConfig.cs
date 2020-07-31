@@ -28,9 +28,8 @@ namespace Rest
         [Documentation("Configuration for the Rest Tester")]
         public RestConfig() => _context = Injector.InjectSessionContext();
 
-        /// <summary>
-        /// Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey,
-        ///    XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout
+        /// <summary>Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey,
+        /// XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout
         /// </summary>
         /// <param name="table">rows of at least 2 cells, as FitNesse provides when executing a Table Table</param>
         /// <returns>list of the same size with empty values, and 'pass' in the second column where the related configuration was set</returns>

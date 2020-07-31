@@ -23,6 +23,7 @@ namespace Rest
         private readonly ContentObject _contentObject;
         private readonly string _locator;
 
+        /// <summary>Reports on properties in query or table table. This constructor is not for decision tables - locator will be ignored if you do</summary>
         /// <param name="contentObject">the object to get the properties for</param>
         /// <param name="locator">the specification of the property filter</param>
         [Documentation("Reports on properties in query or table table. This constructor is not for decision tables - locator will be ignored if you do")]
@@ -32,6 +33,7 @@ namespace Rest
             _locator = locator;
         }
 
+        /// <summary>Reports on properties in decision, query or table table.</summary>
         /// <param name="contentObject">the object to get the properties for</param>
         [Documentation("Reports on properties in decision, query or table table.")]
         public PropertiesForObject(ContentObject contentObject) : this(contentObject, string.Empty)
@@ -43,9 +45,8 @@ namespace Rest
         [Documentation("Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)")]
         public string Property { set; private get; }
 
-        /// <summary>
-        /// Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value
-        /// </summary>
+        /// <summary>Decision column: The property type. Exact values depend on object type (JSON, XML, Text). 
+        /// Text objects infer the type from the value </summary>
         [Documentation("Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value")]
         public string Type { private set; get; }
 
