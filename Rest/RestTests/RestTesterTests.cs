@@ -21,14 +21,30 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
-        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature")]
-        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Test framework signature")]
-        [ClassInitialize]
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature"),
+         SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Test framework signature"), ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
             // SessionContext is a singleton, so could have been set by other tests. Make sure it is pristine.
             Injector.CleanSessionContext();
             var _ = new RestConfig();
+        }
+
+        [TestMethod, TestCategory("Integration"), ExpectedException(typeof(WebException))]
+        public void RestTesterInvalidUrlTest()
+        {
+            var rt = new RestTester
+            {
+                EndPoint = "http://localhost:23456",
+                RequestBody = "{ \"userId\":96 }"
+            };
+            rt.SendTo("POST", "posts");
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void RestTesterStripNewLinesFromTest()
+        {
+            Assert.AreEqual("Hi There! How are you?", RestTester.StripNewLinesFrom("\n\rHi \r\nThere!\n How are you?\r"));
         }
 
         [TestMethod, TestCategory("Integration")]
@@ -40,6 +56,7 @@ namespace RestTests
                 EndPoint = "https://jsonplaceholder.typicode.com/",
                 RequestBody = "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }"
             };
+            rt.SetRequestHeaderTo("Content-Type", "application/json; charset=UTF-8");
             rt.SetRequestHeaderTo("header1", "dummy");
             rt.SetRequestHeaderTo("header1", "value for header 1");
             Assert.IsTrue(string.IsNullOrEmpty(rt.RequestCookies), "Request Cookies empty");
@@ -71,6 +88,7 @@ namespace RestTests
         {
             var rt = new RestTester("http://jsonplaceholder.typicode.com/");
             Assert.AreEqual("http://jsonplaceholder.typicode.com/", rt.EndPoint);
+            rt.SetRequestHeaderTo("Content-Type", "application/json; charset=UTF-8");
             rt.SendToWithBody("POST", "posts", "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }");
             Assert.AreEqual("http://jsonplaceholder.typicode.com/posts", rt.RequestUri, "Request Uri OK");
             Assert.AreEqual(rt.RequestBody, "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }", "Request Body OK");
@@ -86,17 +104,6 @@ namespace RestTests
 
             var response = rt.Response();
             Assert.IsTrue(response.Contains("\"title\": \"Test Data\""), "Response contains title");
-        }
-
-        [TestMethod, TestCategory("Integration"), ExpectedException(typeof(WebException))]
-        public void RestTesterInvalidUrlTest()
-        {
-            var rt = new RestTester
-            {
-                EndPoint = "http://localhost:23456",
-                RequestBody = "{ \"userId\":96 }"
-            };
-            rt.SendTo("POST", "posts");
         }
 
         [TestMethod, TestCategory("Integration")]
@@ -120,7 +127,7 @@ namespace RestTests
         [TestMethod, TestCategory("Unit")]
         public void RestTesterVersionInfoTest()
         {
-            Assert.AreEqual(ApplicationInfo.Version , RestTester.VersionInfo("SHORT"));
+            Assert.AreEqual(ApplicationInfo.Version, RestTester.VersionInfo("SHORT"));
         }
     }
 }

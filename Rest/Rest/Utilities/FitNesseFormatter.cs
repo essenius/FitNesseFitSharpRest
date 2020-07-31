@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -21,6 +21,8 @@ namespace Rest.Utilities
 {
     internal static class FitNesseFormatter
     {
+        /// <param name="cookies">a cookie collection (can be null)</param>
+        /// <returns>string representations of the cookies, each cookie on a separate line. Returns null if cookies is null</returns>
         public static string CookieList(CookieCollection cookies)
         {
             if (cookies == null) return null;
@@ -36,11 +38,19 @@ namespace Rest.Utilities
             return string.Join("\n", result);
         }
 
+        /// <param name="headers">a name value collection representing HTTP headers</param>
+        /// <returns>string representing the headers, each on a separate line, name and value separated by :</returns>
         public static string HeaderList(NameValueCollection headers) => HeaderListWithout(headers, new List<string>());
 
+        /// <param name="headers">a name value collection representing HTTP headers</param>
+        /// <param name="filterHeaders">headers that should in the result</param>
+        /// <returns>string representing the filterHeaders, each on a separate line, name and value separated by :</returns>
         public static string HeaderList(NameValueCollection headers, IEnumerable<string> filterHeaders) =>
             filterHeaders.Aggregate(string.Empty, (current, filter) => current + MultiLineHeader(filter, headers[filter]));
 
+        /// <param name="headers">a name value collection representing HTTP headers</param>
+        /// <param name="headersToOmit">headers that should be filtered out in the result</param>
+        /// <returns>string representing the headers without the headersToOmit, each on a separate line, name and value separated by :</returns>
         public static string HeaderListWithout(NameValueCollection headers, List<string> headersToOmit)
         {
             var returnValue = string.Empty;
@@ -54,8 +64,15 @@ namespace Rest.Utilities
             return returnValue;
         }
 
+        /// <param name="header">header name</param>
+        /// <param name="value">value of the header</param>
+        /// <returns>a string containing header name and value, separated by :, and ending with new line</returns>
         private static string MultiLineHeader(string header, string value) => $"{header}: {value}\n";
 
+        /// <param name="input">input to be parsed</param>
+        /// <param name="defaultDomain">default domain for the cookie (used if not specified)</param>
+        /// <param name="utcNow">current date and time in UTC</param>
+        /// <returns>a CookieCollection representing the cookie specification in the input</returns>
         public static CookieCollection ParseCookies(string input, string defaultDomain, DateTime utcNow)
         {
             var collection = new CookieCollection();
@@ -90,6 +107,8 @@ namespace Rest.Utilities
             return collection;
         }
 
+        /// <param name="input">string to be parsed, with key value pairs on separate lines</param>
+        /// <returns>parsed NameValueCollection</returns>
         public static NameValueCollection ParseNameValueCollection(string input)
         {
             var collection = new NameValueCollection();
@@ -103,12 +122,18 @@ namespace Rest.Utilities
             return collection;
         }
 
-        public static string ReplaceNewLines(string foreignInput, string replacement) => Regex.Replace(foreignInput, @"\r\n?|\n", replacement);
+        /// <param name="input">input string</param>
+        /// <param name="replacement">value to replace newlines with</param>
+        /// <returns>the input string with newlines replaced by the replacement value</returns>
+        public static string ReplaceNewLines(string input, string replacement) => Regex.Replace(input, @"\r\n?|\n", replacement);
 
+        /// <param name="cookieText">the original cookie text</param>
+        /// <param name="utcNow">current date and time in UTC</param>
+        /// <remarks>the HttpCookie parser does not recognize the Max-Age attribute, so if it's there, we morph it into an Expires attribute
+            // If Expires was there already, it is overwritten as per the spec (https://tools.ietf.org/html/rfc6265#section-4.1)</remarks>
+        /// <returns>new cookie text, with an Expires property instead of Max-Age if the Max-Age existed in the original</returns>
         private static string UpdateExpiresFromMaxAge(string cookieText, DateTime utcNow)
         {
-            // the HttpCookie parser does not recognize the Max-Age attribute, so if it's there, we morph it into an Expires attribute
-            // If Expires was there already, it is overwritten as per the spec (https://tools.ietf.org/html/rfc6265#section-4.1)
 
             // Try finding the max-age attribute with its integer value in Group[1].
             var matchMaxAge = new Regex("\\bmax-age=(\\d*)\\b", RegexOptions.IgnoreCase).Match(cookieText);

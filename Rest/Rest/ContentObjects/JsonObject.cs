@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -79,6 +79,8 @@ namespace Rest.ContentObjects
             }
         }
 
+        /// <param name="input">an input string that might be in JSON format</param>
+        /// <returns>whether the input is valid JSON</returns>
         public static bool IsValid(string input)
         {
             try
@@ -92,6 +94,10 @@ namespace Rest.ContentObjects
             }
         }
 
+        /// <summary>Add an object at a certain location in the JSON object</summary>
+        /// <param name="objToAdd">the object to be added</param>
+        /// <param name="locator">JPath query indicating the location in the JSON object</param>
+        /// <returns>whether the operation succeeded</returns>
         internal override bool AddAt(ContentObject objToAdd, string locator)
         {
             JObject location;
@@ -109,6 +115,9 @@ namespace Rest.ContentObjects
             return true;
         }
 
+        /// <summary>Delete a certain part of the object</summary>
+        /// <param name="locator">JPath query indicating the location in the JSON object</param>
+        /// <returns>whether the part could be removed</returns>
         internal override bool Delete(string locator)
         {
             if (string.IsNullOrEmpty(locator)) return false;
@@ -127,8 +136,14 @@ namespace Rest.ContentObjects
             return true;
         }
 
+        /// <summary>Evaluate the object using a matcher</summary>
+        /// <param name="matcher">JPath query to be matched</param>
+        /// <returns>the value that satisfy the matcher, or null if no match</returns>
         internal override string Evaluate(string matcher) => (string) _jsonObject.SelectToken(matcher);
 
+        /// <summary>Get the property values satisfying the locator (can be more than one)</summary>
+        /// <param name="locator">JPath query indicating the properties in the JSON object</param>
+        /// <returns>the properties indicated by the locator</returns>
         internal override IEnumerable<string> GetProperties(string locator)
         {
             var result = new List<string>();
@@ -145,6 +160,9 @@ namespace Rest.ContentObjects
             return result;
         }
 
+        /// <summary>Get one property value satisfying the locator</summary>
+        /// <param name="locator">JPath query indicating the property in the JSON object</param>
+        /// <returns>the property indicated by the locator</returns>
         internal override string GetProperty(string locator)
         {
             if (_jsonObject.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
@@ -152,6 +170,9 @@ namespace Rest.ContentObjects
             return container?.ToString(Formatting.None);
         }
 
+        /// <summary>Get the property type satisfying the locator</summary>
+        /// <param name="locator">JPath query indicating the property in the JSON object</param>
+        /// <returns>the property type indicated by the locator</returns>
         internal override string GetPropertyType(string locator)
         {
             var token = _jsonObject.SelectToken(locator);
@@ -160,8 +181,13 @@ namespace Rest.ContentObjects
             return jVal?.Type.ToString() ?? token.Type.ToString();
         }
 
+        /// <returns>a serializable (string) version of the object</returns>
         internal override string Serialize() => _jsonObject?.ToString(Formatting.None);
 
+        /// <summary>Set the value of a property</summary>
+        /// <param name="locator">JPath query indicating the property</param>
+        /// <param name="value">the new value</param>
+        /// <returns>whether the operation succeeded</returns>
         internal override bool SetProperty(string locator, string value)
         {
             if (!(_jsonObject.SelectToken(locator) is JValue key)) return false;

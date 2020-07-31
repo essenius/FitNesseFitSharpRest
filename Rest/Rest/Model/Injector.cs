@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -13,15 +13,21 @@ using Rest.ContentObjects;
 
 namespace Rest.Model
 {
+    /// <summary>
+    /// DIY Dependency injection container, only visible to the program entry points
+    /// (which are the fixture constructors for ContentHandler, ContentObject, RestTester, RestConfig)
+    /// </summary>
     internal static class Injector
     {
         private static SessionContext _sessionContext;
         public static ContentObjectFactory InjectContentObjectFactory() => new ContentObjectFactory(InjectSessionContext());
         private static IRestRequestFactory InjectRestRequestFactory() => new RestRequestFactory();
         public static RestSession InjectRestSession(string endPoint) => new RestSession(endPoint, InjectSessionContext(), InjectRestRequestFactory());
+
+        /// <remarks>only one instance</remarks>
         public static SessionContext InjectSessionContext() => _sessionContext ?? (_sessionContext = new SessionContext());
 
-        // Not for production usage. Testing purposes only. 
+        /// <remarks>Not for production usage. Testing purposes only.</remarks>
         internal static void CleanSessionContext() => _sessionContext = null;
     }
 }

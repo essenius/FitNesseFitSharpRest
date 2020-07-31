@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -30,6 +30,9 @@ namespace Rest.ContentObjects
 
         public ContentObjectFactory(SessionContext context) => _sessionContext = context;
 
+        /// <summary>Infer the type of content by inspecting it</summary>
+        /// <param name="input">the content to be inspected</param>
+        /// <returns>the type of content Json, Xml or Text</returns>
         public static ContentHandler InferType(string input)
         {
             if (JsonObject.IsValid(input)) return ContentHandler.Json;
@@ -56,6 +59,12 @@ namespace Rest.ContentObjects
             return validContentHandler;
         }
 
+        /// <summary>
+        /// Create an object from a certain type using an input object
+        /// </summary>
+        /// <param name="contentType">the type (Json, Xml, Text)</param>
+        /// <param name="source">the input object to derive the content object from</param>
+        /// <returns>the content object</returns>
         [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "default handles the rest")]
         public ContentObject Create(string contentType, object source)
         {

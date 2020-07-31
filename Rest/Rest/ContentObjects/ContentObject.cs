@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -21,8 +21,12 @@ namespace Rest.ContentObjects
     [Documentation("Abstract content object")]
     public abstract class ContentObject
     {
-        // We need this one since FitNesse uses it to try and parse parameter values into objects
-        // The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be parsed
+        /// <param name="input">the input string to be parsed</param>
+        /// <remarks>
+        /// We need this one since FitNesse uses it to try and parse parameter values into objects
+        /// The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be parsed
+        /// </remarks>
+        /// <returns>the parsed ContentObject</returns>
         [Documentation("Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT")]
         public static ContentObject Parse(string input)
         {

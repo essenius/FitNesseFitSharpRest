@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -60,12 +60,15 @@ namespace Rest.Model
         private double Timeout { get; set; }
         public string XmlValueTypeAttribute { get; private set; }
 
+        /// <summary>Determine the type of content handler we need  based on the content type</summary>
+        /// <param name="contentType">the content type of the payload</param>
+        /// <returns>the content handler (xml, json, text)</returns>
         public string ContentHandler(string contentType)
         {
             var contentHandler = ContentTypeMap.Get(contentType);
             return string.IsNullOrEmpty(contentHandler) ? ContentTypeMap.Get("default") : contentHandler;
         }
-
+        
         [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Consistency with other properties, and hiding of side effect")]
         public string SecurityProtocol
         {
@@ -78,6 +81,12 @@ namespace Rest.Model
             }
         }
 
+        /// <summary>Set session context parameter based on an identifier</summary>
+        /// <param name="key">the identifier indicating the parameter (case insensitive).
+        /// Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, DefaultUserAgent, DefaultUserAgent,
+        /// DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, CookieDomain, Cookies, SecurityProtocol</param>
+        /// <param name="value">the value to set the context parameter to</param>
+        /// <returns>true if successful, false if not</returns>
         public bool SetConfig(string key, string value)
         {
             var actionDictionary = new Dictionary<string, Func<string, bool>>
@@ -105,6 +114,8 @@ namespace Rest.Model
             return actionDictionary.ContainsKey(upperKey) && actionDictionary[upperKey](value);
         }
 
+        /// <summary>Set the defaults for a request based on the context settings</summary>
+        /// <param name="request">the request to be updated (must be valid)</param>
         public void SetDefaults(HttpWebRequest request)
         {
             request.Credentials = Credentials;
@@ -117,6 +128,9 @@ namespace Rest.Model
             request.Timeout = (int) (Timeout * 1000 + 0.5);
         }
 
+        /// <summary>Set the proxy.</summary>
+        /// <param name="value">"System": use system proxy; "None": use no proxy; URL: use the URL as proxy</param>
+        /// <returns>true if successful, false if not</returns>
         private bool SetProxy(string value)
         {
             switch (value)

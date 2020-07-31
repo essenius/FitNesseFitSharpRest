@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -16,14 +16,15 @@ using Rest.ContentObjects;
 
 namespace Rest
 {
-    // Decision, table and query fixture for FitNesse
+    /// <summary>Decision, table and query fixture for FitNesse to return/check properties of an object</summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
     public class PropertiesForObject
     {
         private readonly ContentObject _contentObject;
         private readonly string _locator;
 
-        // 
+        /// <param name="contentObject">the object to get the properties for</param>
+        /// <param name="locator">the specification of the property filter</param>
         [Documentation("Reports on properties in query or table table. This constructor is not for decision tables - locator will be ignored if you do")]
         public PropertiesForObject(ContentObject contentObject, string locator)
         {
@@ -31,26 +32,37 @@ namespace Rest
             _locator = locator;
         }
 
+        /// <param name="contentObject">the object to get the properties for</param>
         [Documentation("Reports on properties in decision, query or table table.")]
         public PropertiesForObject(ContentObject contentObject) : this(contentObject, string.Empty)
         {
         }
 
+        /// <summary>Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)</summary>
         [SuppressMessage("Design", "CA1044:Properties should not be write only", Justification = "Test case")]
         [Documentation("Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)")]
         public string Property { set; private get; }
 
+        /// <summary>
+        /// Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value
+        /// </summary>
         [Documentation("Decision column: The property type. Exact values depend on object type (JSON, XML, Text). Text objects infer the type from the value")]
         public string Type { private set; get; }
 
+        /// <summary>Decision column: Value of the property (output only for Text objects)</summary>
         [Documentation("Decision column: Value of the property (output only for Text objects)")]
         public string Value { set; get; }
 
+        /// <summary>Decision column: Whether the value of the property was changed by this line</summary>
         [Documentation("Decision column: Whether the value of the property was changed by this line")]
         public bool ValueWasSet { get; private set; }
 
         private static string Report(string input) => "report:" + input;
 
+        /// <summary>Table interface returning properties for the object</summary>
+        /// <param name="table">Ignored, only used to satisfy the Table Table interface</param>
+        /// <requires>content object and locator were specified</requires>
+        /// <returns>a list in the format that the Table Table interface expects, containing all the properties, types and values</returns>
         [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Table Table interface")]
         [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Table Table interface")]
         [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "Table Table interface")]
@@ -67,7 +79,14 @@ namespace Rest
             return returnList;
         }
 
-        [Documentation("Support for the Decision interface")]
+        /// <summary>Support for the Decision interface returning one property value</summary>
+        /// <requires>content object and locator were specified</requires>
+        /// <guarantees>
+        /// If Property is not null
+        ///     if Value is not null, sets the Property value and raise flag that value was set
+        ///     gets the Property value and type
+        /// </guarantees>
+        [Documentation("Support for the Decision interface returning one property value")]
         public void Execute()
         {
             ValueWasSet = false;
@@ -80,6 +99,8 @@ namespace Rest
             Type = _contentObject.GetPropertyType(Property);
         }
 
+        /// <summary>Query interface returning properties for the object</summary>
+        /// <returns>a list of all the properties (name, type, value) meeting the locator criteria as a list of lists as FitNesse requires</returns>
         [Documentation("Query interface returning properties for the object")]
         public List<object> Query()
         {
@@ -91,6 +112,8 @@ namespace Rest
             }).Cast<object>().ToList();
         }
 
+        /// <summary>Support for the Decision interface; new row start</summary>
+        /// <guarantees>Property, Type and Value are Null</guarantees>
         [Documentation("Support for the Decision interface; new row start")]
         public void Reset()
         {

@@ -15,3 +15,5 @@
 2.4.1 Migrated to Roslyn based code analysis, fixed (or suppressed, with justification) issues and reduced complexity of some methods to get all below 8.
 2.4.2 Added SecurityProtocol in RestConfig to allow overruling of security protocol to be used, and set default to Tls12.
       Used https instead of http in a number of tests to identify future issues with that earlier.
+2.5.1 Added LoadObjectFrom and SaveObjectTo in ContentHandler to enable persisting objects to file and loading them back
+2.5.2 Added many documentation comments. TODO: remove [Documentation] atributes after updating FixtureExplorer to use XML documentation.

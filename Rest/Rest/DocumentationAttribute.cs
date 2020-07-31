@@ -13,6 +13,10 @@ using System;
 
 namespace Rest
 {
+    /// <summary>
+    /// Defines a Documentation attribute, so we can use [Documentation] to describe fixture functions.
+    /// Those are used by FixtureExplorer to provide fixture documentation in FitNesse, but are also helpful as method documentation.
+    /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     internal sealed class DocumentationAttribute : Attribute
     {

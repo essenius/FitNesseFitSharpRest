@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -24,6 +24,10 @@ namespace Rest.Model
         private string _body;
         private string _responseText;
 
+        /// <summary>Start a new RestSession</summary>
+        /// <param name="endPoint">the URL of the end point, i.e. base URL. Can be null if set separately.</param>
+        /// <param name="context">the session context</param>
+        /// <param name="requestFactory">the factory creating RestRequest objects</param>
         public RestSession(string endPoint, SessionContext context, IRestRequestFactory requestFactory)
         {
             EndPoint = endPoint != null ? new Uri(endPoint) : null;
@@ -34,6 +38,9 @@ namespace Rest.Model
             _requestFactory = requestFactory;
         }
 
+        /// <summary>
+        /// Request body. If 'set' and we have a JSON payload, removes the newlines.
+        /// </summary>
         public string Body
         {
             get => _body;
@@ -56,6 +63,7 @@ namespace Rest.Model
         public NameValueCollection RequestHeadersToAdd { get; }
         public HttpWebResponse Response { get; private set; }
 
+        /// <summary>The response text (null if no response).</summary>
         public string ResponseText
         {
             get
@@ -75,6 +83,12 @@ namespace Rest.Model
             }
         }
 
+        /// <summary>
+        /// Execute a request and fetch the response
+        /// </summary>
+        /// <param name="method">the HTTP method (must be a valid one)</param>
+        /// <param name="relativeUrl">the URL from the end point</param>
+        /// <returns>true</returns>
         public bool MakeRequest(string method, string relativeUrl)
         {
             // If we had a previous run, we no longer need it. Close so we can re-use

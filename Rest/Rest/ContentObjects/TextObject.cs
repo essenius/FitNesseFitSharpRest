@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -36,13 +36,24 @@ namespace Rest.ContentObjects
             _content = content.ToString();
         }
 
+        /// <summary>Check whether the input is valid text (i.e. no control characters except newlines and tabs)</summary>
+        /// <param name="input">the input to be checked</param>
+        /// <returns>whether the input is valid</returns>
         public static bool IsValid(string input) =>
             !input.Any(ch => char.IsControl(ch) && ch != '\r' && ch != '\n' && ch != '\t');
 
+        /// <remarks>Adding text to text objects is not supported</remarks>
         internal override bool AddAt(ContentObject objToAdd, string locator) => throw new NotImplementedException();
 
+        /// <summary>Delete a part of the text</summary>
+        /// <param name="locator">Regular expression indicating the part to be deleted</param>
+        /// <returns>whether or not the operation succeeded</returns>
         internal override bool Delete(string locator) => SetProperty(locator, string.Empty);
 
+
+        /// <summary>Evaluate the text object using a matcher</summary>
+        /// <param name="matcher">Regular expression to be matched</param>
+        /// <returns>the value that satisfy the matcher, or null if no match</returns>
         internal override string Evaluate(string matcher)
         {
             // Singleline is a bit of a misnomer, it means that . also matches cr and lf
@@ -52,6 +63,9 @@ namespace Rest.ContentObjects
             return match.Success ? match.Groups[1].Value : null;
         }
 
+        /// <summary>Get the property values satisfying the locator (can be more than one)</summary>
+        /// <param name="locator">Regular expression indicating the properties in the JSON object</param>
+        /// <returns>the properties indicated by the locator</returns>
         internal override IEnumerable<string> GetProperties(string locator)
         {
             var regex = new Regex(locator, RegexOptions.Singleline);
@@ -66,12 +80,23 @@ namespace Rest.ContentObjects
             return returnValue;
         }
 
+        /// <summary>Get one property value satisfying the locator</summary>
+        /// <param name="locator">>Regular expression indicating the property in the JSON object</param>
+        /// <returns>the property indicated by the locator</returns>
         internal override string GetProperty(string locator) => Evaluate(locator);
 
+        /// <summary>Get the property type satisfying the locator</summary>
+        /// <param name="locator">Regular expression indicating the property in the JSON object</param>
+        /// <returns>the property type indicated by the locator</returns>
         internal override string GetPropertyType(string locator) => GetProperty(locator)?.CastToInferredType()?.GetType().ToString();
 
+        /// <returns>a serializable (string) version of the object</returns>
         internal override string Serialize() => _content;
 
+        /// <summary>Set the value of a property</summary>
+        /// <param name="locator">Regular explreassion indicating the property</param>
+        /// <param name="value">the new value</param>
+        /// <returns>whether the operation succeeded</returns>
         internal override bool SetProperty(string locator, string value)
         {
             var regex = new Regex(locator);

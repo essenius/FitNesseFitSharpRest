@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2020 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -37,8 +37,14 @@ namespace Rest.Model
 
         public Uri RequestUri => _request.RequestUri;
 
+        /// <param name="method">the HTTP method to be checked</param>
+        /// <returns>whether or not the method supports the use of a body</returns>
         public static bool SupportsBody(string method) => method != WebRequestMethods.Http.Get && method != WebRequestMethods.Http.Head;
 
+        /// <summary>Executes an HTTP request</summary>
+        /// <param name="method">the method to execute (must be one of the recognized HTTP methods)</param>
+        /// <param name="body">the associated body (can be null)</param>
+        /// <returns>the response of the request</returns>
         public virtual HttpWebResponse Execute(string method, string body)
         {
             _request.Method = method;
@@ -61,8 +67,14 @@ namespace Rest.Model
             return response;
         }
 
+        /// <param name="header">the header name to return</param>
+        /// <returns>the value of the specified header</returns>
         public string HeaderValue(string header) => _request.Headers[header] ?? string.Empty;
 
+        /// <summary>Sets the body if the method supports a body and if it's not empty. Also sets ContentLength accordingly.</summary>
+        /// <param name="body">the body text to be sent (can be null)</param>
+        /// <param name="encoding">the request encoding</param>
+        /// <param name="method">the HTTP method we want to use</param>
         private void SetBody(string body, Encoding encoding, string method)
         {
             {
@@ -85,6 +97,10 @@ namespace Rest.Model
             }
         }
 
+        /// <summary>
+        /// Update the request headers with the values of a name value collection
+        /// </summary>
+        /// <param name="requestHeadersToAdd">The name value collection to take over the headers from</param>
         public virtual void UpdateHeaders(NameValueCollection requestHeadersToAdd)
         {
             foreach (var entry in requestHeadersToAdd.AllKeys)
