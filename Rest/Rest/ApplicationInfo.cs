@@ -19,7 +19,7 @@ namespace Rest
         public const string Author = "Rik Essenius";
         public const string Copyright = "Copyright © Rik Essenius 2015-2020";
         public const string Description = "A FitNesse fixture to test REST services";
-        public const string Version = "2.5.2";
+        public const string Version = "2.5.3";
 
         private static string ExtendedInfo => string.Format(CultureInfo.InvariantCulture, "{0} {1}. {2}. {3}",
             ApplicationName, Version, Description, Copyright);

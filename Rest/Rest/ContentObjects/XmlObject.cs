@@ -86,8 +86,8 @@ namespace Rest.ContentObjects
             }
         }
 
-        /// <summary>Convert the content to a string.</summary>
-        /// <param name="content">the input content.</param>
+        /// <summary>Convert the content to a string</summary>
+        /// <param name="content">the input content</param>
         /// <returns>the string representation of the object. If the input is a string, return that. 
         /// Else return a serialized XML representation of the object</returns>
         private static string StringContent(object content)

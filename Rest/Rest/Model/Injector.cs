@@ -27,7 +27,7 @@ namespace Rest.Model
         /// <remarks>only one instance</remarks>
         public static SessionContext InjectSessionContext() => _sessionContext ?? (_sessionContext = new SessionContext());
 
-        /// <remarks>Not for production usage. Testing purposes only.</remarks>
+        /// <remarks>Not for production usage. Testing purposes only</remarks>
         internal static void CleanSessionContext() => _sessionContext = null;
     }
 }

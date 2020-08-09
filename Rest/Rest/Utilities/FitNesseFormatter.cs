@@ -130,7 +130,7 @@ namespace Rest.Utilities
         /// <param name="cookieText">the original cookie text</param>
         /// <param name="utcNow">current date and time in UTC</param>
         /// <remarks>the HttpCookie parser does not recognize the Max-Age attribute, so if it's there, we morph it into an Expires attribute
-            // If Expires was there already, it is overwritten as per the spec (https://tools.ietf.org/html/rfc6265#section-4.1)</remarks>
+        /// If Expires was there already, it is overwritten as per the spec (https://tools.ietf.org/html/rfc6265#section-4.1)</remarks>
         /// <returns>new cookie text, with an Expires property instead of Max-Age if the Max-Age existed in the original</returns>
         private static string UpdateExpiresFromMaxAge(string cookieText, DateTime utcNow)
         {

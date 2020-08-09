@@ -25,7 +25,7 @@ namespace Rest.Model
         private string _responseText;
 
         /// <summary>Start a new RestSession</summary>
-        /// <param name="endPoint">the URL of the end point, i.e. base URL. Can be null if set separately.</param>
+        /// <param name="endPoint">the URL of the end point, i.e. base URL. Can be null if set separately</param>
         /// <param name="context">the session context</param>
         /// <param name="requestFactory">the factory creating RestRequest objects</param>
         public RestSession(string endPoint, SessionContext context, IRestRequestFactory requestFactory)
@@ -63,7 +63,7 @@ namespace Rest.Model
         public NameValueCollection RequestHeadersToAdd { get; }
         public HttpWebResponse Response { get; private set; }
 
-        /// <summary>The response text (null if no response).</summary>
+        /// <summary>The response text (null if no response)</summary>
         public string ResponseText
         {
             get

@@ -27,8 +27,8 @@ namespace Rest
     {
         private readonly ContentObjectFactory _contentObjectFactory;
 
+        /// <summary>Handle content in JSON, XML and TEXT format</summary>
         /// <guarantees>Content object factory is set</guarantees>
-        [Documentation("Handle content in JSON, XML and TEXT format")]
         public ContentHandler() => _contentObjectFactory = Injector.InjectContentObjectFactory();
 
         /// <summary>Add the content of an object into another object</summary>
@@ -36,13 +36,11 @@ namespace Rest
         /// <param name="baseObj">object to be added to</param>
         /// <param name="locator">specification of the location in baseObj where objToAdd has to be added</param>
         /// <returns>true if successfully added, false otherwise</returns>
-        [Documentation("Add the content of an object into another object")]
         public static bool AddToAt(ContentObject objToAdd, ContentObject baseObj, string locator) => baseObj.AddAt(objToAdd, locator);
 
         /// <param name="assembly">relative or absolute path to assembly to get classes of</param>
         /// <requires>assembly path must be valid</requires>
         /// <returns>List of the class names (including namespace)</returns>
-        [Documentation("A list of the classes in an assembly")]
         public static List<string> ClassesIn(string assembly)
         {
             var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
@@ -53,16 +51,13 @@ namespace Rest
         /// and using the format for which parsing succeeds</summary>
         /// <param name="source">object to be parsed</param>
         /// <returns>Content object representing the parsed source</returns>
-        [Documentation("Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats, " +
-                       "and using the format for which parsing succeeds")]
         public ContentObject CreateObjectFrom(string source) => CreateObjectFrom(null, source);
 
         /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>
-        /// <param name="contentType">TEXT, JSON, XML, null or empty string.</param>
+        /// <param name="contentType">TEXT, JSON, XML, null or empty string</param>
         /// <param name="source">the TEXT, JSON or XML representation of the object</param>
         /// <guarantees>If contentType is empty, it tries to establish the right content type</guarantees>
         /// <returns>Content object representing the parsed source</returns>
-        [Documentation("Create a new object of the specified type (TEXT, JSON, XML) from a string")]
         private ContentObject CreateObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
 
         /// <summary>Create an object modeled after a type in a .Net assembly</summary>
@@ -70,7 +65,6 @@ namespace Rest
         /// <param name="objectType">the name of the type to be created</param>
         /// <param name="assembly">the path to the assembly</param>
         /// <returns>Content object representing the object</returns>
-        [Documentation("Create an object modeled after a class in a .Net assembly")]
         public ContentObject CreateObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
             CreateObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
 
@@ -80,7 +74,6 @@ namespace Rest
         /// <param name="assembly">the path to the assembly</param>
         /// <param name="parameters">the parameter list to use</param>
         /// <returns>Content object representing the object, using the parameter values</returns>
-        [Documentation("Create an object modeled after a type in a .Net assembly with constructor parameters")]
         public ContentObject CreateObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
             string assembly, string[] parameters)
         {
@@ -96,7 +89,6 @@ namespace Rest
         /// <param name="locator">specification of the property that needs to be deleted</param>
         /// <param name="contentObject">the object that the property needs to be deleted from</param>
         /// <returns>whether or not the deletion succeeded</returns>
-        [Documentation("Delete a property from an object")]
         public static bool DeleteFrom(string locator, ContentObject contentObject) => contentObject.Delete(locator);
 
         /// <remarks>Don't use. Will be removed in a future release</remarks>
@@ -107,7 +99,6 @@ namespace Rest
         /// <param name="matcher">the query to be evaluated</param>
         /// <param name="contentObject">the object to evaluate the query on</param>
         /// <returns>the result of the query</returns>
-        [Documentation("Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)")]
         public static string EvaluateOn(string matcher, ContentObject contentObject) => contentObject.Evaluate(matcher);
 
         /// <remarks>Don't use. Will be removed in a future release</remarks>
@@ -118,7 +109,6 @@ namespace Rest
         /// <param name="sourceFile">the path of the file to be loaded</param>
         /// <requires>File must exist and be readable</requires>
         /// <returns>The loaded object</returns>
-        [Documentation("Load an object from a file. It will establish the format (JSON, XML, TEXT) by parsing it")]
         public ContentObject LoadObjectFrom(string sourceFile)
         {
             var sourceText = File.ReadAllText(sourceFile);
@@ -128,34 +118,29 @@ namespace Rest
         /// <param name="locator">the specification of the element</param>
         /// <param name="contentObject">the object the element is in</param>
         /// <returns>Locators to all properties of a certain element in the object</returns>
-        [Documentation("Locators to all properties of a certain element in the object")]
         public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) => contentObject.GetProperties(locator);
 
         /// <param name="locator">the specification of the property to look at</param>
         /// <param name="contentObject">the object to look in</param>
         /// <param name="value">the glob pattern</param>
         /// <returns>whether one of the specified properties contains a value with the specified glob pattern</returns>
-        [Documentation("true if one of the specified properties contains a value with the specified glob pattern")]
         public static bool PropertySetOfContainsValueLike(string locator, ContentObject contentObject, string value) => 
             contentObject.PropertyContainsValueLike(locator, value);
 
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to look in</param>
         /// <returns>the type of the property</returns>
-        [Documentation("Type of a property")]
         public static string PropertyTypeOf(string locator, ContentObject contentObject) => contentObject.GetPropertyType(locator);
 
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to look in</param>
         /// <returns>the value of the property</returns>
-        [Documentation("Value of a property")]
         public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
 
         /// <summary>Save an object to a file. If file name is empty, it uses a temporary file</summary>
         /// <param name="contentObject">the object to be saved</param>
         /// <param name="targetFile">the path of the file (can be relative)</param>
         /// <returns>the absolute path to the saved file</returns>
-        [Documentation("Save an object to a file. Returns the full path to the file. If file name is empty, it uses a temporary file")]
         public static string SaveObjectTo(ContentObject contentObject, string targetFile)
         {
             var saveText = Serialize(contentObject);
@@ -169,7 +154,6 @@ namespace Rest
 
         /// <param name="contentObject">the object to be represented in text</param>
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
-        [Documentation("A text representation of the object")]
         public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
         /// <summary>Set the value of an existing property</summary>
@@ -177,7 +161,6 @@ namespace Rest
         /// <param name="contentObject">the object to set a property value of</param>
         /// <param name="value">the value to be set</param>
         /// <returns>whether or not setting the value succeeded</returns>
-        [Documentation("Set the value of an existing property")]
         public static bool SetPropertyValueOfTo(string locator, ContentObject contentObject, string value) => contentObject.SetProperty(locator, value);
     }
 }

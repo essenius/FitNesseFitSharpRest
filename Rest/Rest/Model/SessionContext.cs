@@ -128,7 +128,7 @@ namespace Rest.Model
             request.Timeout = (int) (Timeout * 1000 + 0.5);
         }
 
-        /// <summary>Set the proxy.</summary>
+        /// <summary>Set the proxy</summary>
         /// <param name="value">"System": use system proxy; "None": use no proxy; URL: use the URL as proxy</param>
         /// <returns>true if successful, false if not</returns>
         private bool SetProxy(string value)

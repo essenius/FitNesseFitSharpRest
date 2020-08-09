@@ -96,7 +96,6 @@
     <Compile Include="ApplicationInfoTest.cs" />
     <Compile Include="RestRequestTests.cs" />
     <Compile Include="InjectorTests.cs" />
-    <Compile Include="DocumentationAttributeTest.cs" />
     <Compile Include="XmlObjectTests.cs" />
   </ItemGroup>
   <ItemGroup>

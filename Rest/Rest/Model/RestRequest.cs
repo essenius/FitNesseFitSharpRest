@@ -71,7 +71,7 @@ namespace Rest.Model
         /// <returns>the value of the specified header</returns>
         public string HeaderValue(string header) => _request.Headers[header] ?? string.Empty;
 
-        /// <summary>Sets the body if the method supports a body and if it's not empty. Also sets ContentLength accordingly.</summary>
+        /// <summary>Sets the body if the method supports a body and if it's not empty. Also sets ContentLength accordingly</summary>
         /// <param name="body">the body text to be sent (can be null)</param>
         /// <param name="encoding">the request encoding</param>
         /// <param name="method">the HTTP method we want to use</param>

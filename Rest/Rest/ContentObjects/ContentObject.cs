@@ -16,18 +16,18 @@ using Rest.Model;
 using Rest.Utilities;
 
 namespace Rest.ContentObjects
-{
+{ 
+    /// <summary>Abstract content object</summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
-    [Documentation("Abstract content object")]
     public abstract class ContentObject
     {
+        /// <summary>Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT</summary>
         /// <param name="input">the input string to be parsed</param>
         /// <remarks>
         /// We need this one since FitNesse uses it to try and parse parameter values into objects
         /// The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be parsed
         /// </remarks>
         /// <returns>the parsed ContentObject</returns>
-        [Documentation("Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT")]
         public static ContentObject Parse(string input)
         {
             var factory = Injector.InjectContentObjectFactory();
