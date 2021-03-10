@@ -2,27 +2,39 @@
 |Send    |@command     |to     |@resource                           |
 |check   |response code|@responseCode                               |
 
-!|script           |Rest Tester                 |http://localhost:${Port}                                                                            |
-|Send              |Get                         |to                          |FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code|200       |
-|$response=        |Response Object                                                                                                                  |
-|show              |property value              |tables[0].Customer.addr.city|of                                              |$response             |
-|set property value|tables[0].Customer.addr.city|of                          |$response                                       |to         |Smallville|
-|show              |Serialize                   |$response                                                                                           |
+Get a JSON payload via a table on a FitNesse page, and manipulate that a bit.
+
+!|script           |Rest Tester                 |http://localhost:${Port}                                                                                 |
+|Send              |Get                         |to                          |FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code     |200       |
+|$response=        |Response Object                                                                                                                       |
+|show              |property value              |tables[0].Customer.addr.city|of                                              |$response                  |
+|set property value|tables[0].Customer.addr.city|of                          |$response                                       |to              |Smallville|
+|show              |Serialize                   |$response                                                                                                |
+|$customerAddress= |object from property        |tables[0].Customer.addr     |of                                              |$response                  |
+|show              |serialize                   |$customerAddress                                                                                         |
+|check             |property value              |zip                         |of                                              |$customerAddress|60083     |
+
 
 !|script                                                        |
-|$body=|create object from  |{}                                 |
+|$body=|object from         |{}                                 |
 |show  |Serialize           |$body                              |
 |Add   |$response           |to|$body|at|                       |
 |show  |Serialize           |$body                              |
 |Add   |{"phone":"withheld"}|to|$body|at|tables[0].Customer.addr|
 |show  |Serialize           |$body                              |
 
+Convert from JSON to XML and vice versa.
+Note the double pipe. That means we start with a parameter.
+
 !|script                                             |
-|$xml= |create   |xml  |object from|{"id":1}         |
+|$xml= |         |xml  |object from|{"id":1}         |
 |check |serialize|$xml |<id>1</id>                   |
-|$json=|create   |json |object from|<name>John</name>|
+|$json=|         |json |object from|<name>John</name>|
 |check |serialize|$json|{"name":"John"}              |
 
-!|script                                                                                 |
-|$testobject=|Create object|json|from type|RestTests.ManyTypes|in assembly|${RestTestDll}|
-|show        |serialize    |$testobject                                                  |
+Create an object from a class in an assembly.
+This also shows that you can put the parameters between any word boundaries as long as the order doesn't change.
+
+!|script                                                                             |
+|$testobject=|object   |json|from type|RestTests.ManyTypes|in assembly|${RestTestDll}|
+|show        |serialize|$testobject                                                  |

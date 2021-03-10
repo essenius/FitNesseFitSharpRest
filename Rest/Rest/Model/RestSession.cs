@@ -74,7 +74,7 @@ namespace Rest.Model
                 using (var responseStream = Response.GetResponseStream())
                 {
                     if (responseStream == null) return _responseText;
-                    using (var reader = new StreamReader(responseStream /*,responseEncoding*/))
+                    using (var reader = new StreamReader(responseStream))
                     {
                         _responseText = reader.ReadToEnd();
                     }

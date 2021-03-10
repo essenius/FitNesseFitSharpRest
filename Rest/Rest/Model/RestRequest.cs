@@ -1,11 +1,11 @@
-﻿// Copyright 2015-2020 Rik Essenius
-//
-//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
+﻿// Copyright 2021 Rik Essenius
+// 
+//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software distributed under the License 
+// 
+//   Unless required by applicable law or agreed to in writing, software distributed under the License
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
@@ -27,6 +27,7 @@ namespace Rest.Model
             Debug.Assert(request != null, "request != null");
             Debug.Assert(context != null, "context != null");
             _request = request;
+            _request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             _context = context;
             _context.SetDefaults(_request);
         }
@@ -98,7 +99,7 @@ namespace Rest.Model
         }
 
         /// <summary>
-        /// Update the request headers with the values of a name value collection
+        ///     Update the request headers with the values of a name value collection
         /// </summary>
         /// <param name="requestHeadersToAdd">The name value collection to take over the headers from</param>
         public virtual void UpdateHeaders(NameValueCollection requestHeadersToAdd)
@@ -125,7 +126,8 @@ namespace Rest.Model
                             _request.UserAgent = requestHeadersToAdd[entry];
                             break;
                         default:
-                            throw new ArgumentException("Unrecognized standard header: " + requestHeadersToAdd[entry] + "This was not expected to happen.");
+                            throw new ArgumentException("Unrecognized standard header: " + requestHeadersToAdd[entry] +
+                                                        "This was not expected to happen.");
                     }
                 }
             }

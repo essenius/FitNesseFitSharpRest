@@ -1,11 +1,11 @@
-﻿// Copyright 2015-2020 Rik Essenius
-//
-//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
+﻿// Copyright 2021 Rik Essenius
+// 
+//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software distributed under the License 
+// 
+//   Unless required by applicable law or agreed to in writing, software distributed under the License
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
@@ -88,8 +88,10 @@ namespace Rest.ContentObjects
 
         /// <summary>Convert the content to a string</summary>
         /// <param name="content">the input content</param>
-        /// <returns>the string representation of the object. If the input is a string, return that. 
-        /// Else return a serialized XML representation of the object</returns>
+        /// <returns>
+        ///     the string representation of the object. If the input is a string, return that.
+        ///     Else return a serialized XML representation of the object
+        /// </returns>
         private static string StringContent(object content)
         {
             if (content is string) return content.ToString();
@@ -102,8 +104,8 @@ namespace Rest.ContentObjects
         }
 
         /// <summary>
-        /// Parse content into XML document. If the content doesn't have a root element, add that.
-        /// If the content happens to be JSON, convert it to XML. Throws an exception if parsing didn't succeed.
+        ///     Parse content into XML document. If the content doesn't have a root element, add that.
+        ///     If the content happens to be JSON, convert it to XML. Throws an exception if parsing didn't succeed.
         /// </summary>
         /// <param name="contentString">the input string</param>
         /// <returns>the parsed XMLDocument</returns>
@@ -116,10 +118,14 @@ namespace Rest.ContentObjects
             catch (XmlException xe)
             {
                 if (xe.Message.Contains("multiple root elements"))
+                {
                     return ("<root>" + contentString + "</root>").ToXmlDocument();
+                }
                 if (xe.Message.Contains("Data at the root level is invalid"))
                     // No XML. Try if it is JSON
+                {
                     return ConvertJsonToXml(contentString);
+                }
                 throw new ArgumentException("Unable to parse content as XML");
             }
         }
@@ -194,10 +200,7 @@ namespace Rest.ContentObjects
         /// <summary>Evaluate the object using a matcher</summary>
         /// <param name="matcher">XPath query to be matched</param>
         /// <returns>the value that satisfies the matcher, or null if no match</returns>
-        internal override string Evaluate(string matcher)
-        {
-            return EvaluateInternal(matcher)?.ToString();
-        }
+        internal override string Evaluate(string matcher) => EvaluateInternal(matcher)?.ToString();
 
         private object EvaluateInternal(string matcher)
         {
@@ -224,6 +227,7 @@ namespace Rest.ContentObjects
         {
             var builder = new StringBuilder();
             while (node != null)
+            {
                 switch (node.NodeType)
                 {
                     case XPathNodeType.Attribute:
@@ -244,6 +248,7 @@ namespace Rest.ContentObjects
                     default:
                         throw new ArgumentException("FindXPath: Unsupported node type");
                 }
+            }
 
             throw new ArgumentException("FindXPath: Node was not in a document. This was not expected to happen.");
         }
@@ -257,7 +262,10 @@ namespace Rest.ContentObjects
             // special case: if nothing was specified, we return everything
             if (string.IsNullOrEmpty(locator)) locator = "//*";
             var element = SelectElement(locator);
-            while (element.MoveNext()) result.Add(FindXPath(element.Current));
+            while (element.MoveNext())
+            {
+                result.Add(FindXPath(element.Current));
+            }
             return result;
         }
 
@@ -291,16 +299,20 @@ namespace Rest.ContentObjects
             return stringBuilder.ToString();
         }
 
-        private XPathNodeIterator SelectElement(string xPath)
-        {
-            return _navigator.Select(xPath, _namespaceManager);
-        }
+        private XPathNodeIterator SelectElement(string xPath) => _navigator.Select(xPath, _namespaceManager);
 
         /// <returns>a serializable (string) version of the object</returns>
-        internal override string Serialize()
+        internal override string Serialize() => _xmlDocument.OuterXml;
+
+        /// <summary>Get a serialized version of the property</summary>
+        /// <param name="locator">property to serialize</param>
+        /// <returns>the serialized property</returns>
+        internal override string SerializeProperty(string locator)
         {
-            return _xmlDocument.OuterXml;
+            var element = SelectElement(locator);
+            return element.MoveNext() ? element.Current.InnerXml : string.Empty;
         }
+
 
         /// <summary>Set the value of a property</summary>
         /// <param name="locator">XPath query indicating the property</param>
@@ -314,9 +326,6 @@ namespace Rest.ContentObjects
             return true;
         }
 
-        public override string ToString()
-        {
-            return "XML Object";
-        }
+        public override string ToString() => "XML Object";
     }
 }

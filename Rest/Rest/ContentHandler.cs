@@ -1,11 +1,11 @@
-﻿// Copyright 2015-2020 Rik Essenius
-//
-//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
+﻿// Copyright 2021 Rik Essenius
+// 
+//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software distributed under the License 
+// 
+//   Unless required by applicable law or agreed to in writing, software distributed under the License
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
@@ -47,43 +47,26 @@ namespace Rest
             return asm.GetTypes().Select(type => type.Namespace + "." + type.Name).ToList();
         }
 
-        /// <summary>Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats,
-        /// and using the format for which parsing succeeds</summary>
-        /// <param name="source">object to be parsed</param>
-        /// <returns>Content object representing the parsed source</returns>
+        /// <remarks>See ObjectFrom</remarks>
         public ContentObject CreateObjectFrom(string source) => CreateObjectFrom(null, source);
 
-        /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>
-        /// <param name="contentType">TEXT, JSON, XML, null or empty string</param>
-        /// <param name="source">the TEXT, JSON or XML representation of the object</param>
-        /// <guarantees>If contentType is empty, it tries to establish the right content type</guarantees>
-        /// <returns>Content object representing the parsed source</returns>
-        private ContentObject CreateObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
+        /// <remarks>see ObjectFrom</remarks>
+        public ContentObject CreateObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
 
-        /// <summary>Create an object modeled after a type in a .Net assembly</summary>
-        /// <param name="contentType"></param>
-        /// <param name="objectType">the name of the type to be created</param>
-        /// <param name="assembly">the path to the assembly</param>
-        /// <returns>Content object representing the object</returns>
-        public ContentObject CreateObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
-            CreateObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
-
-        /// <summary>Create an object modeled after a type in a .Net assembly with constructor parameters</summary>
-        /// <param name="contentType">TEXT, JSON, XML</param>
-        /// <param name="objectType">>the name of the type to be created</param>
-        /// <param name="assembly">the path to the assembly</param>
-        /// <param name="parameters">the parameter list to use</param>
-        /// <returns>Content object representing the object, using the parameter values</returns>
-        public ContentObject CreateObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
-            string assembly, string[] parameters)
+        /// <remarks>See ObjectFromPropertyOf</remarks>
+        public ContentObject CreateObjectFromPropertyOf(string locator, ContentObject contentObject)
         {
-            var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
-            var myType = asm.GetType(objectType);
-            var typedParams = new List<object>();
-            if (parameters != null) typedParams.AddRange(parameters.Select(s => s.CastToInferredType()));
-            var instance = Activator.CreateInstance(myType, typedParams.ToArray());
-            return _contentObjectFactory.Create(contentType, instance);
+            return ObjectFromPropertyOf(locator, contentObject);
         }
+
+        /// <remarks>See ObjectFromTypeInAssembly</remarks>
+        public ContentObject CreateObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
+            ObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
+
+        /// <remarks>See ObjectFromTypeInAssemblyWithParams</remarks>
+        public ContentObject CreateObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
+            string assembly, string[] parameters) =>
+            ObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, parameters);
 
         /// <summary>Delete a property from an object</summary>
         /// <param name="locator">specification of the property that needs to be deleted</param>
@@ -115,6 +98,57 @@ namespace Rest
             return CreateObjectFrom(null, sourceText);
         }
 
+        /// <summary>
+        ///     Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats,
+        ///     and using the format for which parsing succeeds
+        /// </summary>
+        /// <param name="source">object to be parsed</param>
+        /// <returns>Content object representing the parsed source</returns>
+        public ContentObject ObjectFrom(string source) => CreateObjectFrom(null, source);
+
+
+        /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>
+        /// <param name="contentType">TEXT, JSON, XML, null or empty string</param>
+        /// <param name="source">the TEXT, JSON or XML representation of the object</param>
+        /// <guarantees>If contentType is empty, it tries to establish the right content type</guarantees>
+        /// <returns>Content object representing the parsed source</returns>
+        public ContentObject ObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
+
+        /// <summary>Create a new object from a property in another object</summary>
+        /// <param name="locator">the specification of the property</param>
+        /// <param name="contentObject">the object to get the property from</param>
+        /// <returns>an object containing the specified property</returns>
+        public ContentObject ObjectFromPropertyOf(string locator, ContentObject contentObject)
+        {
+            var property = SerializeProperty(locator, contentObject);
+            return CreateObjectFrom(null, property);
+        }
+
+        /// <summary>Create an object modeled after a type in a .Net assembly</summary>
+        /// <param name="contentType"></param>
+        /// <param name="objectType">the name of the type to be created</param>
+        /// <param name="assembly">the path to the assembly</param>
+        /// <returns>Content object representing the object</returns>
+        public ContentObject ObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
+            ObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
+
+        /// <summary>Create an object modeled after a type in a .Net assembly with constructor parameters</summary>
+        /// <param name="contentType">TEXT, JSON, XML</param>
+        /// <param name="objectType">>the name of the type to be created</param>
+        /// <param name="assembly">the path to the assembly</param>
+        /// <param name="parameters">the parameter list to use</param>
+        /// <returns>Content object representing the object, using the parameter values</returns>
+        public ContentObject ObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
+            string assembly, string[] parameters)
+        {
+            var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
+            var myType = asm.GetType(objectType);
+            var typedParams = new List<object>();
+            if (parameters != null) typedParams.AddRange(parameters.Select(s => s.CastToInferredType()));
+            var instance = Activator.CreateInstance(myType, typedParams.ToArray());
+            return _contentObjectFactory.Create(contentType, instance);
+        }
+
         /// <param name="locator">the specification of the element</param>
         /// <param name="contentObject">the object the element is in</param>
         /// <returns>Locators to all properties of a certain element in the object</returns>
@@ -124,7 +158,7 @@ namespace Rest
         /// <param name="contentObject">the object to look in</param>
         /// <param name="value">the glob pattern</param>
         /// <returns>whether one of the specified properties contains a value with the specified glob pattern</returns>
-        public static bool PropertySetOfContainsValueLike(string locator, ContentObject contentObject, string value) => 
+        public static bool PropertySetOfContainsValueLike(string locator, ContentObject contentObject, string value) =>
             contentObject.PropertyContainsValueLike(locator, value);
 
         /// <param name="locator">the specification of the property</param>
@@ -156,11 +190,17 @@ namespace Rest
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
         public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
+        /// <param name="contentObject">the object to be represented in text</param>
+        /// <returns>a serialized version of the object that can be saved or transmitted</returns>
+        public static string SerializeProperty(string locator, ContentObject contentObject) => contentObject.SerializeProperty(locator);
+
+
         /// <summary>Set the value of an existing property</summary>
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to set a property value of</param>
         /// <param name="value">the value to be set</param>
         /// <returns>whether or not setting the value succeeded</returns>
-        public static bool SetPropertyValueOfTo(string locator, ContentObject contentObject, string value) => contentObject.SetProperty(locator, value);
+        public static bool SetPropertyValueOfTo(string locator, ContentObject contentObject, string value) =>
+            contentObject.SetProperty(locator, value);
     }
 }

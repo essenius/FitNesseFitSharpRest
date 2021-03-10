@@ -1,11 +1,11 @@
-﻿// Copyright 2015-2019 Rik Essenius
-//
-//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
+﻿// Copyright 2021 Rik Essenius
+// 
+//   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software distributed under the License 
+// 
+//   Unless required by applicable law or agreed to in writing, software distributed under the License
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
@@ -43,7 +43,7 @@ namespace RestTests
         public void PropertiesForObjectDecisionTest()
         {
             var h = new ContentHandler();
-            var obj = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
+            var obj = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
             var a = new PropertiesForObject(obj);
             a.Reset();
             a.Execute();
@@ -64,7 +64,7 @@ namespace RestTests
         public void PropertiesForObjectQueryTest()
         {
             var h = new ContentHandler();
-            var obj = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
+            var obj = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
             var a = new PropertiesForObject(obj, "/FewTypes/StringValue");
             var expected = new[]
             {
@@ -82,7 +82,7 @@ namespace RestTests
         public void PropertiesForObjectTextTableTest()
         {
             var h = new ContentHandler();
-            var obj = h.CreateObjectFrom("contains 21, 3000000000, 51.6 and no other true numbers");
+            var obj = h.ObjectFrom("contains 21, 3000000000, 51.6 and no other true numbers");
             const string regex = "((\\b\\d+(\\.\\d+)?)|true|numbers)";
             var a = new PropertiesForObject(obj, regex);
             var multiPattern = string.Format(TextObject.MatchGroupPattern, regex, "{{0}}");
@@ -103,7 +103,7 @@ namespace RestTests
         public void PropertiesForObjectXmlTableTest()
         {
             var h = new ContentHandler();
-            var obj = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.ManyTypes", "RestTests.dll", new[] {"true"});
+            var obj = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.ManyTypes", "RestTests.dll", new[] {"true"});
             var a = new PropertiesForObject(obj, "/ManyTypes/StringValue");
             var expected = new[]
             {

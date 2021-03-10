@@ -41,6 +41,7 @@ namespace Rest.ContentObjects
         internal abstract string GetProperty(string locator);
         internal abstract string GetPropertyType(string locator);
         internal abstract string Serialize();
+        internal abstract string SerializeProperty(string locator);
         internal abstract bool SetProperty(string locator, string value);
 
         internal bool PropertyContainsValueLike(string locator, string value)
