@@ -48,10 +48,10 @@ namespace Rest
         }
 
         /// <remarks>See ObjectFrom</remarks>
-        public ContentObject CreateObjectFrom(string source) => CreateObjectFrom(null, source);
+        public ContentObject CreateObjectFrom(string source) => ObjectFrom(null, source);
 
         /// <remarks>see ObjectFrom</remarks>
-        public ContentObject CreateObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
+        public ContentObject CreateObjectFrom(string contentType, string source) => ObjectFrom(contentType, source);
 
         /// <remarks>See ObjectFromPropertyOf</remarks>
         public ContentObject CreateObjectFromPropertyOf(string locator, ContentObject contentObject)
@@ -104,7 +104,7 @@ namespace Rest
         /// </summary>
         /// <param name="source">object to be parsed</param>
         /// <returns>Content object representing the parsed source</returns>
-        public ContentObject ObjectFrom(string source) => CreateObjectFrom(null, source);
+        public ContentObject ObjectFrom(string source) => ObjectFrom(null, source);
 
 
         /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>

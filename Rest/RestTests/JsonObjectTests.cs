@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -24,12 +24,13 @@ namespace RestTests
         "{ \"Id\": 0, \"Name\": null, \"IsShared\": false, \"LastModifiedDate\": \"0001-01-01T00:00:00\", \"LastModifiedName\": \"John Doe\", \"Flags\": [] }";
 
         private const string JsonTest2 =
-            "{ \"Test\" : [ [ \"hi\", \"there\" ], [ \"hello\", \"too\" ] ], \"DateValue\": \"2015-01-01T00:00:00\", \"Tree\": { \"one\": 1, \"two\": 2 } }";
+            "{ \"Test\" : [ [ \"hi\", \"there\" ], [ \"hello\", \"  too\" ] ], \"DateValue\": \"2015-01-01T00:00:00\", \"Tree\": { \"one\": 1, \"two\": 2 } }";
 
         [TestMethod, TestCategory("Unit")]
         public void JsonObjectAddArrayTest()
         {
-            var jsonObj = new JsonObject(JsonTest2);
+            var jsonObj = new JsonObject(JsonTest2, false);
+            Assert.AreEqual("  too", jsonObj.GetProperty("Test[1][1]"), "Too doesn't get trimmed if flag is off");
             var objToAdd = new JsonObject("[ \"a\", 1 ]");
             Assert.IsTrue(jsonObj.AddAt(objToAdd, ""));
             Assert.AreEqual("[\"a\",1]", jsonObj.GetProperty("_"));
@@ -121,10 +122,12 @@ namespace RestTests
         [TestMethod, TestCategory("Unit")]
         public void JsonObjectGetPropertyTest()
         {
-            var jsonObj = new JsonObject(JsonTest2);
+            var jsonObj = new JsonObject(JsonTest2, true);
             Assert.AreEqual("2015-01-01T00:00:00", jsonObj.GetProperty("DateValue"));
             Assert.AreEqual("{\"one\":1,\"two\":2}", jsonObj.GetProperty("Tree"), "Get sub-object returns serialized sub-object");
-            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"too\"]]", jsonObj.GetProperty("Test"), "Get Array succeeds");
+            // too doesn't get str
+            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"  too\"]]", jsonObj.GetProperty("Test"), "Get Array succeeds, too doesn't get trimmed");
+            Assert.AreEqual("too", jsonObj.GetProperty("Test[1][1]"), "too gets trimmed when the flag is on");
         }
     }
 }

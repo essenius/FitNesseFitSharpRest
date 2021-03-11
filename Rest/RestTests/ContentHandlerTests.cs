@@ -24,14 +24,14 @@ namespace RestTests
         public void ContentHandlerObsoleteTest()
         {
             var h = new ContentHandler();
-#pragma warning disable 0618
             var obj1 = h.CreateObjectFrom("<a><b>test</b><c/></a>");
             var obj2 = h.CreateObjectFromTypeInAssembly("xml", "RestTests.FewTypes", "RestTests.dll");
             var obj3 = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
-#pragma warning restore 0618
+            var obj4 = h.CreateObjectFromPropertyOf("a", obj1);
             Assert.IsNotNull(obj1);
             Assert.IsNotNull(obj2);
             Assert.IsNotNull(obj3);
+            Assert.IsNotNull(obj4);
         }
 
         [TestMethod, TestCategory("Unit")]
@@ -49,7 +49,8 @@ namespace RestTests
         {
             var h = new ContentHandler();
             var baseObj = h.ObjectFrom("<a><b>test</b></a>");
-            var subObj = h.ObjectFromPropertyOf("/a", baseObj);
+            // use the deprecated one at least once to ensure it works
+            var subObj = h.CreateObjectFromPropertyOf("/a", baseObj);
             Assert.AreEqual("<b>test</b>", subObj.Serialize());
             subObj = h.ObjectFromPropertyOf("/q", baseObj);
             Assert.IsTrue(string.IsNullOrEmpty(subObj.Serialize()));

@@ -25,6 +25,7 @@ namespace Rest.ContentObjects
     internal class JsonObject : ContentObject
     {
         private JObject _jsonObject;
+        private bool _trimWhitespace;
 
 
         private bool SetObject(string content)
@@ -55,8 +56,9 @@ namespace Rest.ContentObjects
             }
         }
 
-        public JsonObject(object sourceObject)
+        public JsonObject(object sourceObject, bool trimWhitespace = false)
         {
+            _trimWhitespace = trimWhitespace;
             if (sourceObject is string sourceString)
             {
                 if (SetObject(sourceString)) return;
@@ -165,9 +167,9 @@ namespace Rest.ContentObjects
         /// <returns>the property indicated by the locator</returns>
         internal override string GetProperty(string locator)
         {
-            if (_jsonObject.SelectToken(locator) is JValue tokenValue) return tokenValue.Value?.ToString();
+            if (_jsonObject.SelectToken(locator) is JValue tokenValue) return TrimIfNeeded(tokenValue.Value?.ToString());
             var container = _jsonObject.SelectToken(locator) as JContainer;
-            return container?.ToString(Formatting.None);
+            return TrimIfNeeded( container?.ToString(Formatting.None));
         }
 
         /// <summary>Get the property type satisfying the locator</summary>
@@ -212,5 +214,12 @@ namespace Rest.ContentObjects
         }
 
         public override string ToString() => "JSON Object";
+
+        // we may trimming values sometimes because FitNesse does trimming too for the comparison values. 
+        // Leading or trailing whitespace in property values shouldn't happen too often, just making things more robust.
+        private string TrimIfNeeded(string input)
+        {
+            return _trimWhitespace ? input.Trim() : input;
+        }
     }
 }

@@ -113,7 +113,7 @@ namespace RestTests
         public void XmlObjectAddXmlTest()
         {
             var xmlObj = new XmlObject(AtomXml, "atom", "m:type");
-            var objToAdd = new XmlObject("<?xml version=\"1.0\"?><contributor><name>Lara</name></contributor>", null, null);
+            var objToAdd = new XmlObject("<?xml version=\"1.0\"?><contributor><name>  Lara  </name></contributor>", null, null);
             xmlObj.AddAt(objToAdd, "/atom:feed/atom:entry[2]/atom:content/m:properties");
             Assert.AreEqual("Lara", xmlObj.Evaluate("/atom:feed/atom:entry[2]/atom:content/m:properties/contributor/name"));
         }

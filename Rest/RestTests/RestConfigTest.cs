@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -38,6 +38,7 @@ namespace RestTests
                 new List<string> {"DefaultXmlNameSpaceKey", "atom"},
                 new List<string> {"XmlValueTypeAttribute", string.Empty},
                 new List<string> {"Timeout", "7.5"},
+                new List<string> {"TrimWhitespace", "false"},
                 new List<string> {"CookieDomain", "localhost"},
                 new List<string> {"Cookies", "cookie1:value1\r\ncookie2:value2"},
                 new List<string> {"SecurityProtocol", "Tls12"},

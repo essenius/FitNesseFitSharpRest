@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2020 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -32,6 +32,7 @@ namespace Rest.Model
             DefaultUserAgent = "FitNesseRest";
             DefaultXmlNameSpaceKey = "atom";
             Timeout = 10D; // seconds
+            TrimWhitespace = false;
             XmlValueTypeAttribute = string.Empty;
             ContentTypeMap = new NameValueCollection();
             ContentTypeMap.Set("application/xml", "xml");
@@ -58,6 +59,7 @@ namespace Rest.Model
         private IWebProxy Proxy { get; set; }
         public Encoding RequestEncoding { get; private set; }
         private double Timeout { get; set; }
+        public bool TrimWhitespace { get; set; }
         public string XmlValueTypeAttribute { get; private set; }
 
         /// <summary>Determine the type of content handler we need  based on the content type</summary>
@@ -83,7 +85,7 @@ namespace Rest.Model
 
         /// <summary>Set session context parameter based on an identifier</summary>
         /// <param name="key">the identifier indicating the parameter (case insensitive).
-        /// Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, DefaultUserAgent, DefaultUserAgent,
+        /// Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent, DefaultUserAgent,
         /// DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, CookieDomain, Cookies, SecurityProtocol</param>
         /// <param name="value">the value to set the context parameter to</param>
         /// <returns>true if successful, false if not</returns>
@@ -107,7 +109,8 @@ namespace Rest.Model
                     CookieContainer.Add(cookies);
                     return true;
                 }},
-                {@"SECURITYPROTOCOL", v => { SecurityProtocol = v; return true; } }
+                {@"SECURITYPROTOCOL", v => { SecurityProtocol = v; return true; }},
+                {@"TRIMWHITESPACE", v => { TrimWhitespace = bool.Parse(v); return true; }}
             };
 
             var upperKey = key.ToUpperInvariant();
