@@ -17,10 +17,14 @@ using Rest.Utilities;
 
 namespace Rest.ContentObjects
 {
+    /// <summary>Types of content that can be handled</summary>
     public enum ContentHandler
     {
+        /// <summary>JSON content</summary>
         Json,
+        /// <summary>XML content</summary>
         Xml,
+        /// <summary>Text content</summary>
         Text
     }
 

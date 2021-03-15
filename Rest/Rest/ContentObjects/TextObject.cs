@@ -27,7 +27,7 @@ namespace Rest.ContentObjects
 
         private string _content;
 
-        public TextObject(object content)
+        public TextObject(object content, bool trimWhitespace = false) : base(trimWhitespace)
         {
             if (!(content is string))
             {
@@ -35,12 +35,6 @@ namespace Rest.ContentObjects
             }
             _content = content.ToString();
         }
-
-        /// <summary>Check whether the input is valid text (i.e. no control characters except newlines and tabs)</summary>
-        /// <param name="input">the input to be checked</param>
-        /// <returns>whether the input is valid</returns>
-        public static bool IsValid(string input) =>
-            !input.Any(ch => char.IsControl(ch) && ch != '\r' && ch != '\n' && ch != '\t');
 
         /// <remarks>Adding text to text objects is not supported</remarks>
         internal override bool AddAt(ContentObject objToAdd, string locator) => throw new NotImplementedException();
@@ -60,7 +54,7 @@ namespace Rest.ContentObjects
             // and we need that to make the MatchGroupPattern work across multiple lines
             var regex = new Regex(matcher, RegexOptions.Singleline);
             var match = regex.Match(_content);
-            return match.Success ? match.Groups[1].Value : null;
+            return match.Success ? TrimIfNeeded(match.Groups[1].Value) : null;
         }
 
         /// <summary>Get the property values satisfying the locator (can be more than one)</summary>
@@ -89,6 +83,12 @@ namespace Rest.ContentObjects
         /// <param name="locator">Regular expression indicating the property in the JSON object</param>
         /// <returns>the property type indicated by the locator</returns>
         internal override string GetPropertyType(string locator) => GetProperty(locator)?.CastToInferredType()?.GetType().ToString();
+
+        /// <summary>Check whether the input is valid text (i.e. no control characters except newlines and tabs)</summary>
+        /// <param name="input">the input to be checked</param>
+        /// <returns>whether the input is valid</returns>
+        public static bool IsValid(string input) =>
+            !input.Any(ch => char.IsControl(ch) && ch != '\r' && ch != '\n' && ch != '\t');
 
         /// <returns>a serializable (string) version of the object</returns>
         internal override string Serialize() => _content;

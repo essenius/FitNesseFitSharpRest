@@ -36,7 +36,8 @@ namespace Rest.ContentObjects
         /// <param name="content">the content to be parsed to XML</param>
         /// <param name="defaultNameSpaceKey">the default namespace</param>
         /// <param name="valueTypeAttribute">the attribute used to indicate what value type we have (can be null)</param>
-        public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute)
+        /// <param name="trimWhitespace">whether or not to trim whitespace from values</param>
+        public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute, bool trimWhitespace = false) : base(trimWhitespace)
         {
             var contentString = StringContent(content);
             _defaultNameSpaceKey = defaultNameSpaceKey;
@@ -47,7 +48,6 @@ namespace Rest.ContentObjects
             _navigator = _xmlDocument.CreateNavigator();
             _navigator.MoveToFollowing(XPathNodeType.Element);
             var namespaces = _navigator.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
-            if (namespaces == null) return;
             Debug.Assert(_navigator.NameTable != null, "navigator.NameTable != null");
             _namespaceManager = new XmlNamespaceManager(_navigator.NameTable);
             foreach (var entry in namespaces)
@@ -200,7 +200,7 @@ namespace Rest.ContentObjects
         /// <summary>Evaluate the object using a matcher</summary>
         /// <param name="matcher">XPath query to be matched</param>
         /// <returns>the value that satisfies the matcher, or null if no match</returns>
-        internal override string Evaluate(string matcher) => EvaluateInternal(matcher)?.ToString();
+        internal override string Evaluate(string matcher) => TrimIfNeeded(EvaluateInternal(matcher)?.ToString());
 
         private object EvaluateInternal(string matcher)
         {
@@ -275,7 +275,7 @@ namespace Rest.ContentObjects
         internal override string GetProperty(string locator)
         {
             var element = SelectElement(locator);
-            return element.MoveNext() ? element.Current.Value : string.Empty;
+            return element.MoveNext() ? TrimIfNeeded(element.Current.Value) : string.Empty;
         }
 
         /// <summary>Get the property type satisfying the locator</summary>

@@ -190,6 +190,7 @@ namespace Rest
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
         public static string Serialize(ContentObject contentObject) => contentObject.Serialize();
 
+        /// <param name="locator">the specification of the property to be serialized</param>
         /// <param name="contentObject">the object to be represented in text</param>
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
         public static string SerializeProperty(string locator, ContentObject contentObject) => contentObject.SerializeProperty(locator);

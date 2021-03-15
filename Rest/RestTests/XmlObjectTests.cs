@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -113,7 +113,7 @@ namespace RestTests
         public void XmlObjectAddXmlTest()
         {
             var xmlObj = new XmlObject(AtomXml, "atom", "m:type");
-            var objToAdd = new XmlObject("<?xml version=\"1.0\"?><contributor><name>  Lara  </name></contributor>", null, null);
+            var objToAdd = new XmlObject("<?xml version=\"1.0\"?><contributor><name>Lara</name></contributor>", null, null);
             xmlObj.AddAt(objToAdd, "/atom:feed/atom:entry[2]/atom:content/m:properties");
             Assert.AreEqual("Lara", xmlObj.Evaluate("/atom:feed/atom:entry[2]/atom:content/m:properties/contributor/name"));
         }
@@ -127,25 +127,19 @@ namespace RestTests
         }
 
         [TestMethod, TestCategory("Unit")]
-        public void XmlObjectCreateMultiRootTest()
-        {
-            var a = new XmlObject("<a>test</a><b>test</b>", "a", null);
-            Assert.AreEqual("<root><a>test</a><b>test</b></root>", a.Serialize());
-        }
-
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
-        public void XmlObjectWrongXmlTest()
-        {
-            var _ = new XmlObject("qwe", null, null);
-        }
-
-        [TestMethod, TestCategory("Unit")]
         public void XmlObjectCreateFromJsonTest()
         {
             var a = new XmlObject("{ \"test\": 1 }", null, null);
             Assert.AreEqual("<test>1</test>", a.Serialize());
             var b = new XmlObject("{ \"test\": 1, \"a\": \"b\" }", null, null);
             Assert.AreEqual("<root><test>1</test><a>b</a></root>", b.Serialize());
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void XmlObjectCreateMultiRootTest()
+        {
+            var a = new XmlObject("<a>test</a><b>test</b>", "a", null);
+            Assert.AreEqual("<root><a>test</a><b>test</b></root>", a.Serialize());
         }
 
         [TestMethod, TestCategory("Unit")]
@@ -162,7 +156,7 @@ namespace RestTests
             const string source = "<data>" + items + "</data>";
             var xmlObject = new XmlObject(source, null, null);
             var evaluation = xmlObject.Evaluate("/data");
-            Assert.AreEqual(items,evaluation);
+            Assert.AreEqual(items, evaluation);
             Assert.AreEqual("3349", xmlObject.Evaluate("/data/item[@id='myId']"));
             Assert.AreEqual("2268", xmlObject.Evaluate("/data/item[@id='otherId']"));
             Assert.AreEqual("True", xmlObject.Evaluate("5 > 2"));
@@ -234,6 +228,25 @@ namespace RestTests
             Assert.IsFalse(a.SetProperty("/any", "should not work"));
             Assert.IsTrue(a.SetProperty("/root/@id", "test"));
             Assert.AreEqual("test", a.GetProperty("/root/@id"));
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void XmlObjectTrimTest()
+        {
+            const string source = "<text>   aa   </text>";
+            const string locator = "/text";
+            var noTrim = new XmlObject(source, "q", null);
+            Assert.AreEqual("   aa   ", noTrim.GetProperty(locator));
+            Assert.AreEqual("   aa   ", noTrim.Evaluate(locator));
+            var trim = new XmlObject(source, "q", null, true);
+            Assert.AreEqual("aa", trim.GetProperty(locator));
+            Assert.AreEqual("aa", trim.Evaluate(locator));
+        }
+
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void XmlObjectWrongXmlTest()
+        {
+            var _ = new XmlObject("qwe", null, null);
         }
     }
 }

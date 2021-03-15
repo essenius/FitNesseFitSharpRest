@@ -20,3 +20,4 @@
 2.5.3 Removed [Documentation] attributes
 2.6.0 Introduced gzip/deflate support, introduced ObjectFrom* to replace CreateObjectFrom* over time, added ObjectFromPropertyOf to allow extracting properties as new objects.
 2.6.1 Added boolean configuration entry "TrimWhitespace" to cater for JSON payloads that may have whitespace around the values (false by default). 
+2.6.2 Made TrimWhitespace work for XML and TEXT payloads as well, and now works with Evaluate too.

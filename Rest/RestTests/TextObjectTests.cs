@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -20,6 +20,12 @@ namespace RestTests
     [TestClass]
     public class TextObjectTests
     {
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(NotImplementedException))]
+        public void TextObjectAddToTest()
+        {
+            new TextObject(string.Empty).AddAt(null, string.Empty);
+        }
+
         [TestMethod, TestCategory("Unit"), ExpectedException(typeof(NotImplementedException)),
          SuppressMessage("ReSharper", "UnusedVariable", Justification = "Forcing exception")]
         public void TextObjectCreateWithNonStringThrowsException()
@@ -79,10 +85,17 @@ namespace RestTests
             Assert.AreEqual("abc=456; def=789", textObject.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(NotImplementedException))]
-        public void TextObjectAddToTest()
+        [TestMethod, TestCategory("Unit")]
+        public void TextObjectTrimTest()
         {
-            new TextObject(string.Empty).AddAt(null, string.Empty);
+            const string source = "text:   aa   ";
+            const string locator = "text:(.*)";
+            var noTrim = new TextObject(source);
+            Assert.AreEqual("   aa   ", noTrim.GetProperty(locator));
+            Assert.AreEqual("   aa   ", noTrim.Evaluate(locator));
+            var trim = new TextObject(source, true);
+            Assert.AreEqual("aa", trim.GetProperty(locator));
+            Assert.AreEqual("aa", trim.Evaluate(locator));
         }
     }
 }

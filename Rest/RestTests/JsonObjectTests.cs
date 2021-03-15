@@ -21,7 +21,7 @@ namespace RestTests
     public class JsonObjectTests
     {
         private const string JsonTest =
-        "{ \"Id\": 0, \"Name\": null, \"IsShared\": false, \"LastModifiedDate\": \"0001-01-01T00:00:00\", \"LastModifiedName\": \"John Doe\", \"Flags\": [] }";
+            "{ \"Id\": 0, \"Name\": null, \"IsShared\": false, \"LastModifiedDate\": \"0001-01-01T00:00:00\", \"LastModifiedName\": \"John Doe\", \"Flags\": [] }";
 
         private const string JsonTest2 =
             "{ \"Test\" : [ [ \"hi\", \"there\" ], [ \"hello\", \"  too\" ] ], \"DateValue\": \"2015-01-01T00:00:00\", \"Tree\": { \"one\": 1, \"two\": 2 } }";
@@ -29,25 +29,12 @@ namespace RestTests
         [TestMethod, TestCategory("Unit")]
         public void JsonObjectAddArrayTest()
         {
-            var jsonObj = new JsonObject(JsonTest2, false);
+            var jsonObj = new JsonObject(JsonTest2);
             Assert.AreEqual("  too", jsonObj.GetProperty("Test[1][1]"), "Too doesn't get trimmed if flag is off");
             var objToAdd = new JsonObject("[ \"a\", 1 ]");
             Assert.IsTrue(jsonObj.AddAt(objToAdd, ""));
             Assert.AreEqual("[\"a\",1]", jsonObj.GetProperty("_"));
             Assert.AreEqual("Integer", jsonObj.GetPropertyType("_[1]"));
-        }
-
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
-        public void JsonObjectWrongContentTest()
-        {
-            var _ = new JsonObject("qwe");
-        }
-
-        [TestMethod, TestCategory("Unit")]
-        public void JsonObjectCreateFromXmlTest()
-        {
-            var a = new JsonObject("<test>1</test>");
-            Assert.AreEqual("{\"test\":\"1\"}", a.Serialize());
         }
 
         [TestMethod, TestCategory("Unit")]
@@ -64,6 +51,13 @@ namespace RestTests
             Assert.IsTrue(serializedObj.Contains("NewProperty"), "Object contains new property");
             Assert.AreEqual(initialLength + jsonStringToAdd.Length - 1, serializedObj.Length, "Size OK");
             Debug.Print(jsonObj.Serialize());
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void JsonObjectCreateFromXmlTest()
+        {
+            var a = new JsonObject("<test>1</test>");
+            Assert.AreEqual("{\"test\":\"1\"}", a.Serialize());
         }
 
         [TestMethod, TestCategory("Unit")]
@@ -107,7 +101,18 @@ namespace RestTests
             Assert.AreEqual(7, props.Count);
             Assert.IsTrue(props.Contains("Id"));
             Assert.IsTrue(props.Contains("Flags"));
-        } 
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void JsonObjectGetPropertyTest()
+        {
+            var jsonObj = new JsonObject(JsonTest2, true);
+            Assert.AreEqual("2015-01-01T00:00:00", jsonObj.GetProperty("DateValue"));
+            Assert.AreEqual("{\"one\":1,\"two\":2}", jsonObj.GetProperty("Tree"), "Get sub-object returns serialized sub-object");
+            // too doesn't get str
+            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"  too\"]]", jsonObj.GetProperty("Test"), "Get Array succeeds, too doesn't get trimmed");
+            Assert.AreEqual("too", jsonObj.GetProperty("Test[1][1]"), "too gets trimmed when the flag is on");
+        }
 
         [TestMethod, TestCategory("Unit")]
         public void JsonObjectSetPropertyTest()
@@ -120,14 +125,22 @@ namespace RestTests
         }
 
         [TestMethod, TestCategory("Unit")]
-        public void JsonObjectGetPropertyTest()
+        public void JsonObjectTrimTest()
         {
-            var jsonObj = new JsonObject(JsonTest2, true);
-            Assert.AreEqual("2015-01-01T00:00:00", jsonObj.GetProperty("DateValue"));
-            Assert.AreEqual("{\"one\":1,\"two\":2}", jsonObj.GetProperty("Tree"), "Get sub-object returns serialized sub-object");
-            // too doesn't get str
-            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"  too\"]]", jsonObj.GetProperty("Test"), "Get Array succeeds, too doesn't get trimmed");
-            Assert.AreEqual("too", jsonObj.GetProperty("Test[1][1]"), "too gets trimmed when the flag is on");
+            const string source = "{\"text\":\"   aa   \"}";
+            const string locator = "text";
+            var noTrim = new JsonObject(source);
+            Assert.AreEqual("   aa   ", noTrim.GetProperty(locator));
+            Assert.AreEqual("   aa   ", noTrim.Evaluate(locator));
+            var trim = new JsonObject(source, true);
+            Assert.AreEqual("aa", trim.GetProperty(locator));
+            Assert.AreEqual("aa", trim.Evaluate(locator));
+        }
+
+        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        public void JsonObjectWrongContentTest()
+        {
+            var _ = new JsonObject("qwe");
         }
     }
 }

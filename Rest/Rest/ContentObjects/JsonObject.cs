@@ -25,40 +25,9 @@ namespace Rest.ContentObjects
     internal class JsonObject : ContentObject
     {
         private JObject _jsonObject;
-        private bool _trimWhitespace;
 
-
-        private bool SetObject(string content)
+        public JsonObject(object sourceObject, bool trimWhitespace = false) : base(trimWhitespace)
         {
-            // not using JOBject.Parse because that changes date formats
-            using (var reader = new JsonTextReader(new StringReader(content)) {DateParseHandling = DateParseHandling.None})
-            {
-                try
-                {
-                    _jsonObject = JObject.Load(reader);
-                    return true;
-                }
-                catch (JsonReaderException)
-                {
-                    try
-                    {
-                        // not an object, assume it's an array
-                        var array = JArray.Load(reader);
-                        _jsonObject = new JObject(new JProperty("_", array));
-                        return true;
-                    }
-                    catch (JsonReaderException)
-                    {
-                        // Unable to parse as JSON
-                        return false;
-                    }
-                }
-            }
-        }
-
-        public JsonObject(object sourceObject, bool trimWhitespace = false)
-        {
-            _trimWhitespace = trimWhitespace;
             if (sourceObject is string sourceString)
             {
                 if (SetObject(sourceString)) return;
@@ -78,21 +47,6 @@ namespace Rest.ContentObjects
             else
             {
                 _jsonObject = JObject.FromObject(sourceObject);
-            }
-        }
-
-        /// <param name="input">an input string that might be in JSON format</param>
-        /// <returns>whether the input is valid JSON</returns>
-        public static bool IsValid(string input)
-        {
-            try
-            {
-                JObject.Parse(input);
-                return true;
-            }
-            catch (JsonReaderException)
-            {
-                return false;
             }
         }
 
@@ -141,7 +95,7 @@ namespace Rest.ContentObjects
         /// <summary>Evaluate the object using a matcher</summary>
         /// <param name="matcher">JPath query to be matched</param>
         /// <returns>the value that satisfy the matcher, or null if no match</returns>
-        internal override string Evaluate(string matcher) => (string) _jsonObject.SelectToken(matcher);
+        internal override string Evaluate(string matcher) => TrimIfNeeded((string) _jsonObject.SelectToken(matcher));
 
         /// <summary>Get the property values satisfying the locator (can be more than one)</summary>
         /// <param name="locator">JPath query indicating the properties in the JSON object</param>
@@ -169,7 +123,7 @@ namespace Rest.ContentObjects
         {
             if (_jsonObject.SelectToken(locator) is JValue tokenValue) return TrimIfNeeded(tokenValue.Value?.ToString());
             var container = _jsonObject.SelectToken(locator) as JContainer;
-            return TrimIfNeeded( container?.ToString(Formatting.None));
+            return TrimIfNeeded(container?.ToString(Formatting.None));
         }
 
         /// <summary>Get the property type satisfying the locator</summary>
@@ -183,6 +137,21 @@ namespace Rest.ContentObjects
             return jVal?.Type.ToString() ?? token.Type.ToString();
         }
 
+        /// <param name="input">an input string that might be in JSON format</param>
+        /// <returns>whether the input is valid JSON</returns>
+        public static bool IsValid(string input)
+        {
+            try
+            {
+                JObject.Parse(input);
+                return true;
+            }
+            catch (JsonReaderException)
+            {
+                return false;
+            }
+        }
+
         /// <returns>a serializable (string) version of the object</returns>
         internal override string Serialize() => _jsonObject?.ToString(Formatting.None);
 
@@ -190,6 +159,34 @@ namespace Rest.ContentObjects
         /// <param name="locator">property to serialize</param>
         /// <returns>the serialized property</returns>
         internal override string SerializeProperty(string locator) => GetProperty(locator);
+
+        private bool SetObject(string content)
+        {
+            // not using JOBject.Parse because that changes date formats
+            using (var reader = new JsonTextReader(new StringReader(content)) {DateParseHandling = DateParseHandling.None})
+            {
+                try
+                {
+                    _jsonObject = JObject.Load(reader);
+                    return true;
+                }
+                catch (JsonReaderException)
+                {
+                    try
+                    {
+                        // not an object, assume it's an array
+                        var array = JArray.Load(reader);
+                        _jsonObject = new JObject(new JProperty("_", array));
+                        return true;
+                    }
+                    catch (JsonReaderException)
+                    {
+                        // Unable to parse as JSON
+                        return false;
+                    }
+                }
+            }
+        }
 
         /// <summary>Set the value of a property</summary>
         /// <param name="locator">JPath query indicating the property</param>
@@ -214,12 +211,5 @@ namespace Rest.ContentObjects
         }
 
         public override string ToString() => "JSON Object";
-
-        // we may trimming values sometimes because FitNesse does trimming too for the comparison values. 
-        // Leading or trailing whitespace in property values shouldn't happen too often, just making things more robust.
-        private string TrimIfNeeded(string input)
-        {
-            return _trimWhitespace ? input.Trim() : input;
-        }
     }
 }
