@@ -25,7 +25,11 @@ namespace Rest
 
         /// <summary>Configuration for the Rest Tester</summary> 
         /// <guarantees>Session context has been set</guarantees>
-        public RestConfig() => _context = Injector.InjectSessionContext();
+        public RestConfig()
+        {
+            Injector.CleanSessionContext();
+            _context = Injector.InjectSessionContext();
+        }
 
         /// <summary>Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey,
         /// XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout
