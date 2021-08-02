@@ -35,8 +35,8 @@ jobs:
         
       # Restore NuGet Packages
       - name: Restore NuGet Packages
-        run: nuget restore /Rest/Rest.sln
+        run: nuget restore ./Rest/Rest.sln
         
       # Build Solution
       - name: Build Solution
-        run: msbuild /Rest/Rest.sln /p:Configuration=Release
+        run: msbuild ./Rest/Rest.sln /p:Configuration=Release
