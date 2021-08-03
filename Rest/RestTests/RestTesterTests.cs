@@ -76,11 +76,6 @@ namespace RestTests
             Assert.AreEqual("Content-Length: 78\nContent-Type: application/json; charset=utf-8\n", responseHeaders);
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
-
-            Assert.IsTrue(rt.ResponseCookies().StartsWith("__cfduid="));
-            Assert.IsTrue(rt.RequestCookies.Contains("Path=/; Domain=.typicode.com; HttpOnly"), "Request Cookie exists");
-            Assert.IsTrue(rt.PropertyOfResponseCookie("value", "__cfduid").ToString().Length > 0);
-            Assert.IsTrue(rt.PropertyOfResponseCookie("value", 0).ToString().Length > 0);
         }
 
         [TestMethod, TestCategory("Integration")]
