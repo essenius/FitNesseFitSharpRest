@@ -40,3 +40,7 @@ jobs:
       # Build Solution
       - name: Build Solution
         run: msbuild ./Rest/Rest.sln /p:Configuration=Release
+        
+      # Run Unit Tests  
+      - name: Run Unit Tests
+        run: vstest.console.exe ./Rest/RestTests/bin/Release/RestTests.dll
