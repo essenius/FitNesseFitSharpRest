@@ -41,6 +41,10 @@ jobs:
       - name: Build Solution
         run: msbuild ./Rest/Rest.sln /p:Configuration=Release
         
+      # Install vstest
+      - name: Install VS Test
+        run: nuget install Microsoft.TestPlatform
+        
       # Run Unit Tests  
       - name: Run Unit Tests
         run: vstest.console.exe ./Rest/RestTests/bin/Release/RestTests.dll
