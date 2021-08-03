@@ -41,17 +41,27 @@ namespace RestTests
             Assert.IsTrue("abc".IsLike("a*"));
         }
 
-        [TestMethod, TestCategory("Unit"), DataSource(@"Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\TestData.xml",
-             "MatchParser", DataAccessMethod.Sequential), DeploymentItem("RestTests\\TestData.xml")]
-        public void ExtensionFunctionsParseKeyValuePairTest()
+        
+        [DataTestMethod, TestCategory("Unit")]
+        [DataRow("  abc  ", "", "abc")]
+        [DataRow("abc:def", "abc", "def")]
+        [DataRow("abc : def", "abc", "def")]
+        [DataRow("abc:def:ghi", "abc", "def:ghi")]
+        [DataRow("abc : def:ghi", "abc", "def:ghi")]
+        [DataRow("abc : def : ghi", "abc", "def : ghi")]
+        [DataRow(":abc", "", "abc")]
+        [DataRow("abc:", "abc", "")]
+        [DataRow(":", "", "")]
+        [DataRow(":abc", "", "abc")]
+        [DataRow("", "", "")]
+        public void ExtensionFunctionsParseKeyValuePairTest(string input, string expectedMethod, string expectedLocator)
         {
-            var input = TestContext.DataRow["input"].ToString();
-            var expectedMethod = TestContext.DataRow["expectedMethod"].ToString();
-            var expectedLocator = TestContext.DataRow["expectedLocator"].ToString();
             var kvp = input.ParseKeyValuePair();
             Assert.AreEqual(expectedMethod, kvp.Key, "Method OK");
             Assert.AreEqual(expectedLocator, kvp.Value, "Locator OK");
         }
+
+
 
         [TestMethod, TestCategory("Unit")]
         public void ExtensionFunctionsStripAfterTest()
