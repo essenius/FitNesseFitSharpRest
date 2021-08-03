@@ -41,11 +41,8 @@ namespace RestTests
             var uri = new Uri("http://localhost/api");
             var factory = new RestRequestFactory();
             var restRequest = factory.Create(uri, context);
-            // var target = new PrivateObject(restRequest);
             var method = restRequest.GetType().GetMethod("SetBody", BindingFlags.Instance | BindingFlags.NonPublic);
-            //target.Invoke("SetBody", "hello", Encoding.GetEncoding("iso-8859-1"), "GET");
             method.Invoke(restRequest, new object[] { "hello", Encoding.GetEncoding("iso-8859-1"), "GET" });
-            //var req = target.GetFieldOrProperty("_request") as HttpWebRequest;
 
             var fieldInfo = restRequest.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
             var req = fieldInfo.GetValue(restRequest) as HttpWebRequest;
@@ -98,9 +95,6 @@ namespace RestTests
 
             // We force a Date entry in the Headers property of the request by setting the request's Date property
             // That will cause the case statement in UpdateHeaders to choose default (i.e. throw argumentexception).
-            //  var po = new PrivateObject(target);
-            //var request = po.GetField("_request") as HttpWebRequest;
-
             var fieldInfo = target.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
             var request = fieldInfo.GetValue(target) as HttpWebRequest;
             Assert.IsNotNull(request, "Request field captured");
