@@ -21,8 +21,6 @@ using Rest.Utilities;
 namespace Rest
 {
     /// <summary>Script fixture for REST testing</summary>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp"),
-     SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global", Justification = "Enumerables not understood by FitSharp")]
     public class RestTester
     {
         private readonly ContentObjectFactory _contentObjectFactory;
@@ -64,7 +62,6 @@ namespace Rest
         public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
 
         /// <summary>The absolute URI used for the request</summary>
-        [SuppressMessage("Design", "CA1056:Uri properties should not be strings", Justification = "Interface to FitNesse")]
         public string RequestUri => _session?.Request?.RequestUri.AbsoluteUri;
 
         /// <summary>The HTTP response code of the REST request</summary>

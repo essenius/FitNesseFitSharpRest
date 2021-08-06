@@ -21,8 +21,7 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
-        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature"),
-         SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Test framework signature"), ClassInitialize]
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature")]
         public static void ClassInitialize(TestContext context)
         {
             // SessionContext is a singleton, so could have been set by other tests. Make sure it is pristine.

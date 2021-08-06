@@ -160,7 +160,7 @@ namespace RestTests
             Assert.IsTrue(ContentHandler.SetPropertyValueOfTo("Name", baseObj, "Jane"), "Change name");
             var fileOut = ContentHandler.SaveObjectTo(baseObj, "");
             var h2 = new ContentHandler();
-            var changedObj = h2.LoadObjectFrom(fileOut);
+            var _ = h2.LoadObjectFrom(fileOut);
             Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Unchaned Id matches");
             Assert.AreEqual("Jane", ContentHandler.PropertyValueOf("Name", baseObj), "Changed name matches");
             Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "Unchaned IsShared matches");

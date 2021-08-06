@@ -9,10 +9,6 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
-using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
 using System.Globalization;
 using System.Reflection;
 
@@ -32,15 +28,12 @@ namespace Rest
 
         public static string VersionInfo(string qualifier)
         {
-            switch (qualifier.ToUpperInvariant())
+            return qualifier.ToUpperInvariant() switch
             {
-                case "SHORT":
-                    return Version;
-                case "EXTENDED":
-                    return ExtendedInfo;
-                default:
-                    return string.Format(CultureInfo.InvariantCulture, "{0} {1}", ApplicationName, Version);
-            }
+                "SHORT" => Version,
+                "EXTENDED" => ExtendedInfo,
+                _ => string.Format(CultureInfo.InvariantCulture, "{0} {1}", ApplicationName, Version)
+            };
         }
     }
 }

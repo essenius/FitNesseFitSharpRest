@@ -69,19 +69,15 @@ namespace Rest.ContentObjects
         /// <param name="contentType">the type (Json, Xml, Text)</param>
         /// <param name="source">the input object to derive the content object from</param>
         /// <returns>the content object</returns>
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification = "default handles the rest")]
         public ContentObject Create(string contentType, object source)
         {
             var contentHandler = InferContentHandler(contentType, source);
-            switch (contentHandler)
+            return contentHandler switch
             {
-                case ContentHandler.Json:
-                    return new JsonObject(source, _sessionContext.TrimWhitespace);
-                case ContentHandler.Xml:
-                    return new XmlObject(source, _sessionContext.DefaultXmlNameSpaceKey, _sessionContext.XmlValueTypeAttribute);
-                default:
-                    return new TextObject(source);
-            }
+                ContentHandler.Json => (ContentObject) new JsonObject(source, _sessionContext.TrimWhitespace),
+                ContentHandler.Xml => new XmlObject(source, _sessionContext.DefaultXmlNameSpaceKey, _sessionContext.XmlValueTypeAttribute),
+                _ => new TextObject(source)
+            };
         }
     }
 }
