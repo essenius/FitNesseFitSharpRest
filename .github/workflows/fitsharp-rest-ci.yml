@@ -19,14 +19,11 @@ jobs:
       with:
         dotnet-version: 5.0.x
         
-    - name: Go To Rest folder
-      run: cd Rest
-      
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore .\Rest\Rest.sln
       
     - name: Build
-      run: dotnet build
+      run: dotnet build .\Rest\Rest.sln
       
     - name: Test
-      run: dotnet test
+      run: dotnet test .\Rest\Rest.sln
