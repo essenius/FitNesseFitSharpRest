@@ -41,19 +41,6 @@ namespace RestTests
             Assert.IsTrue("abc".IsLike("a*"));
         }
 
-#if NET48
-        [TestMethod, TestCategory("Unit"), DataSource(@"Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\TestData.xml",
-             "MatchParser", DataAccessMethod.Sequential), DeploymentItem("RestTests\\TestData.xml")]
-        public void ExtensionFunctionsParseKeyValuePairTest()
-        {
-            var input = TestContext.DataRow["input"].ToString();
-            var expectedMethod = TestContext.DataRow["expectedMethod"].ToString();
-            var expectedLocator = TestContext.DataRow["expectedLocator"].ToString();
-            var kvp = input.ParseKeyValuePair();
-            Assert.AreEqual(expectedMethod, kvp.Key, "Method OK");
-            Assert.AreEqual(expectedLocator, kvp.Value, "Locator OK");
-        }
-#else
         [DataTestMethod, TestCategory("Unit")]
         [DataRow("  abc  ", "", "abc")]
         [DataRow("abc:def", "abc", "def")]
@@ -72,7 +59,6 @@ namespace RestTests
             Assert.AreEqual(expectedMethod, kvp.Key, "Method OK");
             Assert.AreEqual(expectedLocator, kvp.Value, "Locator OK");
         }
-#endif
 
         [TestMethod, TestCategory("Unit")]
         public void ExtensionFunctionsStripAfterTest()

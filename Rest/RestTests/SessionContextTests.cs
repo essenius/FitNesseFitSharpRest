@@ -37,9 +37,7 @@ namespace RestTests
         public void SessionContextProxyTest()
         {
             var context = new SessionContext();
-            // We could do this via SetDefaults, but that is a bit elaborate. So cheating with a PrivateObject
-            // var target = new PrivateObject(context);
-            // default should be system; check how we get to google.
+            //Use reflection here to get/set private fields and invoke the private methods.
             var fieldInfo = context.GetType().GetProperty("Proxy", BindingFlags.NonPublic | BindingFlags.Instance);
             var iProxy = fieldInfo.GetValue(context) as IWebProxy;
             Assert.IsNotNull(iProxy);

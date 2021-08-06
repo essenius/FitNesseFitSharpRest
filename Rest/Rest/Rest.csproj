@@ -4,13 +4,15 @@
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+  
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	<Reference Include="System.Web" />
   </ItemGroup>
 
@@ -19,3 +21,4 @@
   </ItemGroup>
 
 </Project>
+

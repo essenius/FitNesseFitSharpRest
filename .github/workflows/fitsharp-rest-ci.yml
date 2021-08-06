@@ -27,3 +27,4 @@ jobs:
       
     - name: Test
       run: dotnet test .\Rest\Rest.sln
+
