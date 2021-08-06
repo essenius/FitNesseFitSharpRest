@@ -7,37 +7,26 @@ on:
     branches: [ master ]
 
 jobs:
-  dotnetcore:
+  CI:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+        
+    - name: Go To Rest folder
+      run: cd Rest
+      
     - name: Restore dependencies
-      run: dotnet restore ./Rest/Rest.sln
+      run: dotnet restore
+      
     - name: Build
-      run: dotnet build --no-restore ./Rest/Rest.sln
+      run: dotnet build
+      
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./Rest/Rest.sln
-
-  dotnetframework:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Framework
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 4.8
-    - name: Restore dependencies
-      run: dotnet restore ./Rest/Rest.sln
-    - name: Build
-      run: dotnet build --no-restore ./Rest/Rest.sln
-    - name: Test
-      run: dotnet test --no-build --verbosity normal ./Rest/Rest.sln
+      run: dotnet test
