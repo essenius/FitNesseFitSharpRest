@@ -20,13 +20,19 @@ namespace RestTests
         [TestMethod, TestCategory("Unit")]
         public void ApplicationInfoVersionInfoTest()
         {
-            const string shortInfo = ApplicationInfo.Version;
-            const string defaultInfo = ApplicationInfo.ApplicationName + " " + shortInfo;
-            const string extendedInfo = defaultInfo + ". " + ApplicationInfo.Description +
-                                        ". " + ApplicationInfo.Copyright;
+            var shortInfo = ApplicationInfo.Version;
+            var defaultInfo = ApplicationInfo.ApplicationName + " " + shortInfo;
+            var extendedInfo = defaultInfo + ". " + ApplicationInfo.Description +
+                               ". " + ApplicationInfo.Copyright;
             Assert.AreEqual(shortInfo, ApplicationInfo.VersionInfo("short"));
             Assert.AreEqual(defaultInfo, ApplicationInfo.VersionInfo(string.Empty));
             Assert.AreEqual(extendedInfo, ApplicationInfo.VersionInfo("Extended"));
+        }
+
+        [TestMethod, TestCategory("Unit")]
+        public void ApplicationInfoCopyrightTest()
+        {
+            Assert.IsTrue(ApplicationInfo.Copyright.StartsWith("Copyright ©"));
         }
     }
 }

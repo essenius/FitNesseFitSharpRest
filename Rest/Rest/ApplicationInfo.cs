@@ -9,17 +9,23 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Globalization;
+using System.Reflection;
 
 namespace Rest
 {
     internal static class ApplicationInfo
     {
-        public const string ApplicationName = "RestFixture";
-        public const string Author = "Rik Essenius";
-        public const string Copyright = "Copyright © Rik Essenius 2015-2021";
-        public const string Description = "A FitNesse fixture to test REST services";
-        public const string Version = "2.6.3";
+        private static Assembly ThisAssembly => Assembly. GetExecutingAssembly();
+
+        public static string ApplicationName { get; } = ThisAssembly.GetName().Name;
+        public static string Copyright { get; } = ThisAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
+        public static string Description { get; } = ThisAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+        public static string Version { get; } = ThisAssembly.GetName().Version.ToString();
 
         private static string ExtendedInfo => string.Format(CultureInfo.InvariantCulture, "{0} {1}. {2}. {3}",
             ApplicationName, Version, Description, Copyright);

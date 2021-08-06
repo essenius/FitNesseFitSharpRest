@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysysMode>AllEnabledByDefault</AnalysysMode>
+    <Version>3.0.1</Version>
+    <Authors>Rik Essenius</Authors>
+    <Description>A FitNesse/FitSharp fixture to test REST services</Description>
+    <Copyright>Copyright © Rik Essenius 2015-2021</Copyright>
+    <RepositoryUrl>https://github.com/essenius/FitNesseFitSharpRest</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
