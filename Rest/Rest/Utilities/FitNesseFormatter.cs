@@ -8,19 +8,31 @@
 //   Unless required by applicable law or agreed to in writing, software distributed under the License 
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
+#if NET48
 using System.Web;
+#else
+using Microsoft.Net.Http.Headers;
+#endif
 
 namespace Rest.Utilities
 {
     internal static class FitNesseFormatter
     {
+        #region Private Fields
+        /// <summary>
+        /// Valid cookie options.
+        /// </summary>
+        private static HashSet<string> _cookieOptions = new HashSet<string>(){"expires", "max-age", "domain", "path", "secure", "httponly", "samesite"};
+        #endregion
+
+        #region Public Methods
         /// <param name="cookies">a cookie collection (can be null)</param>
         /// <returns>string representations of the cookies, each cookie on a separate line. Returns null if cookies is null</returns>
         public static string CookieList(CookieCollection cookies)
@@ -64,21 +76,19 @@ namespace Rest.Utilities
             return returnValue;
         }
 
-        /// <param name="header">header name</param>
-        /// <param name="value">value of the header</param>
-        /// <returns>a string containing header name and value, separated by :, and ending with new line</returns>
-        private static string MultiLineHeader(string header, string value) => $"{header}: {value}\n";
-
+   
         /// <param name="input">input to be parsed</param>
         /// <param name="defaultDomain">default domain for the cookie (used if not specified)</param>
         /// <param name="utcNow">current date and time in UTC</param>
+        /// <param name="defaultPath">default path for the cookie (used if not specified)</param>
         /// <returns>a CookieCollection representing the cookie specification in the input</returns>
-        public static CookieCollection ParseCookies(string input, string defaultDomain, DateTime utcNow)
+        public static CookieCollection ParseCookies(string input, string defaultDomain, DateTime utcNow, string defaultPath = "/")
         {
             var collection = new CookieCollection();
             var lines = input.SplitLines();
             foreach (var line in lines)
             {
+#if NET48
                 var cookieText = UpdateExpiresFromMaxAge(line, utcNow);
 
                 if (HttpCookie.TryParse(cookieText, out var httpCookie))
@@ -103,6 +113,38 @@ namespace Rest.Utilities
                 {
                     throw new ArgumentException($"Could not parse '{line}' as a cookie");
                 }
+#else
+                var cookieText = RemoveInvalidCookieOptions(line);
+                cookieText = UpdateExpiresFromMaxAge(cookieText, utcNow);
+            
+                if(SetCookieHeaderValue.TryParse(cookieText, out var httpCookie))
+                {
+                    var cookie = new Cookie
+                    {
+                        Name = httpCookie.Name.Value,
+                        Value = httpCookie.Value.Value,
+                        Domain = httpCookie.Domain.Value ?? defaultDomain,
+                        Path = httpCookie.Path.Value ?? defaultPath,
+                        HttpOnly = httpCookie.HttpOnly,
+                        Secure = httpCookie.Secure
+                    };
+                    
+                    if (httpCookie.Expires != null)
+                    {
+                        cookie.Expires = httpCookie.Expires.Value.UtcDateTime;
+                    }
+
+                    if (string.IsNullOrEmpty(cookie.Domain))
+                    {
+                        throw new ArgumentException($"Set CookieDomain or specify domain in the cookie specification for '{line}'");
+                    }
+                    collection.Add(cookie);
+                }
+                else
+                {
+                    throw new ArgumentException($"Could not parse '{line}' as a cookie");
+                }
+#endif
             }
             return collection;
         }
@@ -126,6 +168,15 @@ namespace Rest.Utilities
         /// <param name="replacement">value to replace newlines with</param>
         /// <returns>the input string with newlines replaced by the replacement value</returns>
         public static string ReplaceNewLines(string input, string replacement) => Regex.Replace(input, @"\r\n?|\n", replacement);
+
+#endregion
+
+#region Private Methods
+
+        /// <param name="header">header name</param>
+        /// <param name="value">value of the header</param>
+        /// <returns>a string containing header name and value, separated by :, and ending with new line</returns>
+        private static string MultiLineHeader(string header, string value) => $"{header}: {value}\n";
 
         /// <param name="cookieText">the original cookie text</param>
         /// <param name="utcNow">current date and time in UTC</param>
@@ -155,5 +206,38 @@ namespace Rest.Utilities
             // If not, add it.
             return cookieText + "; Expires=" + expires;
         }
+
+#if NET5_0
+
+        /// <summary>
+        /// Validate the input cookie string and remove the invalid field/option.
+        /// </summary>
+        /// <param name="cookieText">The original cookie text.</param>
+        /// <returns>The updated cookie text.</returns>
+        private static string RemoveInvalidCookieOptions(string cookieText)
+        {
+            var fields = cookieText.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            var stringBuilder = new StringBuilder(fields[0]);
+            if(fields.Length > 1)
+            {
+                for(int index = 1; index < fields.Length; index++)
+                {
+                    var trimedField = fields[index].Trim();
+                    if(string.IsNullOrEmpty(trimedField))
+                        continue;
+
+                    var kvp = trimedField.Split('=');
+                    if(kvp.Length > 0 && _cookieOptions.Contains(kvp[0].ToLower()))
+                    {
+                        stringBuilder.Append($";{trimedField}");
+                    }
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
+#endif
+#endregion
     }
+
 }
