@@ -11,6 +11,7 @@
 
 using System;
 using System.Net;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Model;
 
@@ -36,28 +37,27 @@ namespace RestTests
         public void SessionContextProxyTest()
         {
             var context = new SessionContext();
-            // We could do this via SetDefaults, but that is a bit elaborate. So cheating with a PrivateObject
-            var target = new PrivateObject(context);
-            // default should be system; check how we get to google.
-            var iProxy = target.GetFieldOrProperty("Proxy") as IWebProxy;
+            //Use reflection here to get/set private fields and invoke the private methods.
+            var fieldInfo = context.GetType().GetProperty("Proxy", BindingFlags.NonPublic | BindingFlags.Instance);
+            var iProxy = fieldInfo.GetValue(context) as IWebProxy;
             Assert.IsNotNull(iProxy);
             var proxyAddress = iProxy.GetProxy(new Uri("http://www.google.com"));
 
             // override the proxy and check if it was set
             context.SetConfig("Proxy", "http://localhost:8888");
-            var proxy = target.GetFieldOrProperty("Proxy") as WebProxy;
+            var proxy = fieldInfo.GetValue(context) as WebProxy;
             Assert.IsNotNull(proxy);
             Assert.AreEqual(new Uri("http://localhost:8888/"), proxy.Address);
 
             //remove the proxy and see if it is indeed gone
             context.SetConfig("Proxy", "None");
-            proxy = target.GetFieldOrProperty("Proxy") as WebProxy;
+            proxy = fieldInfo.GetValue(context) as WebProxy;
             Assert.IsNotNull(proxy);
             Assert.IsNull(proxy.Address);
 
             //Restore the system proxy and check if we can get the proxy address for google again
             context.SetConfig("Proxy", "System");
-            iProxy = target.GetFieldOrProperty("Proxy") as IWebProxy;
+            iProxy = fieldInfo.GetValue(context) as IWebProxy;
             Assert.IsNotNull(iProxy);
             Assert.AreEqual(proxyAddress, iProxy.GetProxy(new Uri("http://www.google.com")));
         }

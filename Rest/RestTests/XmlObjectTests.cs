@@ -10,6 +10,7 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
@@ -156,9 +157,11 @@ namespace RestTests
             const string source = "<data>" + items + "</data>";
             var xmlObject = new XmlObject(source, null, null);
             var evaluation = xmlObject.Evaluate("/data");
-            Assert.AreEqual(items, evaluation);
-            Assert.AreEqual("3349", xmlObject.Evaluate("/data/item[@id='myId']"));
-            Assert.AreEqual("2268", xmlObject.Evaluate("/data/item[@id='otherId']"));
+
+            // Apply CompareOptions.IgnoreSymbols enum here to support asserting on multiple platforms. e.g. New line symbol "\n\r" for Windows, and "\n" for Linux/Mac 
+            Assert.AreEqual(0, string.Compare(items, evaluation, CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
+            Assert.AreEqual(0, string.Compare("3349", xmlObject.Evaluate("/data/item[@id='myId']"), CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
+            Assert.AreEqual(0, string.Compare("2268", xmlObject.Evaluate("/data/item[@id='otherId']"), CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
             Assert.AreEqual("True", xmlObject.Evaluate("5 > 2"));
             Assert.AreEqual("abc", xmlObject.Evaluate("'abc'"));
             Assert.AreEqual(null, xmlObject.Evaluate("/data/nonexistingitem"));

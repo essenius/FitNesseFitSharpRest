@@ -40,7 +40,7 @@ namespace RestTests
                 new List<string> {"Timeout", "7.5"},
                 new List<string> {"TrimWhitespace", "false"},
                 new List<string> {"CookieDomain", "localhost"},
-                new List<string> {"Cookies", "cookie1:value1\r\ncookie2:value2"},
+                new List<string> {"Cookies", "cookie1=value1\r\ncookie2=value2"},
                 new List<string> {"SecurityProtocol", "Tls12"},
                 // this must be the last one
                 new List<string> {"NonExisting", "Bogus Value"}

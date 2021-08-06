@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Model;
@@ -40,9 +41,11 @@ namespace RestTests
             var uri = new Uri("http://localhost/api");
             var factory = new RestRequestFactory();
             var restRequest = factory.Create(uri, context);
-            var target = new PrivateObject(restRequest);
-            target.Invoke("SetBody", "hello", Encoding.GetEncoding("iso-8859-1"), "GET");
-            var req = target.GetFieldOrProperty("_request") as HttpWebRequest;
+            var method = restRequest.GetType().GetMethod("SetBody", BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(restRequest, new object[] { "hello", Encoding.GetEncoding("iso-8859-1"), "GET" });
+
+            var fieldInfo = restRequest.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
+            var req = fieldInfo.GetValue(restRequest) as HttpWebRequest;
             Assert.AreEqual(0, req?.ContentLength);
         }
 
@@ -89,11 +92,11 @@ namespace RestTests
             var uri = new Uri("http://localhost/api");
             var factory = new RestRequestFactory();
             var target = factory.Create(uri, context);
-            
+
             // We force a Date entry in the Headers property of the request by setting the request's Date property
             // That will cause the case statement in UpdateHeaders to choose default (i.e. throw argumentexception).
-            var po = new PrivateObject(target);
-            var request = po.GetField("_request") as HttpWebRequest;
+            var fieldInfo = target.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
+            var request = fieldInfo.GetValue(target) as HttpWebRequest;
             Assert.IsNotNull(request, "Request field captured");
             request.Date = new DateTime(2019,02, 23);
 
