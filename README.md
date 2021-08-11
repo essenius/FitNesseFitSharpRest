@@ -1,5 +1,5 @@
-# FitNesseFitSharpRest
-This repo contains a fixture to enable testing REST services with JSON, XML or Text payloads
+# FitNesseFitSharpRest ![example workflow](https://github.com/essenius/FitNesseFitSharpRest/actions/workflows/fitsharp-rest-ci.yml/badge.svg)
+This repo contains a fixture to enable testing REST services with JSON, XML or Text payloads 
 
 # Getting Started
 ## Windows 
