@@ -1,1 +1,36 @@
+name: FitNesse Setup and Execute
+on:
+  push:
+    branches: [ master ]
+jobs:
+  FitNesse:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install wget
+      run: apt install wget
+      
+    - name: Download FitNesse
+      run: wget http://fitnesse.org/fitnesse-standalone.jar?responder=releaseDownload&release=20210606
+      
+    - name: Download nuget
+      run: wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+      
+    - name: Install mono
+      run: apt-get install mono-complete
+      
+    - name: Install FitSharp
+      run: mono nuget FipSharp -ExcludeVersion
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore .\Rest\Rest.sln
+      
+    - name: Build
+      run: dotnet build .\Rest\Rest.sln
 
