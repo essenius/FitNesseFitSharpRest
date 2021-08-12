@@ -1,5 +1,5 @@
 name: FitNesse Setup and Execute
-on: workflow_dispatch
+on: push
 jobs:
   FitNesse:
     runs-on: ubuntu-latest
