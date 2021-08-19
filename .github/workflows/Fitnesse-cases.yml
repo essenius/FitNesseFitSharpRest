@@ -20,6 +20,9 @@ jobs:
       
     - name: Install FitSharp
       run: mono nuget.exe install FitSharp -ExcludeVersion
+      
+    - name: Install PowerShell
+      run: sudo apt-get install -y powershell
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
