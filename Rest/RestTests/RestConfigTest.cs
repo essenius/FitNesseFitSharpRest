@@ -19,31 +19,33 @@ namespace RestTests
     [TestClass]
     public class RestConfigTest
     {
-        [TestCleanup, TestInitialize]
-        public void TestInitializeAndCleanup() => Injector.CleanSessionContext();
-
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestConfigTableTest()
         {
             var c = new RestConfig();
             var input = new List<List<string>>
             {
-                new List<string> {"DefaultAccept", "application/json"},
-                new List<string> {"DefaultContentType", "application/json"},
-                new List<string> {"Headers", "header1:test1\r\nheader2:test2"},
-                new List<string> {"ContentTypeMapping", "application/xml:XML\r\napplication/json:JSON\r\ntext/plain:TEXT\r\ndefault:JSON" },
-                new List<string> {"Proxy", "System"},
-                new List<string> {"Encoding", "iso-8859-1"},
-                new List<string> {"DefaultUserAgent", "FitNesseRest"},
-                new List<string> {"DefaultXmlNameSpaceKey", "atom"},
-                new List<string> {"XmlValueTypeAttribute", string.Empty},
-                new List<string> {"Timeout", "7.5"},
-                new List<string> {"TrimWhitespace", "false"},
-                new List<string> {"CookieDomain", "localhost"},
-                new List<string> {"Cookies", "cookie1=value1\r\ncookie2=value2"},
-                new List<string> {"SecurityProtocol", "Tls12"},
+                new List<string> { "DefaultAccept", "application/json" },
+                new List<string> { "DefaultContentType", "application/json" },
+                new List<string> { "Headers", "header1:test1\r\nheader2:test2" },
+                new List<string>
+                {
+                    "ContentTypeMapping",
+                    "application/xml:XML\r\napplication/json:JSON\r\ntext/plain:TEXT\r\ndefault:JSON"
+                },
+                new List<string> { "Proxy", "System" },
+                new List<string> { "Encoding", "iso-8859-1" },
+                new List<string> { "DefaultUserAgent", "FitNesseRest" },
+                new List<string> { "DefaultXmlNameSpaceKey", "atom" },
+                new List<string> { "XmlValueTypeAttribute", string.Empty },
+                new List<string> { "Timeout", "7.5" },
+                new List<string> { "TrimWhitespace", "false" },
+                new List<string> { "CookieDomain", "localhost" },
+                new List<string> { "Cookies", "cookie1=value1\r\ncookie2=value2" },
+                new List<string> { "SecurityProtocol", "Tls12" },
                 // this must be the last one
-                new List<string> {"NonExisting", "Bogus Value"}
+                new List<string> { "NonExisting", "Bogus Value" }
             };
 
             var output = c.DoTable(input);
@@ -59,5 +61,9 @@ namespace RestTests
             Assert.IsNotNull(lastLine);
             Assert.AreEqual(string.Empty, lastLine[1]);
         }
+
+        [TestCleanup]
+        [TestInitialize]
+        public void TestInitializeAndCleanup() => Injector.CleanSessionContext();
     }
 }

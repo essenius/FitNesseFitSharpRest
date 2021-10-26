@@ -2,7 +2,7 @@ Lots of REST services use Json these days. This fixture makes handling that a bi
 
 We can create objects from assemblies. Parameters are supported if they are strings, integers or booleans (note there is no new line between 'in' and 'assembly').
 
-!|script     |Content Handler                                                                              |
+!|script     |Content Handler                                                                               |
 |$testobject=|Create|json|object from type|RestTests.ManyTypes|in assembly|${RestTestDll}|with params|[true]|
 
 |script                    |
@@ -10,12 +10,12 @@ We can create objects from assemblies. Parameters are supported if they are stri
 
 Check whether the properties of the created object meet the expectation
 
-!|decision: properties for object|$testobject        |
-|Property                        |Type? |Value?      |
-|StringArray                     |Array |[hi, there] |
-|DecimalValue                    |Float |300.5       |
-|StringValue                     |String|string value|
-|DoubleValue                     |Float |~=3.14159   |
+!|decision: properties for object|$testobject          |
+|Property                        |Type? |Value?        |
+|StringArray                     |Array |["hi","there"]|
+|DecimalValue                    |Float |300.5         |
+|StringValue                     |String|string value  |
+|DoubleValue                     |Float |~=3.14159     |
 
 Show all the properties with their types and values
 
@@ -28,8 +28,8 @@ Alternative way of checking values: a subset query.
 |LongValue                           |Integer|-223372036854775808|
 |ULongValue                          |Integer|8446744073709551615|
 |StringValue                         |String |string value       |
-|StringArray                         |Array  |[hi, there]        |
-|DoubleValue                         |Float  |$pi=          |
+|StringArray                         |Array  |["hi","there"]     |
+|DoubleValue                         |Float  |$pi=               |
 
 We can also set values in objects using the decision tables.
 
@@ -61,11 +61,11 @@ Check whether the values were indeed set on the object
 |GuidValue                           |Guid   |cafecafe-cafe-cafe-cafe-cafecafecafe|
 
 
-!| query: properties for object|$testobject|StringArray|
-|Property                      |Type       |Value      |
-|StringArray                   |Array      |[hi, there]|
-|StringArray[0]                |String     |hi         |
-|StringArray[1]                |String     |there      |
+!| query: properties for object|$testobject|StringArray   |
+|Property                      |Type       |Value         |
+|StringArray                   |Array      |["hi","there"]|
+|StringArray[0]                |String     |hi            |
+|StringArray[1]                |String     |there         |
 
 !|script                               |
 |delete|StringArray[1]|from|$testobject|

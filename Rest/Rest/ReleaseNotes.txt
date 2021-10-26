@@ -22,3 +22,4 @@
 2.6.1 Added boolean configuration entry "TrimWhitespace" to cater for JSON payloads that may have whitespace around the values (false by default). 
 2.6.2 Made TrimWhitespace work for XML and TEXT payloads as well, and now works with Evaluate too.
 2.6.3 Clean session context when executing RestConfig
+3.0.0 Migration to .NET 5.0 (dual build to .NET 4.8 and .NET 5.0)

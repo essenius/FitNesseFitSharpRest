@@ -1,6 +1,3 @@
-!|import|
-|rest   |
-
 !|script  |Content Handler                                                              |
 |$object1=|Create Object From|{"Id":0,"Name":"Joe","IsShared":true}                     |
 |$file=   |Save Object       |$object1|To|                                              |
