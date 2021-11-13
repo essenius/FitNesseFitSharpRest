@@ -6,9 +6,9 @@ corresponding C# fixtures, and gives examples of use.
 The steps to install are very similar to that of installing the [FibonacciDemo](../../../FitNesseFitSharpFibonacciDemo).
 
 Differences are:
-* Download the repo code as a zip file and extract the contents of the folder ```FitNesseFitSharpRest```. 
-* Build command becomes: ```dotnet build %LOCALAPPDATA%\FitNesse\Rest\Rest.sln```
-* Go to folder: ```cd /D %LOCALAPPDATA%\FitNesse\Rest\RestTests\bin\debug\net5.0```
+* Download the repo code as a zip file and extract the contents of the folder `FitNesseFitSharpRest`. 
+* Build command becomes: `dotnet build %LOCALAPPDATA%\FitNesse\Rest\Rest.sln`
+* Go to folder: `cd /D %LOCALAPPDATA%\FitNesse\Rest\RestTests\bin\debug\net5.0`
 * Run the suite: Open a browser and enter the URL http://localhost:8080/FitSharpDemos.RestSuite?suite
 
 # Tutorial and Reference
