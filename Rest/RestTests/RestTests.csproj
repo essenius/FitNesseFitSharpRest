@@ -6,7 +6,7 @@
     <LangVersion>8.0</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysysMode>AllEnabledByDefault</AnalysysMode>
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
     <Authors>Rik Essenius</Authors>
     <Description>Unit tests for FitNesse/FitSharp fixture to test REST services</Description>
     <Copyright>Copyright © Rik Essenius 2015-2021</Copyright>
@@ -28,6 +28,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rest\Rest.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="bogus.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestConfig.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

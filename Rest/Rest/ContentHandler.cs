@@ -141,7 +141,8 @@ namespace Rest
         public ContentObject ObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
             string assembly, string[] parameters)
         {
-            var asm = Assembly.LoadFile(Path.GetFullPath(assembly));
+            var relativeAssemblyPath = new AssemblyLocator(assembly, ".").FindAssemblyPath();
+            var asm = Assembly.LoadFile(Path.GetFullPath(relativeAssemblyPath));
             var myType = asm.GetType(objectType);
             var typedParams = new List<object>();
             if (parameters != null) typedParams.AddRange(parameters.Select(s => s.CastToInferredType()));

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<suiteConfig>
+  <ApplicationUnderTest>
+    <AddAssembly>MyTest1/MyTest1.dll</AddAssembly>
+    <AddNamespace>MyTest1</AddNamespace>
+    <AddAssembly>MyTest2/MyTest2.dll</AddAssembly>
+    <AddNamespace>MyTest2</AddNamespace>
+  </ApplicationUnderTest>
+  <Settings>
+    <Runner>fitSharp.Slim.Service.Runner</Runner>
+  </Settings>
+</suiteConfig>
