@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <suiteConfig>
   <ApplicationUnderTest>
     <AddAssembly>Rest.dll</AddAssembly>
     <AddNamespace>Rest</AddNamespace>
-	<AddAssembly>RestTests.dll</AddAssembly>
+    <AddAssembly>RestTests.dll</AddAssembly>
     <AddNamespace>RestTests</AddNamespace>
   </ApplicationUnderTest>
   <Settings>

@@ -82,12 +82,8 @@ namespace Rest.Utilities
         {
             var returnValue = string.Empty;
             for (var i = 0; i < headers.Count; i++)
-            {
                 if (!headersToOmit.Contains(headers.Keys[i], StringComparer.CurrentCultureIgnoreCase))
-                {
                     returnValue += MultiLineHeader(headers.Keys[i], headers[i]);
-                }
-            }
             return returnValue;
         }
 

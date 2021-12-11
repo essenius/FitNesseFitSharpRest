@@ -23,7 +23,7 @@ namespace Rest
     {
         private readonly SessionContext _context;
 
-        /// <summary>Configuration for the Rest Tester</summary> 
+        /// <summary>Configuration for the Rest Tester</summary>
         /// <guarantees>Session context has been set</guarantees>
         public RestConfig()
         {
@@ -31,12 +31,18 @@ namespace Rest
             _context = Injector.InjectSessionContext();
         }
 
-        /// <summary>Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent, DefaultXmlNameSpaceKey,
-        /// XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout
+        /// <summary>
+        ///     Process configuration entries: DefaultAccept, DefaultContentType, Encoding, Proxy, DefaultUserAgent,
+        ///     DefaultXmlNameSpaceKey,
+        ///     XmlValueTypeAttribute, Headers, ContentTypeMapping, Timeout
         /// </summary>
         /// <param name="table">rows of at least 2 cells, as FitNesse provides when executing a Table Table</param>
-        /// <returns>list of the same size with empty values, and 'pass' in the second column where the related configuration was set</returns>
-        [SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global", Justification = "FitSharp doesn't handle that")]
+        /// <returns>
+        ///     list of the same size with empty values, and 'pass' in the second column where the related configuration was
+        ///     set
+        /// </returns>
+        [SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global",
+            Justification = "FitSharp doesn't handle that")]
         public List<object> DoTable(List<List<string>> table) => table.Select(ProcessLine).Cast<object>().ToList();
 
         /// <summary>Processes a line in the configuration and sets context accordingly</summary>

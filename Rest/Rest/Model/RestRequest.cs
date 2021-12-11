@@ -40,7 +40,8 @@ namespace Rest.Model
 
         /// <param name="method">the HTTP method to be checked</param>
         /// <returns>whether or not the method supports the use of a body</returns>
-        public static bool SupportsBody(string method) => method != WebRequestMethods.Http.Get && method != WebRequestMethods.Http.Head;
+        public static bool SupportsBody(string method) =>
+            method != WebRequestMethods.Http.Get && method != WebRequestMethods.Http.Head;
 
         /// <summary>Executes an HTTP request</summary>
         /// <param name="method">the method to execute (must be one of the recognized HTTP methods)</param>
@@ -60,11 +61,9 @@ namespace Rest.Model
                 // if we got a response error, give that back
                 // if we couldn't even send the request, rethrow the exception
                 response = (HttpWebResponse) we.Response;
-                if (response == null)
-                {
-                    throw;
-                }
+                if (response == null) throw;
             }
+
             return response;
         }
 
@@ -108,11 +107,8 @@ namespace Rest.Model
                 // if it doesn't exist already, it's probably non-standard.
                 // we try adding it, and if it was standard an ArgumentException is thrown
                 if (_request.Headers[entry] == null)
-                {
                     _request.Headers.Add(entry, requestHeadersToAdd[entry]);
-                }
                 else
-                {
                     switch (entry.ToUpperInvariant())
                     {
                         case "CONTENT-TYPE":
@@ -128,7 +124,6 @@ namespace Rest.Model
                             throw new ArgumentException("Unrecognized standard header: " + requestHeadersToAdd[entry] +
                                                         "This was not expected to happen.");
                     }
-                }
             }
         }
     }

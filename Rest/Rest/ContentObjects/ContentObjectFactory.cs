@@ -11,7 +11,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Rest.Model;
 using Rest.Utilities;
 
@@ -22,8 +21,10 @@ namespace Rest.ContentObjects
     {
         /// <summary>JSON content</summary>
         Json,
+
         /// <summary>XML content</summary>
         Xml,
+
         /// <summary>Text content</summary>
         Text
     }
@@ -50,8 +51,10 @@ namespace Rest.ContentObjects
             if (contentType == null)
             {
                 if (content is string) return InferType(content.ToString());
-                throw new ArgumentNullException(nameof(contentType), "Content type cannot be null when serializing binary objects");
+                throw new ArgumentNullException(nameof(contentType),
+                    "Content type cannot be null when serializing binary objects");
             }
+
             if (Enum.TryParse(contentType, true, out ContentHandler validContentHandler)) return validContentHandler;
 
             // we only want the main content type - eliminate additional descriptors as feed etc.
@@ -64,7 +67,7 @@ namespace Rest.ContentObjects
         }
 
         /// <summary>
-        /// Create an object from a certain type using an input object
+        ///     Create an object from a certain type using an input object
         /// </summary>
         /// <param name="contentType">the type (Json, Xml, Text)</param>
         /// <param name="source">the input object to derive the content object from</param>
@@ -74,8 +77,9 @@ namespace Rest.ContentObjects
             var contentHandler = InferContentHandler(contentType, source);
             return contentHandler switch
             {
-                ContentHandler.Json => (ContentObject) new JsonObject(source, _sessionContext.TrimWhitespace),
-                ContentHandler.Xml => new XmlObject(source, _sessionContext.DefaultXmlNameSpaceKey, _sessionContext.XmlValueTypeAttribute),
+                ContentHandler.Json => new JsonObject(source, _sessionContext.TrimWhitespace),
+                ContentHandler.Xml => new XmlObject(source, _sessionContext.DefaultXmlNameSpaceKey,
+                    _sessionContext.XmlValueTypeAttribute),
                 _ => new TextObject(source)
             };
         }

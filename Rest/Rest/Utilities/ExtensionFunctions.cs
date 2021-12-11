@@ -49,7 +49,10 @@ namespace Rest.Utilities
 
         /// <param name="token">representation of key value pair, delimited by :</param>
         /// <requires>token is not null</requires>
-        /// <returns>a KeyValuePair representing the token. If no delimiter was found, key will be empty string and value the trimmed token</returns>
+        /// <returns>
+        ///     a KeyValuePair representing the token. If no delimiter was found, key will be empty string and value the
+        ///     trimmed token
+        /// </returns>
         public static KeyValuePair<string, string> ParseKeyValuePair(this string token)
         {
             const string delimiter = ":";
@@ -66,6 +69,7 @@ namespace Rest.Utilities
                 key = string.Empty;
                 value = token.Trim();
             }
+
             return new KeyValuePair<string, string>(key, value);
         }
 
@@ -85,17 +89,17 @@ namespace Rest.Utilities
             using (var stringReader = new StringReader(input))
             {
                 string line;
-                while ((line = stringReader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                while ((line = stringReader.ReadLine()) != null) yield return line;
             }
         }
 
         /// <param name="xmlString">string representing an XML document</param>
         /// <requires>xmlString must represent a valid XML document</requires>
         /// <returns>an XmlDocument representing the input string</returns>
-        /// <remarks>This is a secure implementation of the LoadXml function - see https://github.com/dotnet/roslyn-analyzers/issues/2477 </remarks>
+        /// <remarks>
+        ///     This is a secure implementation of the LoadXml function - see
+        ///     https://github.com/dotnet/roslyn-analyzers/issues/2477
+        /// </remarks>
         public static XmlDocument ToXmlDocument(this string xmlString)
         {
             using (var stringReader = new StringReader(xmlString))
@@ -110,7 +114,7 @@ namespace Rest.Utilities
         /// <returns>XML document loaded from the reader</returns>
         public static XmlDocument ToXmlDocument(this XmlReader xmlReader)
         {
-            var document = new XmlDocument { XmlResolver = null };
+            var document = new XmlDocument {XmlResolver = null};
             document.Load(xmlReader);
             return document;
         }

@@ -219,7 +219,7 @@ namespace Rest.ContentObjects
         /// <summary>Construct an XPath query to find a node</summary>
         /// <param name="node">the node to create an XPath query for</param>
         /// <returns>the resulting XPath query</returns>
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", 
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases",
             Justification = "missing cases not handled (caught by default clause)")]
         private string FindXPath(XPathNavigator node)
         {

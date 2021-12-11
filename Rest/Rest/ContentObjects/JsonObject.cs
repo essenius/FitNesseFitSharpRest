@@ -162,7 +162,7 @@ namespace Rest.ContentObjects
         private bool SetObject(string content)
         {
             // not using JOBject.Parse because that changes date formats
-            using var reader = new JsonTextReader(new StringReader(content)) 
+            using var reader = new JsonTextReader(new StringReader(content))
                 {DateParseHandling = DateParseHandling.None};
             try
             {
