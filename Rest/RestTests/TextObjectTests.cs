@@ -10,7 +10,6 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
@@ -20,20 +19,25 @@ namespace RestTests
     [TestClass]
     public class TextObjectTests
     {
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(NotImplementedException))]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectAddToTest()
         {
-            new TextObject(string.Empty).AddAt(null, string.Empty);
+            var testObj = new TextObject("abc");
+            var objToAdd = new TextObject("def");
+            testObj.AddAt(objToAdd, ".*()$");
+            Assert.AreEqual("abcdef", testObj.Serialize());
+            testObj.AddAt(objToAdd, "^()");
+            Assert.AreEqual("defabcdef", testObj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(NotImplementedException)),
-         SuppressMessage("ReSharper", "UnusedVariable", Justification = "Forcing exception")]
-        public void TextObjectCreateWithNonStringThrowsException()
-        {
-            var _ = new TextObject(25);
-        }
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void TextObjectCreateWithNonStringThrowsException() => _ = new TextObject(25);
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectDeleteTest()
         {
             const string source = "abc=123; def=789";
@@ -42,7 +46,8 @@ namespace RestTests
             Assert.AreEqual("def=789", textObject.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectEvaluatorTest()
         {
             const string source = "{\"ResponseCode\":\"0\", \"ResponseText\":\"3349\"}";
@@ -52,7 +57,8 @@ namespace RestTests
             Assert.AreEqual("Text", textObject.Evaluate("(?:(?:\"Response([a-zA-Z]*)\":).*?){2}"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectGetPropertiesTest()
         {
             const string source = "MyTest\r\nYourTest\r\nHisTest\r\n";
@@ -64,14 +70,16 @@ namespace RestTests
             Assert.AreEqual("His", textObject.GetProperty(props[2]));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectIsValidTest()
         {
             Assert.IsTrue(TextObject.IsValid("abc"), "abc is valid text");
             Assert.IsFalse(TextObject.IsValid("abc" + (char) 2), "abc with control char is not valid text");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectSetPropertyTest()
         {
             const string source = "abc=123; def=789";
@@ -85,7 +93,8 @@ namespace RestTests
             Assert.AreEqual("abc=456; def=789", textObject.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void TextObjectTrimTest()
         {
             const string source = "text:   aa   ";

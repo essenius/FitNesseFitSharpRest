@@ -20,13 +20,15 @@ namespace RestTests
     [TestClass]
     public class ContentHandlerTests
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerObsoleteTest()
         {
             var h = new ContentHandler();
             var obj1 = h.CreateObjectFrom("<a><b>test</b><c/></a>");
             var obj2 = h.CreateObjectFromTypeInAssembly("xml", "RestTests.FewTypes", "RestTests.dll");
-            var obj3 = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] {"true"});
+            var obj3 = h.CreateObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll",
+                new[] {"true"});
             var obj4 = h.CreateObjectFromPropertyOf("a", obj1);
             Assert.IsNotNull(obj1);
             Assert.IsNotNull(obj2);
@@ -34,7 +36,8 @@ namespace RestTests
             Assert.IsNotNull(obj4);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerAddToTest()
         {
             var h = new ContentHandler();
@@ -44,7 +47,8 @@ namespace RestTests
             Assert.AreEqual("<a><b>test</b><c><d>test2</d></c></a>", baseObj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerObjectFromInTest()
         {
             var h = new ContentHandler();
@@ -59,7 +63,8 @@ namespace RestTests
             Assert.AreEqual("{\"b\":\"test\"}", subJsonObj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerJsonObjectTest()
         {
             var h = new ContentHandler();
@@ -70,7 +75,8 @@ namespace RestTests
             Assert.AreEqual("replaced", ContentHandler.PropertyValueOf("a", obj));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerObjectFromTypeInAssembly()
         {
             var h = new ContentHandler();
@@ -88,7 +94,8 @@ namespace RestTests
             Assert.AreEqual(expected, obj.Serialize(), "FewTypes incorrectly serialized");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerObjectFromTypeInAssemblyWithParam()
         {
             var h = new ContentHandler();
@@ -108,7 +115,8 @@ namespace RestTests
                 obj.Serialize(), "FewTypes incorrectly serialized");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerXmlObjectTest()
         {
             var h = new ContentHandler();
@@ -120,7 +128,8 @@ namespace RestTests
             Assert.AreEqual("<a>replaced</a>", obj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerDeleteFromObject()
         {
             var h = new ContentHandler();
@@ -129,7 +138,8 @@ namespace RestTests
             Assert.AreEqual("<a><c /></a>", ContentHandler.Serialize(baseObj));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerEvaluateTest()
         {
             var h = new ContentHandler();
@@ -138,7 +148,8 @@ namespace RestTests
             Assert.AreEqual("test", value);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerGetClassesTest()
         {
             var classCollection = ContentHandler.ClassesIn("RestTests.dll");
@@ -146,7 +157,8 @@ namespace RestTests
             Assert.IsTrue(classCollection.Contains("RestTests.ManyTypes"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerLoadObjectFromSaveObjectToTest()
         {
             const string jsonTest = "{ \"Id\": 0, \"Name\": \"Joe\", \"IsShared\": true }";
@@ -160,14 +172,15 @@ namespace RestTests
             Assert.IsTrue(ContentHandler.SetPropertyValueOfTo("Name", baseObj, "Jane"), "Change name");
             var fileOut = ContentHandler.SaveObjectTo(baseObj, "");
             var h2 = new ContentHandler();
-            var _ = h2.LoadObjectFrom(fileOut);
-            Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Unchaned Id matches");
+            _ = h2.LoadObjectFrom(fileOut);
+            Assert.AreEqual("0", ContentHandler.PropertyValueOf("Id", baseObj), "Unchanged Id matches");
             Assert.AreEqual("Jane", ContentHandler.PropertyValueOf("Name", baseObj), "Changed name matches");
-            Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "Unchaned IsShared matches");
+            Assert.AreEqual("True", ContentHandler.PropertyValueOf("IsShared", baseObj), "Unchanged IsShared matches");
         }
 
-        [TestMethod, TestCategory("Unit"),
-         ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void ContentHandlerLoadBinaryObjectFromTest()
         {
             var file = Path.GetTempFileName();
@@ -176,11 +189,13 @@ namespace RestTests
             {
                 writer.Write(0);
             }
+
             var h = new ContentHandler();
             _ = h.LoadObjectFrom(file);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerPropertiesOfTest()
         {
             var h = new ContentHandler();
@@ -190,7 +205,8 @@ namespace RestTests
             Assert.AreEqual(props[1], "/a[1]/c[1]");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerPropertyTypeOfTest()
         {
             var h = new ContentHandler();
@@ -199,7 +215,8 @@ namespace RestTests
             Assert.AreEqual("System.String", value);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerPropertySetOfContainsTest()
         {
             var h = new ContentHandler();
@@ -213,7 +230,8 @@ namespace RestTests
             Assert.IsFalse(ContentHandler.PropertySetOfContainsValueLike("/b", baseObj, ""));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerPropertyValueOfTest()
         {
             var h = new ContentHandler();

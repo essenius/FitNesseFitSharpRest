@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -10,26 +10,29 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
 using Rest.Model;
 
 namespace RestTests
 {
-    [TestClass, SuppressMessage("ReSharper", "UnusedVariable", Justification = "Forcing exception")]
+    [TestClass]
     public class ContentObjectFactoryTests
     {
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentNullException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void ContentObjectFactoryCreateNullTest()
         {
-            var _ = new ContentObjectFactory(null).Create(null, 1);
+            _ = new ContentObjectFactory(null).Create(null, 1);
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void ContentObjectFactoryCreateWrongTypeTest()
         {
-            var _ = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
-        } 
+            _ = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
+        }
     }
 }

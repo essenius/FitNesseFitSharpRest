@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,8 @@ namespace RestTests
     [TestClass]
     public class ContentObjectTest
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentObjectJsonParse()
         {
             var c = ContentObject.Parse("{}");
@@ -26,7 +27,8 @@ namespace RestTests
             Assert.AreEqual("{}", c.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentObjectTextParse()
         {
             var c = ContentObject.Parse("abc");
@@ -34,10 +36,13 @@ namespace RestTests
             Assert.AreEqual("abc", c.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void ContentObjectTextParseFail() => ContentObject.Parse("abc" + (char) 2);
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentObjectXmlParse()
         {
             var c = ContentObject.Parse("<a>test</a>");

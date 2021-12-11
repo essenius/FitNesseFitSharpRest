@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,8 @@ namespace RestTests
     [TestClass]
     public class ApplicationInfoTest
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ApplicationInfoVersionInfoTest()
         {
             var shortInfo = ApplicationInfo.Version;
@@ -29,7 +30,8 @@ namespace RestTests
             Assert.AreEqual(extendedInfo, ApplicationInfo.VersionInfo("Extended"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ApplicationInfoCopyrightTest()
         {
             Assert.IsTrue(ApplicationInfo.Copyright.StartsWith("Copyright ©"));

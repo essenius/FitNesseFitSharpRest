@@ -37,7 +37,8 @@ namespace Rest.ContentObjects
         /// <param name="defaultNameSpaceKey">the default namespace</param>
         /// <param name="valueTypeAttribute">the attribute used to indicate what value type we have (can be null)</param>
         /// <param name="trimWhitespace">whether or not to trim whitespace from values</param>
-        public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute, bool trimWhitespace = false) : base(trimWhitespace)
+        public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute,
+            bool trimWhitespace = false) : base(trimWhitespace)
         {
             var contentString = StringContent(content);
             _defaultNameSpaceKey = defaultNameSpaceKey;
@@ -46,9 +47,10 @@ namespace Rest.ContentObjects
             // we need to create the navigator from an XML document because we want to be able to write.
             _xmlDocument = ParseContent(contentString);
             _navigator = _xmlDocument.CreateNavigator();
+            Debug.Assert(_navigator != null, nameof(_navigator) + " != null");
             _navigator.MoveToFollowing(XPathNodeType.Element);
             var namespaces = _navigator.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
-            Debug.Assert(_navigator.NameTable != null, "navigator.NameTable != null");
+            Debug.Assert(namespaces != null, nameof(namespaces) + " != null");
             _namespaceManager = new XmlNamespaceManager(_navigator.NameTable);
             foreach (var entry in namespaces)
             {
@@ -76,14 +78,13 @@ namespace Rest.ContentObjects
             }
             catch (JsonReaderException)
             {
-                // no JSON.
+                // no Json.
                 throw new ArgumentException("Unable to convert content to XML");
             }
 
-            using (var xmlReader = node.CreateReader())
-            {
-                return xmlReader.ToXmlDocument();
-            }
+            Debug.Assert(node != null, nameof(node) + " != null");
+            using var xmlReader = node.CreateReader();
+            return xmlReader.ToXmlDocument();
         }
 
         /// <summary>Convert the content to a string</summary>
@@ -96,11 +97,9 @@ namespace Rest.ContentObjects
         {
             if (content is string) return content.ToString();
             var x = new XmlSerializer(content.GetType());
-            using (var sw = new StringWriter())
-            {
-                x.Serialize(sw, content);
-                return sw.ToString();
-            }
+            using var sw = new StringWriter();
+            x.Serialize(sw, content);
+            return sw.ToString();
         }
 
         /// <summary>
@@ -118,14 +117,10 @@ namespace Rest.ContentObjects
             catch (XmlException xe)
             {
                 if (xe.Message.Contains("multiple root elements"))
-                {
                     return ("<root>" + contentString + "</root>").ToXmlDocument();
-                }
                 if (xe.Message.Contains("Data at the root level is invalid"))
                     // No XML. Try if it is JSON
-                {
                     return ConvertJsonToXml(contentString);
-                }
                 throw new ArgumentException("Unable to parse content as XML");
             }
         }
@@ -140,6 +135,7 @@ namespace Rest.ContentObjects
             var children = parentNode.SelectChildren(XPathNodeType.Element);
             while (children.MoveNext())
             {
+                Debug.Assert(children.Current != null, "children.Current != null");
                 if (children.Current.Name != element.Name) continue;
                 if (element.ComparePosition(children.Current) == XmlNodeOrder.Same) return index;
                 index++;
@@ -161,7 +157,7 @@ namespace Rest.ContentObjects
         {
             try
             {
-                var _ = input.ToXmlDocument();
+                _ = input.ToXmlDocument();
                 return true;
             }
             catch (XmlException)
@@ -182,6 +178,7 @@ namespace Rest.ContentObjects
             var nav = ((XmlObject) objToAdd)._navigator.Clone();
             nav.MoveToRoot();
             nav.MoveToFollowing(XPathNodeType.Element);
+            Debug.Assert(node.Current != null, "node.Current != null");
             node.Current.AppendChild(nav);
             return true;
         }
@@ -193,6 +190,7 @@ namespace Rest.ContentObjects
         {
             var node = SelectElement(locator);
             if (!node.MoveNext()) return false;
+            Debug.Assert(node.Current != null, "node.Current != null");
             node.Current.DeleteSelf();
             return true;
         }
@@ -215,19 +213,18 @@ namespace Rest.ContentObjects
                     return eval;
             }
 
-            return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current.InnerXml : null;
+            return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current?.InnerXml : null;
         }
 
         /// <summary>Construct an XPath query to find a node</summary>
         /// <param name="node">the node to create an XPath query for</param>
         /// <returns>the resulting XPath query</returns>
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", Justification =
-            "missing cases not handled (caught by default clause)")]
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases", 
+            Justification = "missing cases not handled (caught by default clause)")]
         private string FindXPath(XPathNavigator node)
         {
             var builder = new StringBuilder();
             while (node != null)
-            {
                 switch (node.NodeType)
                 {
                     case XPathNodeType.Attribute:
@@ -248,7 +245,6 @@ namespace Rest.ContentObjects
                     default:
                         throw new ArgumentException("FindXPath: Unsupported node type");
                 }
-            }
 
             throw new ArgumentException("FindXPath: Node was not in a document. This was not expected to happen.");
         }
@@ -262,10 +258,7 @@ namespace Rest.ContentObjects
             // special case: if nothing was specified, we return everything
             if (string.IsNullOrEmpty(locator)) locator = "//*";
             var element = SelectElement(locator);
-            while (element.MoveNext())
-            {
-                result.Add(FindXPath(element.Current));
-            }
+            while (element.MoveNext()) result.Add(FindXPath(element.Current));
             return result;
         }
 
@@ -275,6 +268,7 @@ namespace Rest.ContentObjects
         internal override string GetProperty(string locator)
         {
             var element = SelectElement(locator);
+
             return element.MoveNext() ? TrimIfNeeded(element.Current.Value) : string.Empty;
         }
 
@@ -286,6 +280,7 @@ namespace Rest.ContentObjects
             var element = SelectElement(locator);
             if (!element.MoveNext()) return null;
 
+            Debug.Assert(element.Current != null, "element.Current != null");
             if (string.IsNullOrEmpty(_valueTypeAttribute)) return element.Current.ValueType.ToString();
             var atVal = element.Current.SelectSingleNode("@" + _valueTypeAttribute, _namespaceManager);
             return atVal != null ? atVal.Value : element.Current.ValueType.ToString();
@@ -310,7 +305,7 @@ namespace Rest.ContentObjects
         internal override string SerializeProperty(string locator)
         {
             var element = SelectElement(locator);
-            return element.MoveNext() ? element.Current.InnerXml : string.Empty;
+            return element.MoveNext() ? element.Current?.InnerXml : string.Empty;
         }
 
 
@@ -322,7 +317,7 @@ namespace Rest.ContentObjects
         {
             var element = SelectElement(locator);
             if (!element.MoveNext()) return false;
-            element.Current.SetValue(value);
+            element.Current?.SetValue(value);
             return true;
         }
 

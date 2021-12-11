@@ -30,14 +30,18 @@ namespace Rest.ContentObjects
         public TextObject(object content, bool trimWhitespace = false) : base(trimWhitespace)
         {
             if (!(content is string))
-            {
                 throw new NotImplementedException("binary objects not supported for Text object creation");
-            }
             _content = content.ToString();
         }
 
         /// <remarks>Adding text to text objects is not supported</remarks>
-        internal override bool AddAt(ContentObject objToAdd, string locator) => throw new NotImplementedException();
+        internal override bool AddAt(ContentObject objToAdd, string locator)
+        {
+            var textToAdd = objToAdd.Serialize();
+            var currentValue = GetProperty(locator);
+            SetProperty(locator, currentValue + textToAdd);
+            return true;
+        }
 
         /// <summary>Delete a part of the text</summary>
         /// <param name="locator">Regular expression indicating the part to be deleted</param>
@@ -50,7 +54,7 @@ namespace Rest.ContentObjects
         /// <returns>the value that satisfy the matcher, or null if no match</returns>
         internal override string Evaluate(string matcher)
         {
-            // Singleline is a bit of a misnomer, it means that . also matches cr and lf
+            // Singleline is a bit of a misnomer, it means that it also matches cr and lf
             // and we need that to make the MatchGroupPattern work across multiple lines
             var regex = new Regex(matcher, RegexOptions.Singleline);
             var match = regex.Match(_content);
@@ -71,6 +75,7 @@ namespace Rest.ContentObjects
                 returnValue.Add(string.Format(MatchGroupPattern, locator, i++));
                 match = match.NextMatch();
             }
+
             return returnValue;
         }
 
@@ -82,7 +87,8 @@ namespace Rest.ContentObjects
         /// <summary>Get the property type satisfying the locator</summary>
         /// <param name="locator">Regular expression indicating the property in the JSON object</param>
         /// <returns>the property type indicated by the locator</returns>
-        internal override string GetPropertyType(string locator) => GetProperty(locator)?.CastToInferredType()?.GetType().ToString();
+        internal override string GetPropertyType(string locator) =>
+            GetProperty(locator)?.CastToInferredType()?.GetType().ToString();
 
         /// <summary>Check whether the input is valid text (i.e. no control characters except newlines and tabs)</summary>
         /// <param name="input">the input to be checked</param>
@@ -93,14 +99,13 @@ namespace Rest.ContentObjects
         /// <returns>a serializable (string) version of the object</returns>
         internal override string Serialize() => _content;
 
-
         /// <summary>Get a serialized version of the property</summary>
         /// <param name="locator">property to serialize</param>
         /// <returns>the serialized property</returns>
         internal override string SerializeProperty(string locator) => GetProperty(locator);
 
         /// <summary>Set the value of a property</summary>
-        /// <param name="locator">Regular explreassion indicating the property</param>
+        /// <param name="locator">Regular expression indicating the property</param>
         /// <param name="value">the new value</param>
         /// <returns>whether the operation succeeded</returns>
         internal override bool SetProperty(string locator, string value)

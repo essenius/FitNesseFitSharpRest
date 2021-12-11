@@ -110,24 +110,34 @@ namespace RestTests
                                         "</entry>" +
                                         "</feed>";
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectAddXmlTest()
         {
             var xmlObj = new XmlObject(AtomXml, "atom", "m:type");
-            var objToAdd = new XmlObject("<?xml version=\"1.0\"?><contributor><name>Lara</name></contributor>", null, null);
+            var objToAdd = new XmlObject(
+                "<?xml version=\"1.0\"?><contributor><name>Lara</name></contributor>",
+                null,
+                null);
             xmlObj.AddAt(objToAdd, "/atom:feed/atom:entry[2]/atom:content/m:properties");
-            Assert.AreEqual("Lara", xmlObj.Evaluate("/atom:feed/atom:entry[2]/atom:content/m:properties/contributor/name"));
+            Assert.AreEqual(
+                "Lara",
+                xmlObj.Evaluate("/atom:feed/atom:entry[2]/atom:content/m:properties/contributor/name"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectAtomTest()
         {
             var xmlObj = new XmlObject(AtomXml, "atom", "m:type");
-            Assert.AreEqual("https://localhost/Model.svc/Categories(41)", xmlObj.Evaluate("/atom:feed/atom:entry[1]/atom:id"));
+            Assert.AreEqual(
+                "https://localhost/Model.svc/Categories(41)",
+                xmlObj.Evaluate("/atom:feed/atom:entry[1]/atom:id"));
             Assert.AreEqual("41", xmlObj.Evaluate("/atom:feed/atom:entry[1]/atom:content/m:properties/d:Id"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectCreateFromJsonTest()
         {
             var a = new XmlObject("{ \"test\": 1 }", null, null);
@@ -136,49 +146,68 @@ namespace RestTests
             Assert.AreEqual("<root><test>1</test><a>b</a></root>", b.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectCreateMultiRootTest()
         {
             var a = new XmlObject("<a>test</a><b>test</b>", "a", null);
             Assert.AreEqual("<root><a>test</a><b>test</b></root>", a.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectCreatePlainTest()
         {
             var a = new XmlObject("<a>test</a>", "a", null);
             Assert.AreEqual("<a>test</a>", a.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectEvaluateTest()
         {
-            const string items = "<item id=\"myId\">3349</item>\r\n<item id=\"otherId\">2268</item>\r\n<item id=\"bool\">false</item>";
+            const string items =
+                "<item id=\"myId\">3349</item>\r\n<item id=\"otherId\">2268</item>\r\n<item id=\"bool\">false</item>";
             const string source = "<data>" + items + "</data>";
             var xmlObject = new XmlObject(source, null, null);
             var evaluation = xmlObject.Evaluate("/data");
 
             // Apply CompareOptions.IgnoreSymbols enum here to support asserting on multiple platforms. e.g. New line symbol "\n\r" for Windows, and "\n" for Linux/Mac 
-            Assert.AreEqual(0, string.Compare(items, evaluation, CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
-            Assert.AreEqual(0, string.Compare("3349", xmlObject.Evaluate("/data/item[@id='myId']"), CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
-            Assert.AreEqual(0, string.Compare("2268", xmlObject.Evaluate("/data/item[@id='otherId']"), CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
+            Assert.AreEqual(
+                0,
+                string.Compare(items, evaluation, CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols));
+            Assert.AreEqual(
+                0,
+                string.Compare("3349", xmlObject.Evaluate("/data/item[@id='myId']"), CultureInfo.CurrentCulture,
+                    CompareOptions.IgnoreSymbols));
+            Assert.AreEqual(
+                0,
+                string.Compare("2268", xmlObject.Evaluate("/data/item[@id='otherId']"), CultureInfo.CurrentCulture,
+                    CompareOptions.IgnoreSymbols));
             Assert.AreEqual("True", xmlObject.Evaluate("5 > 2"));
             Assert.AreEqual("abc", xmlObject.Evaluate("'abc'"));
             Assert.AreEqual(null, xmlObject.Evaluate("/data/nonexistingitem"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectGetAllPropertiesTest()
         {
             var xmlObj = new XmlObject(AtomXml, "atom", "m:type");
-            var actual = xmlObj.GetProperties("/atom:feed/atom:entry[2]/atom:author//*").Aggregate("", (current, entry) => current + entry);
+            var actual = xmlObj
+                .GetProperties("/atom:feed/atom:entry[2]/atom:author//*")
+                .Aggregate("", (current, entry) => current + entry);
             Assert.AreEqual("/atom:feed[1]/atom:entry[2]/atom:author[1]/atom:name[1]", actual);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectGetPropertiesTest()
         {
-            var a = new XmlObject("<?pi test?><!--comment--><a type='string' alt='check'>test</a><b type='int'>4</b>", "q", "type");
+            var a = new XmlObject(
+                "<?pi test?><!--comment--><a type='string' alt='check'>test</a><b type='int'>4</b>",
+                "q",
+                "type");
             var props = a.GetProperties("a/@*").ToList();
             Assert.AreEqual(2, props.Count);
             Assert.AreEqual("/root[1]/a[1]/@type", props[0]);
@@ -193,21 +222,25 @@ namespace RestTests
             Assert.AreEqual(1, props.Count);
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void XmlObjectGetPropertiesUnknownElementTest()
         {
             var a = new XmlObject("<?pi test?>", "q", null);
-            var _ = a.GetProperties("processing-instruction('pi')");
+            _ = a.GetProperties("processing-instruction('pi')");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectGetPropertyForUnknownElementTest()
         {
             var a = new XmlObject("<root/>", "q", null);
             Assert.IsTrue(string.IsNullOrEmpty(a.GetProperty("/any")));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectGetTypeViaAttributeTest()
         {
             var a = new XmlObject("<a type='string'>test</a><b type='int'>4</b><c>def</c>", "q", "type");
@@ -216,7 +249,8 @@ namespace RestTests
             Assert.AreEqual("System.String", a.GetPropertyType("c"), "c is ok");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectPlainXmlTest()
         {
             var xmlObj = new XmlObject(PlainXml, null, null);
@@ -224,7 +258,8 @@ namespace RestTests
             Assert.AreEqual("41", xmlObj.Evaluate("/feed/entry[1]/content/properties/Id"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectSetPropertyTest()
         {
             var a = new XmlObject("<root id=''/>", "q", null);
@@ -233,7 +268,8 @@ namespace RestTests
             Assert.AreEqual("test", a.GetProperty("/root/@id"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectTrimTest()
         {
             const string source = "<text>   aa   </text>";
@@ -246,10 +282,12 @@ namespace RestTests
             Assert.AreEqual("aa", trim.Evaluate(locator));
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void XmlObjectWrongXmlTest()
         {
-            var _ = new XmlObject("qwe", null, null);
+            _ = new XmlObject("qwe", null, null);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -10,7 +10,6 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
@@ -21,32 +20,41 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
-        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test framework signature")]
-        public static void ClassInitialize(TestContext context)
-        {
-            // SessionContext is a singleton, so could have been set by other tests. Make sure it is pristine.
-            Injector.CleanSessionContext();
-            var _ = new RestConfig();
-        }
-
-        [TestMethod, TestCategory("Integration"), ExpectedException(typeof(WebException))]
+        [TestMethod]
+        [TestCategory("Integration")]
+        [ExpectedException(typeof(WebException))]
         public void RestTesterInvalidUrlTest()
         {
+            // Make sure we don't get any proxy intercepts
+            var restConfig = new RestConfig();
+            var input = new List<List<string>>
+            {
+                new List<string> {"Proxy", "None"}
+            };
+
+            _ = restConfig.DoTable(input);
+
             var rt = new RestTester
             {
-                EndPoint = "http://localhost:23456",
+                EndPoint = "http://localhost:8765",
                 RequestBody = "{ \"userId\":96 }"
             };
-            rt.SendTo("POST", "posts");
+
+            rt.SendTo("Post", "posts");
+
+            Assert.AreEqual(403, rt.ResponseCode);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestTesterStripNewLinesFromTest()
         {
-            Assert.AreEqual("Hi There! How are you?", RestTester.StripNewLinesFrom("\n\rHi \r\nThere!\n How are you?\r"));
+            Assert.AreEqual("Hi There! How are you?",
+                RestTester.StripNewLinesFrom("\n\rHi \r\nThere!\n How are you?\r"));
         }
 
-        [TestMethod, TestCategory("Integration")]
+        [TestMethod]
+        [TestCategory("Integration")]
         public void RestTesterTypicodeTest1()
         {
             // we need at least one test using https
@@ -64,7 +72,8 @@ namespace RestTests
             Assert.IsTrue(requestHeaders.Contains("User-Agent:"), "request header contains User Agent");
             var requestHeadersWithout = rt.RequestHeadersWithout(new List<string> {"User-Agent"});
             Assert.IsFalse(requestHeadersWithout.Contains("User-Agent:"), "request header without User Agent OK");
-            Assert.IsTrue(requestHeadersWithout.Contains("Content-Type: application/json"), "request header Content-Type OK");
+            Assert.IsTrue(requestHeadersWithout.Contains("Content-Type: application/json"),
+                "request header Content-Type OK");
             var customRequestHeader = rt.RequestHeaders(new List<string> {"header1"});
             Assert.IsTrue(customRequestHeader.Contains("header1: value for header 1"), "custom header exists");
             Assert.IsTrue(requestHeadersWithout.Contains("Content-Length: 57"), "request header Content-Length OK");
@@ -75,9 +84,11 @@ namespace RestTests
             Assert.AreEqual("Content-Length: 78\nContent-Type: application/json; charset=utf-8\n", responseHeaders);
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
+            Assert.IsTrue(string.IsNullOrEmpty(rt.ResponseCookies()), "Response cookies empty");
         }
 
-        [TestMethod, TestCategory("Integration")]
+        [TestMethod]
+        [TestCategory("Integration")]
         public void RestTesterTypicodeTest2()
         {
             var rt = new RestTester("http://jsonplaceholder.typicode.com/");
@@ -85,7 +96,10 @@ namespace RestTests
             rt.SetRequestHeaderTo("Content-Type", "application/json; charset=UTF-8");
             rt.SendToWithBody("POST", "posts", "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }");
             Assert.AreEqual("http://jsonplaceholder.typicode.com/posts", rt.RequestUri, "Request Uri OK");
-            Assert.AreEqual(rt.RequestBody, "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }", "Request Body OK");
+            Assert.AreEqual(
+                rt.RequestBody,
+                "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }",
+                "Request Body OK");
             Assert.AreEqual("57", rt.ValueFromRequestHeaderMatching("Content-Length", "(\\d+)"));
             Assert.AreEqual("78", rt.ValueFromResponseHeaderMatching("Content-Length", "(\\d+)"));
 
@@ -100,7 +114,8 @@ namespace RestTests
             Assert.IsTrue(response.Contains("\"title\": \"Test Data\""), "Response contains title");
         }
 
-        [TestMethod, TestCategory("Integration")]
+        [TestMethod]
+        [TestCategory("Integration")]
         public void RestTesterTypicodeTest3()
         {
             var rt = new RestTester
@@ -118,11 +133,14 @@ namespace RestTests
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestTesterVersionInfoTest()
         {
             Assert.AreEqual(ApplicationInfo.Version, RestTester.VersionInfo("SHORT"));
         }
+
+        [TestInitialize]
+        public void TestInitialize() => Injector.CleanSessionContext();
     }
 }
-

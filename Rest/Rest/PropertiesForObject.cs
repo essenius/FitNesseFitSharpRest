@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2020 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -23,7 +23,10 @@ namespace Rest
         private readonly ContentObject _contentObject;
         private readonly string _locator;
 
-        /// <summary>Reports on properties in query or table table. This constructor is not for decision tables - locator will be ignored if you do</summary>
+        /// <summary>
+        ///     Reports on properties in query or table table.
+        ///     This constructor is not for decision tables - locator will be ignored if you do
+        /// </summary>
         /// <param name="contentObject">the object to get the properties for</param>
         /// <param name="locator">the specification of the property filter</param>
         public PropertiesForObject(ContentObject contentObject, string locator)
@@ -39,11 +42,12 @@ namespace Rest
         }
 
         /// <summary>Decision column: XPath, JPath or regular expression to identify the property (based on the type of object)</summary>
-        [SuppressMessage("Design", "CA1044:Properties should not be write only", Justification = "Test case")]
         public string Property { set; private get; }
 
-        /// <summary>Decision column: The property type. Exact values depend on object type (JSON, XML, Text). 
-        /// Text objects infer the type from the value </summary>
+        /// <summary>
+        ///     Decision column: The property type. Exact values depend on object type (JSON, XML, Text).
+        ///     Text objects infer the type from the value
+        /// </summary>
         public string Type { private set; get; }
 
         /// <summary>Decision column: Value of the property (output only for Text objects)</summary>
@@ -58,9 +62,7 @@ namespace Rest
         /// <param name="table">Ignored, only used to satisfy the Table Table interface</param>
         /// <requires>content object and locator were specified</requires>
         /// <returns>a list in the format that the Table Table interface expects, containing all the properties, types and values</returns>
-        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Table Table interface")]
         [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Table Table interface")]
-        [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "Table Table interface")]
         public List<object> DoTable(List<List<string>> table)
         {
             var returnList = _contentObject.GetProperties(_locator).Select(property => new List<string>
@@ -76,7 +78,7 @@ namespace Rest
         /// <summary>Support for the Decision interface returning one property value</summary>
         /// <requires>content object and locator were specified</requires>
         /// <guarantees>
-        /// If Property is not null
+        ///     If Property is not null
         ///     if Value is not null, sets the Property value and raise flag that value was set
         ///     gets the Property value and type
         /// </guarantees>
@@ -84,16 +86,16 @@ namespace Rest
         {
             ValueWasSet = false;
             if (Property == null) return;
-            if (Value != null)
-            {
-                ValueWasSet = _contentObject.SetProperty(Property, Value);
-            }
+            if (Value != null) ValueWasSet = _contentObject.SetProperty(Property, Value);
             Value = _contentObject.GetProperty(Property);
             Type = _contentObject.GetPropertyType(Property);
         }
 
         /// <summary>Query interface returning properties for the object</summary>
-        /// <returns>a list of all the properties (name, type, value) meeting the locator criteria as a list of lists as FitNesse requires</returns>
+        /// <returns>
+        ///     a list of all the properties (name, type, value) meeting the locator criteria as a list of lists as FitNesse
+        ///     requires
+        /// </returns>
         public List<object> Query()
         {
             return _contentObject.GetProperties(_locator).Select(property => new List<object>

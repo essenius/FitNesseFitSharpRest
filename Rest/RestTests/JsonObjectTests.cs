@@ -26,7 +26,8 @@ namespace RestTests
         private const string JsonTest2 =
             "{ \"Test\" : [ [ \"hi\", \"there\" ], [ \"hello\", \"  too\" ] ], \"DateValue\": \"2015-01-01T00:00:00\", \"Tree\": { \"one\": 1, \"two\": 2 } }";
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectAddArrayTest()
         {
             var jsonObj = new JsonObject(JsonTest2);
@@ -37,7 +38,8 @@ namespace RestTests
             Assert.AreEqual("Integer", jsonObj.GetPropertyType("_[1]"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectAddTest()
         {
             const string jsonStringToAdd = "{\"NewProperty\":1}";
@@ -53,14 +55,16 @@ namespace RestTests
             Debug.Print(jsonObj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectCreateFromXmlTest()
         {
             var a = new JsonObject("<test>1</test>");
             Assert.AreEqual("{\"test\":\"1\"}", a.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectDeleteArrayTest()
         {
             var jsonObj = new JsonObject(JsonTest2);
@@ -73,7 +77,8 @@ namespace RestTests
             Debug.Print(jsonObj.Serialize());
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectDeleteTest()
         {
             var jsonObj = new JsonObject(JsonTest);
@@ -83,7 +88,8 @@ namespace RestTests
             Assert.IsNull(jsonObj.GetPropertyType("LastModifiedDate"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectEvaluatorTest()
         {
             const string source = "{\"ResponseCode\":\"0\", \"ResponseText\":\"3349\"}";
@@ -93,7 +99,8 @@ namespace RestTests
             Assert.AreEqual(null, jsonObject.Evaluate("NonExistingElement"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectGetPropertiesTest()
         {
             var jsonObj = new JsonObject(JsonTest);
@@ -103,28 +110,34 @@ namespace RestTests
             Assert.IsTrue(props.Contains("Flags"));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectGetPropertyTest()
         {
             var jsonObj = new JsonObject(JsonTest2, true);
             Assert.AreEqual("2015-01-01T00:00:00", jsonObj.GetProperty("DateValue"));
-            Assert.AreEqual("{\"one\":1,\"two\":2}", jsonObj.GetProperty("Tree"), "Get sub-object returns serialized sub-object");
+            Assert.AreEqual("{\"one\":1,\"two\":2}", jsonObj.GetProperty("Tree"),
+                "Get sub-object returns serialized sub-object");
             // too doesn't get str
-            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"  too\"]]", jsonObj.GetProperty("Test"), "Get Array succeeds, too doesn't get trimmed");
+            Assert.AreEqual("[[\"hi\",\"there\"],[\"hello\",\"  too\"]]", jsonObj.GetProperty("Test"),
+                "Get Array succeeds, too doesn't get trimmed");
             Assert.AreEqual("too", jsonObj.GetProperty("Test[1][1]"), "too gets trimmed when the flag is on");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectSetPropertyTest()
         {
             var jsonObj = new JsonObject(JsonTest);
             Assert.IsFalse(jsonObj.SetProperty(string.Empty, null), "set empty property returns false");
-            Assert.IsTrue(jsonObj.SetProperty("Name", "John Smith"), "Set property succeeds where current value is null");
+            Assert.IsTrue(jsonObj.SetProperty("Name", "John Smith"),
+                "Set property succeeds where current value is null");
             Assert.AreEqual("John Smith", jsonObj.GetProperty("Name"));
             Assert.AreEqual("String", jsonObj.GetPropertyType("Name"), "property type is correct");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void JsonObjectTrimTest()
         {
             const string source = "{\"text\":\"   aa   \"}";
@@ -137,10 +150,9 @@ namespace RestTests
             Assert.AreEqual("aa", trim.Evaluate(locator));
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
-        public void JsonObjectWrongContentTest()
-        {
-            var _ = new JsonObject("qwe");
-        }
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void JsonObjectWrongContentTest() => _ = new JsonObject("qwe");
     }
 }

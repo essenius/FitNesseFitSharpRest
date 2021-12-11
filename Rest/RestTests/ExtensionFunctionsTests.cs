@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -9,7 +9,6 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Utilities;
 
@@ -18,11 +17,8 @@ namespace RestTests
     [TestClass]
     public class ExtensionFunctionsTests
     {
-        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "false positive"),
-         SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global", Justification = "false positive")]
-        public TestContext TestContext { get; set; }
-
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ExtensionFunctionsCastToInferredTypeTest()
         {
             Assert.AreEqual(5, "5".CastToInferredType(), "Int Cast");
@@ -33,7 +29,8 @@ namespace RestTests
             Assert.AreEqual("string", "string".CastToInferredType(), "String Cast");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ExtensionFunctionsIsLikeTest()
         {
             Assert.IsFalse("abc".IsLike("bc"));
@@ -41,7 +38,8 @@ namespace RestTests
             Assert.IsTrue("abc".IsLike("a*"));
         }
 
-        [DataTestMethod, TestCategory("Unit")]
+        [DataTestMethod]
+        [TestCategory("Unit")]
         [DataRow("  abc  ", "", "abc")]
         [DataRow("abc:def", "abc", "def")]
         [DataRow("abc : def", "abc", "def")]
@@ -60,7 +58,8 @@ namespace RestTests
             Assert.AreEqual(expectedLocator, kvp.Value, "Locator OK");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ExtensionFunctionsStripAfterTest()
         {
             Assert.AreEqual("12", "12:34".StripAfter(":"));

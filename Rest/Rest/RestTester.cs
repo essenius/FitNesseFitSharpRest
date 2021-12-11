@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2020 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using Rest.ContentObjects;
@@ -30,8 +29,8 @@ namespace Rest
         /// <summary>Instantiate REST tester with endpoint URL</summary>
         /// <param name="endPoint">URL of the end point (base URL) of the REST server</param>
         /// <remarks>
-        /// Taking a dependency on the injector since this is an entry point for FitNesse, 
-        /// so we don't want the dependencies to be injected via the constructor here
+        ///     Taking a dependency on the injector since this is an entry point for FitNesse,
+        ///     so we don't want the dependencies to be injected via the constructor here
         /// </remarks>
         public RestTester(string endPoint)
         {
@@ -80,24 +79,33 @@ namespace Rest
             }
         }
 
-        /// <summary>Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class can be used</summary>
+        /// <summary>
+        ///     Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class
+        ///     can be used
+        /// </summary>
         /// <param name="propertyName">name or index of the cookie property</param>
         /// <param name="cookieName">name of the cookie</param>
         /// <returns>the value of the cookie property</returns>
-        /// <requires>propertyName is a valid public cookie property name; cookieName is either a valid cookie index or a valid cookie name</requires>
-        /// <guarantees> if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the specified name</guarantees>
+        /// <requires>
+        ///     propertyName is a valid public cookie property name; cookieName is either a valid cookie index or a valid
+        ///     cookie name
+        /// </requires>
+        /// <guarantees>
+        ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
+        ///     specified name
+        /// </guarantees>
         public object PropertyOfResponseCookie(string propertyName, object cookieName)
         {
             Cookie cookie;
             if (cookieName is int id)
-            {
                 cookie = _session.Response.Cookies[id];
-            }
             else
-            {
                 cookie = _session.Response.Cookies[cookieName.ToString()];
-            }
-            var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+
+            var method = typeof(Cookie).GetProperty(
+                propertyName,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             return method?.GetValue(cookie);
         }
 
@@ -106,7 +114,8 @@ namespace Rest
 
         /// <param name="requiredHeaders">the list of headers to retrieve</param>
         /// <returns>the headers and their values separated by newlines</returns>
-        public string RequestHeaders(List<string> requiredHeaders) => FitNesseFormatter.HeaderList(_session.Request.Headers, requiredHeaders);
+        public string RequestHeaders(List<string> requiredHeaders) =>
+            FitNesseFormatter.HeaderList(_session.Request.Headers, requiredHeaders);
 
         /// <summary>The request headers except those specified in the list</summary>
         /// <param name="headersToOmit">the headers not to include in the result</param>
@@ -157,11 +166,12 @@ namespace Rest
 
         /// <param name="input">the input string</param>
         /// <returns>the input string with newline characters eliminated</returns>
-        public static string StripNewLinesFrom(string input) => input.Replace("\n", string.Empty).Replace("\r", string.Empty);
+        public static string StripNewLinesFrom(string input) =>
+            input.Replace("\n", string.Empty).Replace("\r", string.Empty);
 
         /// <summary>
-        /// Extracts a value from a request header using a regular expression (regex) matcher. 
-        /// In the expression, use parentheses () to indicate the section to be extracted
+        ///     Extracts a value from a request header using a regular expression (regex) matcher.
+        ///     In the expression, use parentheses () to indicate the section to be extracted
         /// </summary>
         /// <param name="header">the request header to inspect</param>
         /// <param name="matcher">the regular expression to use for matching</param>
@@ -173,8 +183,8 @@ namespace Rest
         }
 
         /// <summary>
-        /// Extracts a value from a response header using a regular expression (regex) matcher. 
-        /// In the expression, use parentheses () to indicate the section to be extracted
+        ///     Extracts a value from a response header using a regular expression (regex) matcher.
+        ///     In the expression, use parentheses () to indicate the section to be extracted
         /// </summary>
         /// <param name="header">the response header to inspect</param>
         /// <param name="matcher">the regular expression to use for matching</param>
@@ -186,7 +196,7 @@ namespace Rest
         }
 
         /// <summary>
-        /// Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type
+        ///     Extracts a value from a response using a matcher. It uses Regex, XPath or JSON query based on the Content-Type
         /// </summary>
         /// <param name="matcher">Regex, XPath or JSON query based on the Content-Type</param>
         /// <returns>the extracted value from the response</returns>
@@ -196,7 +206,10 @@ namespace Rest
             return _contentObjectFactory.Create(responseContentType, _session.ResponseText).Evaluate(matcher);
         }
 
-        /// <param name="qualifier">SHORT: just the version, EXTENDED: name, version, description, copyright. Anything else: name, version</param>
+        /// <param name="qualifier">
+        ///     SHORT: just the version, EXTENDED: name, version, description, copyright. Anything else: name,
+        ///     version
+        /// </param>
         /// <returns>Version information of the fixture</returns>
         public static string VersionInfo(string qualifier) => ApplicationInfo.VersionInfo(qualifier);
     }

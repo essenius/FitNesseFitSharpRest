@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,8 @@ namespace RestTests
     [TestClass]
     public class FitNesseFormatterTests
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListSelectionTest()
         {
             var headerList = new NameValueCollection
@@ -33,7 +34,8 @@ namespace RestTests
             Assert.AreEqual("header1: value1\nheader2: value2\n", result);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListTest()
         {
             var headerList = new NameValueCollection
@@ -46,7 +48,8 @@ namespace RestTests
             Assert.AreEqual("header1: value1\nheader2: value2\nheader3: value3\n", result);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListWithoutTest()
         {
             var headerList = new NameValueCollection
@@ -59,7 +62,8 @@ namespace RestTests
             Assert.AreEqual("header1: value1\nheader3: value3\n", result);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterParseCookiesTest()
         {
             const string input =
@@ -67,10 +71,10 @@ namespace RestTests
                 "cookie2=test\n" +
                 "_qa=name=john&age=47;domain=voorbeeld.nl;secure;path=/a/b\n" +
                 "maxAgeTest1=ok;max-Age=86400\n" +
-                "maxAgeTest2=good; max-Age=86401; Expires=bogus value with 12:34:56\n" + 
+                "maxAgeTest2=good; max-Age=86401; Expires=bogus value with 12:34:56\n" +
                 "maxAgeTest3=bad; max-Age=86402; MyExpires=bogus value with 12:34:56\n" +
                 "maxAgeTest4=ugly;Expires=; max-Age=86403";
-            var actual = FitNesseFormatter.ParseCookies(input,"default.org", new DateTime(2019, 6, 16, 11, 12, 13));
+            var actual = FitNesseFormatter.ParseCookies(input, "default.org", new DateTime(2019, 6, 16, 11, 12, 13));
             Assert.AreEqual(7, actual.Count);
             var cookieList = FitNesseFormatter.CookieList(actual);
             Assert.AreEqual(
@@ -78,26 +82,31 @@ namespace RestTests
                 "cookie2=test; Path=/; Domain=default.org\n" +
                 "_qa=name=john&age=47; Path=/a/b; Domain=voorbeeld.nl; Secure\n" +
                 "maxAgeTest1=ok; Expires=Mon, 17 Jun 2019 11:12:13 GMT; Path=/; Domain=default.org\n" +
-                "maxAgeTest2=good; Expires=Mon, 17 Jun 2019 11:12:14 GMT; Path=/; Domain=default.org\n" + 
+                "maxAgeTest2=good; Expires=Mon, 17 Jun 2019 11:12:14 GMT; Path=/; Domain=default.org\n" +
                 "maxAgeTest3=bad; Expires=Mon, 17 Jun 2019 11:12:15 GMT; Path=/; Domain=default.org\n" +
                 "maxAgeTest4=ugly; Expires=Mon, 17 Jun 2019 11:12:16 GMT; Path=/; Domain=default.org", cookieList);
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void FitNesseFormatterParseCookiesNoDomainTest()
         {
             const string input = "cookie2=test";
-            var _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
+            _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void FitNesseFormatterParseCookiesErrorTest()
         {
             const string input = "=";
-            var _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
+            _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterParseNameValueCollectionTest()
         {
             const string input = "header1:value1\nheader2 : value2\n    header3: value3:a    ";

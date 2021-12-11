@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,8 @@ namespace RestTests
     [TestClass]
     public class SessionContextTests
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextContentTypeMapperTest()
         {
             var context = new SessionContext();
@@ -30,10 +31,12 @@ namespace RestTests
             Assert.AreEqual("json", context.ContentHandler("unknown/content"), "unknown content type");
             Assert.AreEqual("json", context.ContentHandler("application/atom+xml"), "atom not set by default");
             context.SetConfig("ContentTypeMapping", "application/atom+xml : xml");
-            Assert.AreEqual("xml", context.ContentHandler("application/atom+xml"), "atom returns xml after config update");
+            Assert.AreEqual("xml", context.ContentHandler("application/atom+xml"),
+                "atom returns xml after config update");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextProxyTest()
         {
             var context = new SessionContext();
@@ -62,7 +65,8 @@ namespace RestTests
             Assert.AreEqual(proxyAddress, iProxy.GetProxy(new Uri("http://www.google.com")));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextCookieTest()
         {
             var context = new SessionContext();
@@ -81,7 +85,8 @@ namespace RestTests
             Assert.AreEqual("value2", collection["cookie2"]?.Value);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextSecurityProtocolTest()
         {
             var context = new SessionContext();
@@ -90,12 +95,13 @@ namespace RestTests
             Assert.IsFalse(context.SecurityProtocol.Contains("Tls12"));
         }
 
-        [TestMethod, TestCategory("Unit"), ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void SessionContextCookieWithoutDomainTest()
         {
             var context = new SessionContext();
             context.SetConfig("Cookies", "cookie1=value1");
         }
-
     }
 }

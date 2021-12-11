@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2020 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -39,7 +39,7 @@ namespace Rest.Model
         }
 
         /// <summary>
-        /// Request body. If 'set' and we have a JSON payload, removes the newlines.
+        ///     Request body. If 'set' and we have a JSON payload, removes the newlines.
         /// </summary>
         public string Body
         {
@@ -51,9 +51,12 @@ namespace Rest.Model
                     _body = null;
                     return;
                 }
+
                 // Json doesn't like newlines, so remove those. Leave them in for XML and Text
                 var contentType = ContentObjectFactory.InferType(value);
-                _body = contentType == ContentObjects.ContentHandler.Json ? FitNesseFormatter.ReplaceNewLines(value, string.Empty) : value;
+                _body = contentType == ContentObjects.ContentHandler.Json
+                    ? FitNesseFormatter.ReplaceNewLines(value, string.Empty)
+                    : value;
             }
         }
 
@@ -73,18 +76,16 @@ namespace Rest.Model
                 _responseText = string.Empty;
                 using (var responseStream = Response.GetResponseStream())
                 {
-                    if (responseStream == null) return _responseText;
-                    using (var reader = new StreamReader(responseStream))
-                    {
-                        _responseText = reader.ReadToEnd();
-                    }
+                    using var reader = new StreamReader(responseStream);
+                    _responseText = reader.ReadToEnd();
                 }
+
                 return _responseText;
             }
         }
 
         /// <summary>
-        /// Execute a request and fetch the response
+        ///     Execute a request and fetch the response
         /// </summary>
         /// <param name="method">the HTTP method (must be a valid one)</param>
         /// <param name="relativeUrl">the URL from the end point</param>

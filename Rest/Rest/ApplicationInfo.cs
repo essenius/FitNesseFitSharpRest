@@ -16,11 +16,16 @@ namespace Rest
 {
     internal static class ApplicationInfo
     {
-        private static Assembly ThisAssembly => Assembly. GetExecutingAssembly();
+        private static Assembly ThisAssembly => Assembly.GetExecutingAssembly();
 
         public static string ApplicationName { get; } = ThisAssembly.GetName().Name;
-        public static string Copyright { get; } = ThisAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
-        public static string Description { get; } = ThisAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+
+        public static string Copyright { get; } =
+            ThisAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
+
+        public static string Description { get; } =
+            ThisAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+
         public static string Version { get; } = ThisAssembly.GetName().Version.ToString();
 
         private static string ExtendedInfo => string.Format(CultureInfo.InvariantCulture, "{0} {1}. {2}. {3}",

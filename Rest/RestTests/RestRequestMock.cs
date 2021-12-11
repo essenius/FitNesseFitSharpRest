@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,8 @@ namespace RestTests
 {
     internal class RestRequestMock : RestRequest
     {
-        public RestRequestMock(HttpWebRequest request, SessionContext context) : base(request, context) => ExecuteWasCalled = false;
+        public RestRequestMock(HttpWebRequest request, SessionContext context) : base(request, context) =>
+            ExecuteWasCalled = false;
 
         public bool ExecuteWasCalled { get; private set; }
 

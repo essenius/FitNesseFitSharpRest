@@ -41,6 +41,7 @@ namespace Rest.Utilities
                 {
                     continue;
                 }
+
                 var root = xmlDoc.DocumentElement;
                 if (root?.Name != "suiteConfig") continue;
                 var assemblyNode = $"ApplicationUnderTest/AddAssembly[contains(., '{_assemblyName}')]";
@@ -48,6 +49,7 @@ namespace Rest.Utilities
                 if (xmlNode == null) continue;
                 return xmlNode.InnerText;
             }
+
             return null;
         }
     }

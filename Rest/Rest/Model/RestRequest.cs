@@ -86,10 +86,8 @@ namespace Rest.Model
                     var bytes = encoding.GetBytes(body);
                     _request.ContentLength = bytes.Length;
                     // WebException trapped in calling method
-                    using (var writeStream = _request.GetRequestStream())
-                    {
-                        writeStream.Write(bytes, 0, bytes.Length);
-                    }
+                    using var writeStream = _request.GetRequestStream();
+                    writeStream.Write(bytes, 0, bytes.Length);
                 }
                 else
                 {
@@ -106,6 +104,7 @@ namespace Rest.Model
         {
             foreach (var entry in requestHeadersToAdd.AllKeys)
             {
+                Debug.Assert(entry != null, $"{nameof(entry)} != null");
                 // if it doesn't exist already, it's probably non-standard.
                 // we try adding it, and if it was standard an ArgumentException is thrown
                 if (_request.Headers[entry] == null)

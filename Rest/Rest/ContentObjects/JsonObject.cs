@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -42,6 +43,7 @@ namespace Rest.ContentObjects
                 {
                     throw new ArgumentException("Unable to convert content to JSON");
                 }
+
                 SetObject(JsonConvert.SerializeXmlNode(doc));
             }
             else
@@ -58,13 +60,9 @@ namespace Rest.ContentObjects
         {
             JObject location;
             if (string.IsNullOrEmpty(locator))
-            {
                 location = _jsonObject;
-            }
             else
-            {
                 location = _jsonObject.SelectToken(locator) as JObject;
-            }
 
             if (location == null) return false;
             location.Add(((JsonObject) objToAdd)._jsonObject.Children());
@@ -87,8 +85,10 @@ namespace Rest.ContentObjects
             }
             else
             {
+                Debug.Assert(location.Parent != null, "location.Parent != null");
                 location.Parent.Remove();
             }
+
             return true;
         }
 
@@ -108,11 +108,9 @@ namespace Rest.ContentObjects
             {
                 result.Add(token.Path);
                 if (!(token is JContainer container)) continue;
-                foreach (var list in container.Select(entry => GetProperties(entry.Path)))
-                {
-                    result.AddRange(list);
-                }
+                foreach (var list in container.Select(entry => GetProperties(entry.Path))) result.AddRange(list);
             }
+
             return result;
         }
 
@@ -121,7 +119,8 @@ namespace Rest.ContentObjects
         /// <returns>the property indicated by the locator</returns>
         internal override string GetProperty(string locator)
         {
-            if (_jsonObject.SelectToken(locator) is JValue tokenValue) return TrimIfNeeded(tokenValue.Value?.ToString());
+            if (_jsonObject.SelectToken(locator) is JValue tokenValue)
+                return TrimIfNeeded(tokenValue.Value?.ToString());
             var container = _jsonObject.SelectToken(locator) as JContainer;
             return TrimIfNeeded(container?.ToString(Formatting.None));
         }
@@ -163,27 +162,26 @@ namespace Rest.ContentObjects
         private bool SetObject(string content)
         {
             // not using JOBject.Parse because that changes date formats
-            using (var reader = new JsonTextReader(new StringReader(content)) {DateParseHandling = DateParseHandling.None})
+            using var reader = new JsonTextReader(new StringReader(content)) 
+                {DateParseHandling = DateParseHandling.None};
+            try
+            {
+                _jsonObject = JObject.Load(reader);
+                return true;
+            }
+            catch (JsonReaderException)
             {
                 try
                 {
-                    _jsonObject = JObject.Load(reader);
+                    // not an object, assume it's an array
+                    var array = JArray.Load(reader);
+                    _jsonObject = new JObject(new JProperty("_", array));
                     return true;
                 }
                 catch (JsonReaderException)
                 {
-                    try
-                    {
-                        // not an object, assume it's an array
-                        var array = JArray.Load(reader);
-                        _jsonObject = new JObject(new JProperty("_", array));
-                        return true;
-                    }
-                    catch (JsonReaderException)
-                    {
-                        // Unable to parse as JSON
-                        return false;
-                    }
+                    // Unable to parse as Json
+                    return false;
                 }
             }
         }

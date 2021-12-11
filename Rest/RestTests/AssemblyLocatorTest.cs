@@ -41,7 +41,5 @@ namespace RestTests
             var locator = new AssemblyLocator("MyTest2.dll", ".");
             Assert.AreEqual("MyTest2/MyTest2.dll", locator.FindAssemblyPath());
         }
-
     }
 }
-

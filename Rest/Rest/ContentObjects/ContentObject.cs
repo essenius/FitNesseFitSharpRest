@@ -38,7 +38,8 @@ namespace Rest.ContentObjects
         /// <param name="input">the input string to be parsed</param>
         /// <remarks>
         ///     We need this one since FitNesse uses it to try and parse parameter values into objects
-        ///     The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be parsed
+        ///     The factory knows all children anyway, and will call static IsValid to figure out whether the input text can be
+        ///     parsed
         /// </remarks>
         /// <returns>the parsed ContentObject</returns>
         public static ContentObject Parse(string input)

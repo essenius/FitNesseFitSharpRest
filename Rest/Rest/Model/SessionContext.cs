@@ -62,16 +62,8 @@ namespace Rest.Model
         public bool TrimWhitespace { get; set; }
         public string XmlValueTypeAttribute { get; private set; }
 
-        /// <summary>Determine the type of content handler we need  based on the content type</summary>
-        /// <param name="contentType">the content type of the payload</param>
-        /// <returns>the content handler (xml, json, text)</returns>
-        public string ContentHandler(string contentType)
-        {
-            var contentHandler = ContentTypeMap.Get(contentType);
-            return string.IsNullOrEmpty(contentHandler) ? ContentTypeMap.Get("default") : contentHandler;
-        }
-        
-        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Consistency with other properties, and hiding of side effect")]
+        [SuppressMessage("Performance", "CA1822:Mark members as static",
+            Justification = "Consistency with other properties, and hiding of side effect")]
         public string SecurityProtocol
         {
             get => $"{ServicePointManager.SecurityProtocol}";
@@ -83,34 +75,121 @@ namespace Rest.Model
             }
         }
 
+        /// <summary>Determine the type of content handler we need  based on the content type</summary>
+        /// <param name="contentType">the content type of the payload</param>
+        /// <returns>the content handler (xml, json, text)</returns>
+        public string ContentHandler(string contentType)
+        {
+            var contentHandler = ContentTypeMap.Get(contentType);
+            return string.IsNullOrEmpty(contentHandler) ? ContentTypeMap.Get("default") : contentHandler;
+        }
+
         /// <summary>Set session context parameter based on an identifier</summary>
-        /// <param name="key">the identifier indicating the parameter (case insensitive).
-        /// Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent, DefaultUserAgent,
-        /// DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, CookieDomain, Cookies, SecurityProtocol</param>
+        /// <param name="key">
+        ///     the identifier indicating the parameter (case insensitive).
+        ///     Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent,
+        ///     DefaultUserAgent,
+        ///     DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, CookieDomain, Cookies, SecurityProtocol
+        /// </param>
         /// <param name="value">the value to set the context parameter to</param>
         /// <returns>true if successful, false if not</returns>
         public bool SetConfig(string key, string value)
         {
             var actionDictionary = new Dictionary<string, Func<string, bool>>
             {
-                {@"DEFAULTACCEPT", v => { DefaultAccept = v; return true; } },
-                {@"DEFAULTCONTENTTYPE", v => { DefaultContentType = v; return true; } },
-                {@"ENCODING", v => { RequestEncoding = Encoding.GetEncoding(v); return true; }},
+                {
+                    @"DEFAULTACCEPT", v =>
+                    {
+                        DefaultAccept = v;
+                        return true;
+                    }
+                },
+                {
+                    @"DEFAULTCONTENTTYPE", v =>
+                    {
+                        DefaultContentType = v;
+                        return true;
+                    }
+                },
+                {
+                    @"ENCODING", v =>
+                    {
+                        RequestEncoding = Encoding.GetEncoding(v);
+                        return true;
+                    }
+                },
                 {@"PROXY", SetProxy},
-                {@"TIMEOUT", v => { Timeout = double.Parse(v); return true; }},
-                {@"DEFAULTUSERAGENT", v => { DefaultUserAgent = v; return true; }},
-                {@"DEFAULTXMLNAMESPACEKEY", v => { DefaultXmlNameSpaceKey = v; return true; }},
-                {@"XMLVALUETYPEATTRIBUTE", v => { XmlValueTypeAttribute = v; return true; }},
-                {@"HEADERS", v => { Headers.Add(FitNesseFormatter.ParseNameValueCollection(value)); return true; }},
-                {@"CONTENTTYPEMAPPING", v => { ContentTypeMap.Add(FitNesseFormatter.ParseNameValueCollection(v)); return true; }},
-                {@"COOKIEDOMAIN", v => { CookieDomain = v; return true; }},
-                {@"COOKIES", v => {
-                    var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
-                    CookieContainer.Add(cookies);
-                    return true;
-                }},
-                {@"SECURITYPROTOCOL", v => { SecurityProtocol = v; return true; }},
-                {@"TRIMWHITESPACE", v => { TrimWhitespace = bool.Parse(v); return true; }}
+                {
+                    @"TIMEOUT", v =>
+                    {
+                        Timeout = double.Parse(v);
+                        return true;
+                    }
+                },
+                {
+                    @"DEFAULTUSERAGENT", v =>
+                    {
+                        DefaultUserAgent = v;
+                        return true;
+                    }
+                },
+                {
+                    @"DEFAULTXMLNAMESPACEKEY", v =>
+                    {
+                        DefaultXmlNameSpaceKey = v;
+                        return true;
+                    }
+                },
+                {
+                    @"XMLVALUETYPEATTRIBUTE", v =>
+                    {
+                        XmlValueTypeAttribute = v;
+                        return true;
+                    }
+                },
+                {
+                    @"HEADERS", v =>
+                    {
+                        Headers.Add(FitNesseFormatter.ParseNameValueCollection(value));
+                        return true;
+                    }
+                },
+                {
+                    @"CONTENTTYPEMAPPING", v =>
+                    {
+                        ContentTypeMap.Add(FitNesseFormatter.ParseNameValueCollection(v));
+                        return true;
+                    }
+                },
+                {
+                    @"COOKIEDOMAIN", v =>
+                    {
+                        CookieDomain = v;
+                        return true;
+                    }
+                },
+                {
+                    @"COOKIES", v =>
+                    {
+                        var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
+                        CookieContainer.Add(cookies);
+                        return true;
+                    }
+                },
+                {
+                    @"SECURITYPROTOCOL", v =>
+                    {
+                        SecurityProtocol = v;
+                        return true;
+                    }
+                },
+                {
+                    @"TRIMWHITESPACE", v =>
+                    {
+                        TrimWhitespace = bool.Parse(v);
+                        return true;
+                    }
+                }
             };
 
             var upperKey = key.ToUpperInvariant();

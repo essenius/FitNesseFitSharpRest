@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,8 @@ namespace RestTests
     [TestClass]
     public class RestSessionTests
     {
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestSessionMakeRequestTest()
         {
             const string textBody = "random text";
@@ -33,7 +34,8 @@ namespace RestTests
             Assert.IsTrue(m.ExecuteWasCalled, "Execute was called");
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestSessionRequestHeaderValueNullTest()
         {
             var h = new RestSession(null, new SessionContext(), null);
@@ -41,7 +43,8 @@ namespace RestTests
             Assert.IsTrue(string.IsNullOrEmpty(h.ResponseHeaderValue(null)));
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestSessionSetBodyTest()
         {
             const string textBody = "Text Line 1\r\nTextLine2\r\n";
@@ -54,10 +57,11 @@ namespace RestTests
             Assert.AreEqual(h.Body, jsonBodyOut);
         }
 
-        [TestMethod, TestCategory("Unit")]
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestSessionNullValueTest()
         {
-            var session = new RestSession(null, null, null) { Body = null } ;
+            var session = new RestSession(null, null, null) {Body = null};
             Assert.IsNull(session.ResponseText);
             Assert.IsNull(session.Body);
         }

@@ -36,7 +36,8 @@ namespace Rest
         /// <param name="baseObj">object to be added to</param>
         /// <param name="locator">specification of the location in baseObj where objToAdd has to be added</param>
         /// <returns>true if successfully added, false otherwise</returns>
-        public static bool AddToAt(ContentObject objToAdd, ContentObject baseObj, string locator) => baseObj.AddAt(objToAdd, locator);
+        public static bool AddToAt(ContentObject objToAdd, ContentObject baseObj, string locator) =>
+            baseObj.AddAt(objToAdd, locator);
 
         /// <param name="assembly">relative or absolute path to assembly to get classes of</param>
         /// <requires>assembly path must be valid</requires>
@@ -54,10 +55,8 @@ namespace Rest
         public ContentObject CreateObjectFrom(string contentType, string source) => ObjectFrom(contentType, source);
 
         /// <remarks>See ObjectFromPropertyOf</remarks>
-        public ContentObject CreateObjectFromPropertyOf(string locator, ContentObject contentObject)
-        {
-            return ObjectFromPropertyOf(locator, contentObject);
-        }
+        public ContentObject CreateObjectFromPropertyOf(string locator, ContentObject contentObject) =>
+            ObjectFromPropertyOf(locator, contentObject);
 
         /// <remarks>See ObjectFromTypeInAssembly</remarks>
         public ContentObject CreateObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
@@ -76,7 +75,8 @@ namespace Rest
 
         /// <remarks>Don't use. Will be removed in a future release</remarks>
         [Obsolete("Use EvaluateOn instead")]
-        public static string Evaluate(ContentObject contentObject, string matcher) => EvaluateOn(matcher, contentObject);
+        public static string Evaluate(ContentObject contentObject, string matcher) =>
+            EvaluateOn(matcher, contentObject);
 
         /// <summary>Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)</summary>
         /// <param name="matcher">the query to be evaluated</param>
@@ -99,20 +99,21 @@ namespace Rest
         }
 
         /// <summary>
-        ///     Create a new object from a string. It will establish the format by trying to parse it into each of the supported formats,
+        ///     Create a new object from a string. It will establish the format by trying to parse it into each of the supported
+        ///     formats,
         ///     and using the format for which parsing succeeds
         /// </summary>
         /// <param name="source">object to be parsed</param>
         /// <returns>Content object representing the parsed source</returns>
         public ContentObject ObjectFrom(string source) => ObjectFrom(null, source);
 
-
         /// <summary>Create a new object of the specified type (TEXT, JSON, XML) from a string</summary>
         /// <param name="contentType">TEXT, JSON, XML, null or empty string</param>
         /// <param name="source">the TEXT, JSON or XML representation of the object</param>
         /// <guarantees>If contentType is empty, it tries to establish the right content type</guarantees>
         /// <returns>Content object representing the parsed source</returns>
-        public ContentObject ObjectFrom(string contentType, string source) => _contentObjectFactory.Create(contentType, source);
+        public ContentObject ObjectFrom(string contentType, string source) =>
+            _contentObjectFactory.Create(contentType, source);
 
         /// <summary>Create a new object from a property in another object</summary>
         /// <param name="locator">the specification of the property</param>
@@ -153,7 +154,8 @@ namespace Rest
         /// <param name="locator">the specification of the element</param>
         /// <param name="contentObject">the object the element is in</param>
         /// <returns>Locators to all properties of a certain element in the object</returns>
-        public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) => contentObject.GetProperties(locator);
+        public static IEnumerable<string> PropertiesOf(string locator, ContentObject contentObject) =>
+            contentObject.GetProperties(locator);
 
         /// <param name="locator">the specification of the property to look at</param>
         /// <param name="contentObject">the object to look in</param>
@@ -165,12 +167,14 @@ namespace Rest
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to look in</param>
         /// <returns>the type of the property</returns>
-        public static string PropertyTypeOf(string locator, ContentObject contentObject) => contentObject.GetPropertyType(locator);
+        public static string PropertyTypeOf(string locator, ContentObject contentObject) =>
+            contentObject.GetPropertyType(locator);
 
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to look in</param>
         /// <returns>the value of the property</returns>
-        public static string PropertyValueOf(string locator, ContentObject contentObject) => contentObject.GetProperty(locator);
+        public static string PropertyValueOf(string locator, ContentObject contentObject) =>
+            contentObject.GetProperty(locator);
 
         /// <summary>Save an object to a file. If file name is empty, it uses a temporary file</summary>
         /// <param name="contentObject">the object to be saved</param>
@@ -179,10 +183,7 @@ namespace Rest
         public static string SaveObjectTo(ContentObject contentObject, string targetFile)
         {
             var saveText = Serialize(contentObject);
-            if (string.IsNullOrEmpty(targetFile))
-            {
-                targetFile = Path.GetTempFileName();
-            }
+            if (string.IsNullOrEmpty(targetFile)) targetFile = Path.GetTempFileName();
             File.WriteAllText(targetFile, saveText);
             return Path.GetFullPath(targetFile);
         }
@@ -194,7 +195,8 @@ namespace Rest
         /// <param name="locator">the specification of the property to be serialized</param>
         /// <param name="contentObject">the object to be represented in text</param>
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
-        public static string SerializeProperty(string locator, ContentObject contentObject) => contentObject.SerializeProperty(locator);
+        public static string SerializeProperty(string locator, ContentObject contentObject) =>
+            contentObject.SerializeProperty(locator);
 
 
         /// <summary>Set the value of an existing property</summary>
