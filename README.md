@@ -10,14 +10,19 @@ Differences are:
 * Go to solution folder: `cd /D %LOCALAPPDATA%\FitNesse\Rest`
 * If using .NET SDK:
     * Build fixture solution: `dotnet build --configuration release Rest.sln`
-    * No need to publish as we are leveraging the RestTest folder
-* If not using .NET SDK, download `RestTests.zip` from the latest [Release](../../releases) and extract into the `RestTests` folder 
-* Go to the fixture assembly folder: `cd RestTests\bin\Release\net5.0`
+    * go to RestTests folder: `cd RestTests`
+    * Publish: `dotnet publish RestTests.csproj --output bin\Deploy\net5.0 --framework net5.0 --configuration release`
+* If not using .NET SDK
+    * Download `RestTests.zip` from the latest [Release](../../releases) and extract into the `RestTests` folder
+    * Go to the RestTests folder `cd RestTests`
+* Go to the fixture assembly folder: `cd bin\Deploy\net5.0`
 * Start FitNesse 
 * Run the suite: Open a browser and enter the URL http://localhost:8080/FitSharpDemos.RestSuite?suite
+
+Note: if you don't need the test assemblies and just want to use the Rest fixture, you can build the Rest project instead, or take Rest.zip from the release.
 
 # Tutorial and Reference
 See the [Wiki](../../wiki)
 
 # Contribute
-Enter an issue or provide a pull request. 
+Enter an [issue](../../issues) or provide a [pull request](../../pulls). 
