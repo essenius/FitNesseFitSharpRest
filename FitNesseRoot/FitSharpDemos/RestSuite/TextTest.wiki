@@ -15,3 +15,12 @@
 |decision:properties for object|$obj                |
 |Property                      |Type?        |Value?|
 |${multiregex}!-{3}-!          |System.Double|51.6  |
+
+!|script                                                    |
+|$greeting=        |create object from|Hello there          |
+|delete            |(there)           |from|$greeting       |
+|show              |serialize         |$greeting            |
+|add               |World             |to  |$greeting|at|()$|
+|show              |serialize         |$greeting            |
+|set property value|H(ello)           |of  |$greeting|to|i  |
+|show              |serialize         |$greeting            |
