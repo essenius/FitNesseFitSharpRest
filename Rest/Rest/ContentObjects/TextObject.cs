@@ -34,7 +34,10 @@ namespace Rest.ContentObjects
             _content = content.ToString();
         }
 
-        /// <remarks>Adding text to text objects is not supported</remarks>
+        /// <summary>Adding serialized version of an object at a location indicated by a regular expression</summary>
+        /// <param name="objToAdd">the content object to be serialized and added</param>
+        /// <param name="locator">the point where it needs to be added (a group in regex)</param>
+        /// <returns>true</returns>
         internal override bool AddAt(ContentObject objToAdd, string locator)
         {
             var textToAdd = objToAdd.Serialize();
