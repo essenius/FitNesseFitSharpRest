@@ -91,7 +91,7 @@ namespace Rest.ContentObjects
         /// <param name="locator">Regular expression indicating the property in the JSON object</param>
         /// <returns>the property type indicated by the locator</returns>
         internal override string GetPropertyType(string locator) =>
-            GetProperty(locator)?.CastToInferredType()?.GetType().ToString();
+            GetProperty(locator)?.CastToInferredType().GetType().ToString();
 
         /// <summary>Check whether the input is valid text (i.e. no control characters except newlines and tabs)</summary>
         /// <param name="input">the input to be checked</param>

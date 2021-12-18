@@ -56,7 +56,10 @@ namespace Rest.ContentObjects
             {
                 _namespaceManager.AddNamespace(string.IsNullOrEmpty(entry.Key) ? defaultNameSpaceKey : entry.Key,
                     entry.Value);
-                if (string.IsNullOrEmpty(entry.Key)) DefaultNameSpace = entry.Value;
+                if (string.IsNullOrEmpty(entry.Key))
+                {
+                    DefaultNameSpace = entry.Value;
+                }
             }
         }
 
@@ -95,7 +98,11 @@ namespace Rest.ContentObjects
         /// </returns>
         private static string StringContent(object content)
         {
-            if (content is string) return content.ToString();
+            if (content is string)
+            {
+                return content.ToString();
+            }
+
             var x = new XmlSerializer(content.GetType());
             using var sw = new StringWriter();
             x.Serialize(sw, content);
@@ -117,10 +124,16 @@ namespace Rest.ContentObjects
             catch (XmlException xe)
             {
                 if (xe.Message.Contains("multiple root elements"))
+                {
                     return ("<root>" + contentString + "</root>").ToXmlDocument();
+                }
+
                 if (xe.Message.Contains("Data at the root level is invalid"))
                     // No XML. Try if it is JSON
+                {
                     return ConvertJsonToXml(contentString);
+                }
+
                 throw new ArgumentException("Unable to parse content as XML");
             }
         }
@@ -130,14 +143,26 @@ namespace Rest.ContentObjects
         private static int FindElementIndex(XPathNavigator element)
         {
             var parentNode = FindParent(element);
-            if (parentNode.NodeType == XPathNodeType.Root) return 1;
+            if (parentNode.NodeType == XPathNodeType.Root)
+            {
+                return 1;
+            }
+
             var index = 1;
             var children = parentNode.SelectChildren(XPathNodeType.Element);
             while (children.MoveNext())
             {
                 Debug.Assert(children.Current != null, "children.Current != null");
-                if (children.Current.Name != element.Name) continue;
-                if (element.ComparePosition(children.Current) == XmlNodeOrder.Same) return index;
+                if (children.Current.Name != element.Name)
+                {
+                    continue;
+                }
+
+                if (element.ComparePosition(children.Current) == XmlNodeOrder.Same)
+                {
+                    return index;
+                }
+
                 index++;
             }
 
@@ -173,7 +198,10 @@ namespace Rest.ContentObjects
         internal override bool AddAt(ContentObject objToAdd, string locator)
         {
             var node = SelectElement(locator);
-            if (!node.MoveNext()) return false;
+            if (!node.MoveNext())
+            {
+                return false;
+            }
 
             var nav = ((XmlObject) objToAdd)._navigator.Clone();
             nav.MoveToRoot();
@@ -189,7 +217,11 @@ namespace Rest.ContentObjects
         internal override bool Delete(string locator)
         {
             var node = SelectElement(locator);
-            if (!node.MoveNext()) return false;
+            if (!node.MoveNext())
+            {
+                return false;
+            }
+
             Debug.Assert(node.Current != null, "node.Current != null");
             node.Current.DeleteSelf();
             return true;
@@ -225,6 +257,7 @@ namespace Rest.ContentObjects
         {
             var builder = new StringBuilder();
             while (node != null)
+            {
                 switch (node.NodeType)
                 {
                     case XPathNodeType.Attribute:
@@ -245,6 +278,7 @@ namespace Rest.ContentObjects
                     default:
                         throw new ArgumentException("FindXPath: Unsupported node type");
                 }
+            }
 
             throw new ArgumentException("FindXPath: Node was not in a document. This was not expected to happen.");
         }
@@ -256,15 +290,25 @@ namespace Rest.ContentObjects
         {
             var result = new List<string>();
             // special case: if nothing was specified, we return everything
-            if (string.IsNullOrEmpty(locator)) locator = "//*";
+            if (string.IsNullOrEmpty(locator))
+            {
+                locator = "//*";
+            }
+
             var element = SelectElement(locator);
-            while (element.MoveNext()) result.Add(FindXPath(element.Current));
+            while (element.MoveNext())
+            {
+                result.Add(FindXPath(element.Current));
+            }
+
             return result;
         }
 
         /// <summary>Get one property value satisfying the locator</summary>
         /// <param name="locator">XPath query indicating the property in the XML object</param>
         /// <returns>the property indicated by the locator</returns>
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException",
+            Justification = "Current Can't be null if MoveNext is true")]
         internal override string GetProperty(string locator)
         {
             var element = SelectElement(locator);
@@ -278,10 +322,17 @@ namespace Rest.ContentObjects
         internal override string GetPropertyType(string locator)
         {
             var element = SelectElement(locator);
-            if (!element.MoveNext()) return null;
+            if (!element.MoveNext())
+            {
+                return null;
+            }
 
             Debug.Assert(element.Current != null, "element.Current != null");
-            if (string.IsNullOrEmpty(_valueTypeAttribute)) return element.Current.ValueType.ToString();
+            if (string.IsNullOrEmpty(_valueTypeAttribute))
+            {
+                return element.Current.ValueType.ToString();
+            }
+
             var atVal = element.Current.SelectSingleNode("@" + _valueTypeAttribute, _namespaceManager);
             return atVal != null ? atVal.Value : element.Current.ValueType.ToString();
         }
@@ -290,7 +341,11 @@ namespace Rest.ContentObjects
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append(node.Name);
-            if (node.NamespaceURI.Equals(DefaultNameSpace)) stringBuilder.Insert(0, _defaultNameSpaceKey + ":");
+            if (node.NamespaceURI.Equals(DefaultNameSpace))
+            {
+                stringBuilder.Insert(0, _defaultNameSpaceKey + ":");
+            }
+
             return stringBuilder.ToString();
         }
 
@@ -316,7 +371,11 @@ namespace Rest.ContentObjects
         internal override bool SetProperty(string locator, string value)
         {
             var element = SelectElement(locator);
-            if (!element.MoveNext()) return false;
+            if (!element.MoveNext())
+            {
+                return false;
+            }
+
             element.Current?.SetValue(value);
             return true;
         }

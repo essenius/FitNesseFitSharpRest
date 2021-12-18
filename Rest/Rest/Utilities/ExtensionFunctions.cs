@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2020 Rik Essenius
+﻿// Copyright 2015-2021 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -86,11 +87,9 @@ namespace Rest.Utilities
         /// <returns>list of strings with every line from the input in a separate string</returns>
         public static IEnumerable<string> SplitLines(this string input)
         {
-            using (var stringReader = new StringReader(input))
-            {
-                string line;
-                while ((line = stringReader.ReadLine()) != null) yield return line;
-            }
+            using var stringReader = new StringReader(input);
+            string line;
+            while ((line = stringReader.ReadLine()) != null) yield return line;
         }
 
         /// <param name="xmlString">string representing an XML document</param>
@@ -102,16 +101,15 @@ namespace Rest.Utilities
         /// </remarks>
         public static XmlDocument ToXmlDocument(this string xmlString)
         {
-            using (var stringReader = new StringReader(xmlString))
-            using (var xmlReader = XmlReader.Create(stringReader, new XmlReaderSettings {XmlResolver = null}))
-            {
-                return xmlReader.ToXmlDocument();
-            }
+            using var stringReader = new StringReader(xmlString);
+            using var xmlReader = XmlReader.Create(stringReader, new XmlReaderSettings {XmlResolver = null});
+            return xmlReader.ToXmlDocument();
         }
 
         /// <param name="xmlReader">Reader for an XML document</param>
         /// <requires>xmlReader represents a valid XML reader</requires>
         /// <returns>XML document loaded from the reader</returns>
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "False positive")]
         public static XmlDocument ToXmlDocument(this XmlReader xmlReader)
         {
             var document = new XmlDocument {XmlResolver = null};

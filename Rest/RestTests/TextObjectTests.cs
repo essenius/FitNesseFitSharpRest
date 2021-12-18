@@ -67,8 +67,22 @@ namespace RestTests
             Assert.AreEqual(3, props.Count);
             Assert.AreEqual("My", textObject.GetProperty(props[0]));
             Assert.AreEqual("Your", textObject.GetProperty(props[1]));
-            Assert.AreEqual("His", textObject.GetProperty(props[2]));
+            // SerializeProperty is the same as GetProperty for text objects
+            Assert.AreEqual("His", textObject.SerializeProperty(props[2]));
         }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void TextObjectGetPropertyTypeTest()
+        {
+            const string source = "int:1 string:Test double:1.1\r\n";
+            var textObject = new TextObject(source);
+            Assert.AreEqual("System.Int32", textObject.GetPropertyType("int:(.*?)\\s"), "Int OK");
+            Assert.AreEqual("System.String", textObject.GetPropertyType("string:(.*?)\\s"), "String OK");
+            Assert.AreEqual("System.Double", textObject.GetPropertyType("double:(.*?)\\s"), "Double OK");
+            Assert.IsNull(textObject.GetPropertyType("bogus:(.*)\\s"), "Not found OK");
+        }
+
 
         [TestMethod]
         [TestCategory("Unit")]

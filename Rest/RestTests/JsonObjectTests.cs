@@ -154,5 +154,13 @@ namespace RestTests
         [TestCategory("Unit")]
         [ExpectedException(typeof(ArgumentException))]
         public void JsonObjectWrongContentTest() => _ = new JsonObject("qwe");
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void JsonObjectEmptyTest()
+        {
+            var obj = new JsonObject("{}");
+            Assert.AreEqual("{}", obj.Serialize());
+        }
     }
 }

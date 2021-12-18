@@ -1,0 +1,10 @@
+
+[*]
+
+# ReSharper properties
+resharper_braces_for_for = required
+resharper_braces_for_foreach = required
+resharper_braces_for_while = required
+resharper_constructor_or_destructor_body = expression_body
+resharper_local_function_body = expression_body
+resharper_method_or_operator_body = expression_body

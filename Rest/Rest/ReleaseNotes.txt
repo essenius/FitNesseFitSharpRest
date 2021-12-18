@@ -25,3 +25,4 @@
 3.0.0 Migration to .NET 5.0 (dual build to .NET 4.8 and .NET 5.0)
 3.1.0 Introduced assembly locator
 3.2.0 Introduced AddToAt for Text objects, code reformatted, made RestTesterInvalidUrlTest resilient against proxy influences.
+3.3.0 Enhanced Cookie handling; eliminated CookieDomain in RestConfig (default is now the Host of the request URI). Increased code coverage to >98%

@@ -31,7 +31,10 @@ namespace Rest.ContentObjects
         {
             if (sourceObject is string sourceString)
             {
-                if (SetObject(sourceString)) return;
+                if (SetObject(sourceString))
+                {
+                    return;
+                }
 
                 // Fallback: try if this is an  XML document, and convert to JSON if so
                 XmlDocument doc;
@@ -60,11 +63,19 @@ namespace Rest.ContentObjects
         {
             JObject location;
             if (string.IsNullOrEmpty(locator))
+            {
                 location = _jsonObject;
+            }
             else
+            {
                 location = _jsonObject.SelectToken(locator) as JObject;
+            }
 
-            if (location == null) return false;
+            if (location == null)
+            {
+                return false;
+            }
+
             location.Add(((JsonObject) objToAdd)._jsonObject.Children());
             return true;
         }
@@ -74,9 +85,17 @@ namespace Rest.ContentObjects
         /// <returns>whether the part could be removed</returns>
         internal override bool Delete(string locator)
         {
-            if (string.IsNullOrEmpty(locator)) return false;
+            if (string.IsNullOrEmpty(locator))
+            {
+                return false;
+            }
+
             var location = _jsonObject.SelectToken(locator);
-            if (location == null) return false;
+            if (location == null)
+            {
+                return false;
+            }
+
             // for arrays this works a bit differently than for properties
             // With arrays we need to remove the value, and with properties we need to remove the property.
             if (location.Parent is JArray arr)
@@ -107,8 +126,15 @@ namespace Rest.ContentObjects
             foreach (var token in tokens)
             {
                 result.Add(token.Path);
-                if (!(token is JContainer container)) continue;
-                foreach (var list in container.Select(entry => GetProperties(entry.Path))) result.AddRange(list);
+                if (!(token is JContainer container))
+                {
+                    continue;
+                }
+
+                foreach (var list in container.Select(entry => GetProperties(entry.Path)))
+                {
+                    result.AddRange(list);
+                }
             }
 
             return result;
@@ -120,9 +146,13 @@ namespace Rest.ContentObjects
         internal override string GetProperty(string locator)
         {
             if (_jsonObject.SelectToken(locator) is JValue tokenValue)
+            {
                 return TrimIfNeeded(tokenValue.Value?.ToString());
+            }
+
             var container = _jsonObject.SelectToken(locator) as JContainer;
-            return TrimIfNeeded(container?.ToString(Formatting.None));
+            Debug.Assert(container != null, $"{nameof(container)} != null");
+            return TrimIfNeeded(container.ToString(Formatting.None));
         }
 
         /// <summary>Get the property type satisfying the locator</summary>
@@ -131,7 +161,11 @@ namespace Rest.ContentObjects
         internal override string GetPropertyType(string locator)
         {
             var token = _jsonObject.SelectToken(locator);
-            if (token == null) return null;
+            if (token == null)
+            {
+                return null;
+            }
+
             var jVal = token as JValue;
             return jVal?.Type.ToString() ?? token.Type.ToString();
         }
@@ -152,7 +186,7 @@ namespace Rest.ContentObjects
         }
 
         /// <returns>a serializable (string) version of the object</returns>
-        internal override string Serialize() => _jsonObject?.ToString(Formatting.None);
+        internal override string Serialize() => _jsonObject.ToString(Formatting.None);
 
         /// <summary>Get a serialized version of the property</summary>
         /// <param name="locator">property to serialize</param>
@@ -192,7 +226,10 @@ namespace Rest.ContentObjects
         /// <returns>whether the operation succeeded</returns>
         internal override bool SetProperty(string locator, string value)
         {
-            if (!(_jsonObject.SelectToken(locator) is JValue key)) return false;
+            if (!(_jsonObject.SelectToken(locator) is JValue key))
+            {
+                return false;
+            }
 
             if (key.Value == null)
             {

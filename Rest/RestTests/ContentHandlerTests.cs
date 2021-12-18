@@ -77,6 +77,16 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void ContentHandlerJsonObjectNullTest()
+        {
+            var h = new ContentHandler();
+            var obj = h.ObjectFrom("{\"a\":null}");
+            Assert.AreEqual("JSON Object", obj.ToString());
+            Assert.IsNull( obj.GetProperty("a"));
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void ContentHandlerObjectFromTypeInAssembly()
         {
             var h = new ContentHandler();
@@ -113,6 +123,16 @@ namespace RestTests
                 "<StringValue>string value</StringValue>" +
                 "</FewTypes>",
                 obj.Serialize(), "FewTypes incorrectly serialized");
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ContentHandlerObjectFromTypeInAssemblyWithParamNonExisting()
+        {
+            var h = new ContentHandler();
+            var obj = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.Bogus", "RestTests.dll",
+                new[] { "true" });
         }
 
         [TestMethod]

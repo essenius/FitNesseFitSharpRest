@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using Rest.ContentObjects;
@@ -61,7 +62,7 @@ namespace Rest
         public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
 
         /// <summary>The absolute URI used for the request</summary>
-        public string RequestUri => _session?.Request?.RequestUri.AbsoluteUri;
+        public string RequestUri => _session.Request?.RequestUri.AbsoluteUri;
 
         /// <summary>The HTTP response code of the REST request</summary>
         public int ResponseCode => (int) _session.Response.StatusCode;
@@ -94,13 +95,19 @@ namespace Rest
         ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
         ///     specified name
         /// </guarantees>
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "OK to propagate to FitNesse")]
         public object PropertyOfResponseCookie(string propertyName, object cookieName)
         {
             Cookie cookie;
             if (cookieName is int id)
+            {
                 cookie = _session.Response.Cookies[id];
+            }
             else
+            {
+                // OK to throw exception, this will be returned to FitNesse
                 cookie = _session.Response.Cookies[cookieName.ToString()];
+            }
 
 
             var method = typeof(Cookie).GetProperty(

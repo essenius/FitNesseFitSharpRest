@@ -12,6 +12,8 @@
 using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -32,6 +34,7 @@ namespace Rest.Model
             _context.SetDefaults(_request);
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException", Justification = "Prevented in constructor")]
         public CookieCollection Cookies => _request.CookieContainer.GetCookies(RequestUri);
 
         public NameValueCollection Headers => _request.Headers;

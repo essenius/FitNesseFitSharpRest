@@ -39,8 +39,8 @@ namespace Rest
         public static bool AddToAt(ContentObject objToAdd, ContentObject baseObj, string locator) =>
             baseObj.AddAt(objToAdd, locator);
 
-        /// <param name="assembly">relative or absolute path to assembly to get classes of</param>
-        /// <requires>assembly path must be valid</requires>
+        /// <param name="assembly">relative or absolute path to assemblyPath to get classes of</param>
+        /// <requires>assemblyPath path must be valid</requires>
         /// <returns>List of the class names (including namespace)</returns>
         public static List<string> ClassesIn(string assembly)
         {
@@ -128,7 +128,7 @@ namespace Rest
         /// <summary>Create an object modeled after a type in a .Net assembly</summary>
         /// <param name="contentType"></param>
         /// <param name="objectType">the name of the type to be created</param>
-        /// <param name="assembly">the path to the assembly</param>
+        /// <param name="assembly">the path to the assemblyPath</param>
         /// <returns>Content object representing the object</returns>
         public ContentObject ObjectFromTypeInAssembly(string contentType, string objectType, string assembly) =>
             ObjectFromTypeInAssemblyWithParams(contentType, objectType, assembly, null);
@@ -136,15 +136,17 @@ namespace Rest
         /// <summary>Create an object modeled after a type in a .Net assembly with constructor parameters</summary>
         /// <param name="contentType">TEXT, JSON, XML</param>
         /// <param name="objectType">>the name of the type to be created</param>
-        /// <param name="assembly">the path to the assembly</param>
+        /// <param name="assemblyPath">the path to the assembly</param>
         /// <param name="parameters">the parameter list to use</param>
         /// <returns>Content object representing the object, using the parameter values</returns>
         public ContentObject ObjectFromTypeInAssemblyWithParams(string contentType, string objectType,
-            string assembly, string[] parameters)
+            string assemblyPath, string[] parameters)
         {
-            var relativeAssemblyPath = new AssemblyLocator(assembly, ".").FindAssemblyPath();
-            var asm = Assembly.LoadFile(Path.GetFullPath(relativeAssemblyPath));
-            var myType = asm.GetType(objectType);
+            var relativeAssemblyPath = new AssemblyLocator(assemblyPath, ".").FindAssemblyPath();
+            var assembly = Assembly.LoadFile(Path.GetFullPath(relativeAssemblyPath));
+            var myType = assembly.GetType(objectType);
+            if (myType == null)
+                throw new ArgumentException($"Could not find type {objectType} in assembly {assemblyPath}");
             var typedParams = new List<object>();
             if (parameters != null) typedParams.AddRange(parameters.Select(s => s.CastToInferredType()));
             var instance = Activator.CreateInstance(myType, typedParams.ToArray());

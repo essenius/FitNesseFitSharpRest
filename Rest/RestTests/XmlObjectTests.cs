@@ -164,6 +164,18 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void XmlObjectDeleteTest()
+        {
+            var a = new XmlObject("<root><c>test</c></root>", "a", null);
+            Assert.IsFalse(a.Delete("/root/b"), "Delete nonexisting XPath fails");
+            Assert.AreEqual("<root><c>test</c></root>", a.Serialize());
+            Assert.IsTrue(a.Delete("/root/c"), "Delete existing XPath passes");
+            // TODO: find out why we don't get <root/> here.
+            Assert.AreEqual("<root></root>", a.Serialize());
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void XmlObjectEvaluateTest()
         {
             const string items =

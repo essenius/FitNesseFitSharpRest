@@ -23,7 +23,7 @@ namespace Rest.Model
     {
         public SessionContext()
         {
-            CookieContainer = new CookieContainer();
+            /* CookieContainer = new CookieContainer(); */
             Credentials = CredentialCache.DefaultCredentials;
             DefaultAccept = "application/xml,application/json;q=0.9,*/*;q=0.8";
             DefaultContentType = "application/json";
@@ -48,8 +48,8 @@ namespace Rest.Model
         }
 
         private NameValueCollection ContentTypeMap { get; }
-        private string CookieDomain { get; set; }
-        private CookieContainer CookieContainer { get; }
+        private string CookiesList { get; set; }
+        /* private CookieContainer CookieContainer { get; } */
         private ICredentials Credentials { get; }
         private string DefaultAccept { get; set; }
         private string DefaultContentType { get; set; }
@@ -89,7 +89,7 @@ namespace Rest.Model
         ///     the identifier indicating the parameter (case insensitive).
         ///     Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent,
         ///     DefaultUserAgent,
-        ///     DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, CookieDomain, Cookies, SecurityProtocol
+        ///     DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, Cookies, SecurityProtocol
         /// </param>
         /// <param name="value">the value to set the context parameter to</param>
         /// <returns>true if successful, false if not</returns>
@@ -162,17 +162,11 @@ namespace Rest.Model
                     }
                 },
                 {
-                    @"COOKIEDOMAIN", v =>
-                    {
-                        CookieDomain = v;
-                        return true;
-                    }
-                },
-                {
                     @"COOKIES", v =>
                     {
-                        var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
-                        CookieContainer.Add(cookies);
+                        CookiesList = v;
+                        /* var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
+                        CookieContainer.Add(cookies); */
                         return true;
                     }
                 },
@@ -201,7 +195,13 @@ namespace Rest.Model
         public void SetDefaults(HttpWebRequest request)
         {
             request.Credentials = Credentials;
-            request.CookieContainer = CookieContainer;
+            request.CookieContainer = new CookieContainer();
+            if (!string.IsNullOrEmpty(CookiesList))
+            {
+                var defaultDomain = request.RequestUri.Host;
+                var cookies = FitNesseFormatter.ParseCookies(CookiesList, defaultDomain, DateTime.UtcNow);
+                request.CookieContainer.Add(cookies);
+            }
             request.Accept = DefaultAccept;
             request.ContentType = DefaultContentType;
             request.Proxy = Proxy;

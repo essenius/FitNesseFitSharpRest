@@ -115,10 +115,10 @@ namespace Rest.Utilities
                         HttpOnly = httpCookie.HttpOnly,
                         Secure = httpCookie.Secure
                     };
-                    if (string.IsNullOrEmpty(cookie.Domain))
+                    /*if (string.IsNullOrEmpty(cookie.Domain))
                     {
                         throw new ArgumentException($"Set CookieDomain or specify domain in the cookie specification for '{line}'");
-                    }
+                    } */
                     collection.Add(cookie);
                 }
                 else
@@ -143,9 +143,9 @@ namespace Rest.Utilities
 
                     if (httpCookie.Expires != null) cookie.Expires = httpCookie.Expires.Value.UtcDateTime;
 
-                    if (string.IsNullOrEmpty(cookie.Domain))
+                    /* if (string.IsNullOrEmpty(cookie.Domain))
                         throw new ArgumentException(
-                            $"Set CookieDomain or specify domain in the cookie specification for '{line}'");
+                            $"Set CookieDomain or specify domain in the cookie specification for '{line}'"); */
                     collection.Add(cookie);
                 }
                 else

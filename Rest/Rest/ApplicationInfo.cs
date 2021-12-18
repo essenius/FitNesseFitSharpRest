@@ -9,11 +9,13 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 
 namespace Rest
 {
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException", Justification = "OK to propagate to FitNesse")]
     internal static class ApplicationInfo
     {
         private static Assembly ThisAssembly => Assembly.GetExecutingAssembly();

@@ -42,6 +42,7 @@ namespace RestTests
             var context = new SessionContext();
             //Use reflection here to get/set private fields and invoke the private methods.
             var fieldInfo = context.GetType().GetProperty("Proxy", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(fieldInfo, "fieldInfo not null");
             var iProxy = fieldInfo.GetValue(context) as IWebProxy;
             Assert.IsNotNull(iProxy);
             var proxyAddress = iProxy.GetProxy(new Uri("http://www.google.com"));
@@ -71,7 +72,7 @@ namespace RestTests
         {
             var context = new SessionContext();
             var uri = new Uri("http://localhost");
-            context.SetConfig("CookieDomain", "localhost");
+            /* context.SetConfig("CookieDomain", "localhost");*/
             context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
             var request = WebRequest.Create(uri) as HttpWebRequest;
             Assert.IsNotNull(request);
@@ -95,13 +96,13 @@ namespace RestTests
             Assert.IsFalse(context.SecurityProtocol.Contains("Tls12"));
         }
 
-        [TestMethod]
+        /* [TestMethod]
         [TestCategory("Unit")]
         [ExpectedException(typeof(ArgumentException))]
         public void SessionContextCookieWithoutDomainTest()
         {
             var context = new SessionContext();
             context.SetConfig("Cookies", "cookie1=value1");
-        }
+        } */
     }
 }

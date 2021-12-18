@@ -87,14 +87,14 @@ namespace RestTests
                 "maxAgeTest4=ugly; Expires=Mon, 17 Jun 2019 11:12:16 GMT; Path=/; Domain=default.org", cookieList);
         }
 
-        [TestMethod]
+        /*[TestMethod]
         [TestCategory("Unit")]
         [ExpectedException(typeof(ArgumentException))]
         public void FitNesseFormatterParseCookiesNoDomainTest()
         {
             const string input = "cookie2=test";
             _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
-        }
+        } */
 
         [TestMethod]
         [TestCategory("Unit")]

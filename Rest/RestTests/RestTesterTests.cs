@@ -63,11 +63,16 @@ namespace RestTests
                 EndPoint = "https://jsonplaceholder.typicode.com/",
                 RequestBody = "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }"
             };
+            Assert.IsNull(rt.RequestUri, "RequestUri null (OK)");
+            Assert.IsNull(rt.RequestCookies, "RequestCookies null (OK)");
             rt.SetRequestHeaderTo("Content-Type", "application/json; charset=UTF-8");
             rt.SetRequestHeaderTo("header1", "dummy");
             rt.SetRequestHeaderTo("header1", "value for header 1");
+
             Assert.IsTrue(string.IsNullOrEmpty(rt.RequestCookies), "Request Cookies empty");
             rt.SendTo("POST", "posts");
+            Assert.AreEqual("https://jsonplaceholder.typicode.com/posts", rt.RequestUri, "RequestUri OK");
+
             var requestHeaders = rt.RequestHeaders();
             Assert.IsTrue(requestHeaders.Contains("User-Agent:"), "request header contains User Agent");
             var requestHeadersWithout = rt.RequestHeadersWithout(new List<string> {"User-Agent"});
@@ -85,6 +90,7 @@ namespace RestTests
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
             Assert.IsTrue(string.IsNullOrEmpty(rt.ResponseCookies()), "Response cookies empty");
+            Assert.IsNull(rt.PropertyOfResponseCookie("test", "test"), "no property test or cookie test");
         }
 
         [TestMethod]
@@ -118,6 +124,8 @@ namespace RestTests
         [TestCategory("Integration")]
         public void RestTesterTypicodeTest3()
         {
+            var context = Injector.InjectSessionContext();
+            context.SetConfig("Cookies", "cookie1=value1");
             var rt = new RestTester
             {
                 EndPoint = "http://jsonplaceholder.typicode.com/",
@@ -126,11 +134,26 @@ namespace RestTests
             rt.SetRequestHeaderTo("Content-Type", "application/json; foo=2");
             rt.SetRequestHeaderTo("User-Agent", "FitNesseClient");
             rt.SetRequestHeaderTo("Accept", "application/json; test=3");
+
             rt.SendTo("POST", "posts");
+            Assert.AreEqual(201, rt.ResponseCode);
             var requestHeaders = rt.RequestHeaders();
+            Assert.AreEqual("cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.RequestCookies, "Cookies OK");
             Assert.IsTrue(requestHeaders.Contains("Content-Type: application/json; foo=2"));
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
+            rt.SendTo("DELETE", "posts/96");
+            Assert.AreEqual(200, rt.ResponseCode);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void RestTesterEndPointNullTest()
+        {
+            var rt = new RestTester();
+            Assert.IsNull(rt.EndPoint);
+            Assert.IsNull(rt.RequestUri);
+            Assert.IsNull(rt.RequestCookies);
         }
 
         [TestMethod]
