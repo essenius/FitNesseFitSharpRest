@@ -8,14 +8,9 @@ The steps to install are very similar to that of installing the [FibonacciDemo](
 Differences are:
 * Download the repo code as a zip file and extract the contents of the folder `FitNesseFitSharpRest-master` to `%LOCALAPPDATA%\FitNesse` 
 * Go to solution folder: `cd /D %LOCALAPPDATA%\FitNesse\Rest`
-* If using .NET SDK:
-    * Build fixture solution: `dotnet build --configuration release Rest.sln`
-    * go to RestTests folder: `cd RestTests`
-    * Publish: `dotnet publish RestTests.csproj --output bin\Deploy\net5.0 --framework net5.0 --configuration release`
-* If not using .NET SDK
-    * Download `RestTests.zip` from the latest [Release](../../releases) and extract into the `RestTests` folder
-    * Go to the RestTests folder `cd RestTests`
-* Go to the fixture assembly folder: `cd bin\Deploy\net5.0`
+* If using .NET SDK, build fixture solution: `dotnet build --configuration release Rest.sln`
+* If not using .NET SDK, download `RestTests.zip` from the latest [Release](../../releases) and extract into the `RestTests` folder
+* Go to the fixture assembly folder: `cd RestTests\bin\Release\net5.0`
 * Start FitNesse 
 * Run the suite: Open a browser and enter the URL http://localhost:8080/FitSharpDemos.RestSuite?suite
 
