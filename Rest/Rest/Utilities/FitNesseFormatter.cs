@@ -215,7 +215,7 @@ namespace Rest.Utilities
             return cookieText + "; Expires=" + expires;
         }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
 
         /// <summary>
         ///     Validate the input cookie string and remove the invalid field/option.

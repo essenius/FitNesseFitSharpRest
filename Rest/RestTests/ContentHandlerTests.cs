@@ -92,7 +92,11 @@ namespace RestTests
             var h = new ContentHandler();
             var obj = h.ObjectFromTypeInAssembly("xml", "RestTests.FewTypes", "RestTests.dll");
             const string expected = "<?xml version=\"1.0\" encoding=\"utf-16\"?>" +
+#if NET5_0_OR_GREATER
                                     "<FewTypes xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+#else
+                                    "<FewTypes xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
+#endif
                                     "<BoolValue>false</BoolValue>" +
                                     "<ByteValue>0</ByteValue>" +
                                     "<CharValue>0</CharValue>" +
@@ -113,7 +117,11 @@ namespace RestTests
                 new[] {"true"});
             Assert.AreEqual(
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?>" +
+#if NET5_0_OR_GREATER
                 "<FewTypes xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+#else
+                "<FewTypes xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
+#endif
                 "<BoolValue>true</BoolValue>" +
                 "<ByteValue>255</ByteValue>" +
                 "<CharValue>99</CharValue>" +

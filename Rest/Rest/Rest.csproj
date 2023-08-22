@@ -1,23 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net48</TargetFrameworks>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysysMode>AllEnabledByDefault</AnalysysMode>
-    <Version>3.3.0</Version>
+    <Version>3.4.0</Version>
     <Authors>Rik Essenius</Authors>
     <Description>A FitNesse/FitSharp fixture to test REST services</Description>
-    <Copyright>Copyright © Rik Essenius 2015-2021</Copyright>
+    <Copyright>Copyright © Rik Essenius 2015-2023</Copyright>
     <RepositoryUrl>https://github.com/essenius/FitNesseFitSharpRest</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
