@@ -12,7 +12,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -237,22 +236,17 @@ namespace Rest.ContentObjects
             var expr = _navigator.Compile(matcher);
             expr.SetContext(_namespaceManager);
             var eval = _navigator.Evaluate(expr);
-            switch (eval)
+            return eval switch
             {
-                case bool _:
-                    return eval;
-                case string _:
-                    return eval;
-            }
-
-            return eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current?.InnerXml : null;
+                bool _ => eval,
+                string _ => eval,
+                _ => eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current?.InnerXml : null,
+            };
         }
 
         /// <summary>Construct an XPath query to find a node</summary>
         /// <param name="node">the node to create an XPath query for</param>
         /// <returns>the resulting XPath query</returns>
-        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases",
-            Justification = "missing cases not handled (caught by default clause)")]
         private string FindXPath(XPathNavigator node)
         {
             var builder = new StringBuilder();
@@ -307,8 +301,6 @@ namespace Rest.ContentObjects
         /// <summary>Get one property value satisfying the locator</summary>
         /// <param name="locator">XPath query indicating the property in the XML object</param>
         /// <returns>the property indicated by the locator</returns>
-        [SuppressMessage("ReSharper", "PossibleNullReferenceException",
-            Justification = "Current Can't be null if MoveNext is true")]
         internal override string GetProperty(string locator)
         {
             var element = SelectElement(locator);

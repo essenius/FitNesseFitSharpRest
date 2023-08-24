@@ -10,7 +10,7 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Net;
+using System.Net.Http;
 using Rest.Model;
 
 namespace RestTests
@@ -18,6 +18,6 @@ namespace RestTests
     internal class RestRequestMockFactory : IRestRequestFactory
     {
         public RestRequest Create(Uri uri, SessionContext context) =>
-            new RestRequestMock((HttpWebRequest) WebRequest.Create(uri), context);
+            new RestRequestMock(new HttpRequestMessage { RequestUri = uri }, context);
     }
 }

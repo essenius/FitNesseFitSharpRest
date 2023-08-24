@@ -10,19 +10,19 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Collections.Specialized;
-using System.Net;
+using System.Net.Http;
 using Rest.Model;
 
 namespace RestTests
 {
     internal class RestRequestMock : RestRequest
     {
-        public RestRequestMock(HttpWebRequest request, SessionContext context) : base(request, context) =>
+        public RestRequestMock(HttpRequestMessage request, SessionContext context) : base(request, context) =>
             ExecuteWasCalled = false;
 
         public bool ExecuteWasCalled { get; private set; }
 
-        public override HttpWebResponse Execute(string method, string body)
+        public override HttpResponseMessage Execute(HttpMethod method)
         {
             ExecuteWasCalled = true;
             return null;

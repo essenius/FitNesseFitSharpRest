@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,7 +21,6 @@ using Rest.Utilities;
 namespace Rest
 {
     /// <summary>Handle content in JSON, XML and TEXT format</summary>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
     public class ContentHandler
     {
         private readonly ContentObjectFactory _contentObjectFactory;
@@ -144,9 +142,7 @@ namespace Rest
         {
             var relativeAssemblyPath = new AssemblyLocator(assemblyPath, ".").FindAssemblyPath();
             var assembly = Assembly.LoadFile(Path.GetFullPath(relativeAssemblyPath));
-            var myType = assembly.GetType(objectType);
-            if (myType == null)
-                throw new ArgumentException($"Could not find type {objectType} in assembly {assemblyPath}");
+            var myType = assembly.GetType(objectType) ?? throw new ArgumentException($"Could not find type {objectType} in assembly {assemblyPath}");
             var typedParams = new List<object>();
             if (parameters != null) typedParams.AddRange(parameters.Select(s => s.CastToInferredType()));
             var instance = Activator.CreateInstance(myType, typedParams.ToArray());

@@ -12,10 +12,13 @@
 using System;
 using System.Collections.Specialized;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Model;
+using Rest.Utilities;
 
 namespace RestTests
 {
@@ -32,7 +35,9 @@ namespace RestTests
             var target = factory.Create(uri, context);
             Assert.IsNotNull(target);
             Assert.AreEqual(uri, target.RequestUri);
-            Assert.AreEqual("FitNesseRest", target.HeaderValue("User-Agent"));
+            target.Execute(HttpMethod.Head);
+            Assert.AreEqual("FitNesseRest", FitNesseFormatter.GetHeader(target.Headers, "User-Agent"));
+            Assert.IsTrue(FitNesseFormatter.GetHeader(target.Headers, "Accept").Contains("application/json"));
         }
 
         [TestMethod]
@@ -43,25 +48,24 @@ namespace RestTests
             var uri = new Uri("http://localhost/api");
             var factory = new RestRequestFactory();
             var restRequest = factory.Create(uri, context);
-            var method = restRequest.GetType().GetMethod("SetBody", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(method, "method nut null");
-            method.Invoke(restRequest, new object[] {"hello", Encoding.GetEncoding("iso-8859-1"), "GET"});
+            restRequest.SetBody("hello", HttpMethod.Get);
 
             var fieldInfo = restRequest.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(fieldInfo, "FieldInfo not null");
-            var req = fieldInfo.GetValue(restRequest) as HttpWebRequest;
-            Assert.AreEqual(0, req?.ContentLength);
+            var req = fieldInfo.GetValue(restRequest) as HttpRequestMessage;
+            Assert.IsNotNull(req, "Request is not null");
+            Assert.IsNull(req.Content, "Content is null");
         }
 
         [TestMethod]
         [TestCategory("Unit")]
         public void RestRequestSupportsBodyTest()
         {
-            Assert.IsTrue(RestRequest.SupportsBody("PUT"));
-            Assert.IsTrue(RestRequest.SupportsBody("POST"));
-            Assert.IsTrue(RestRequest.SupportsBody("DELETE"));
-            Assert.IsFalse(RestRequest.SupportsBody("GET"));
-            Assert.IsFalse(RestRequest.SupportsBody("HEAD"));
+            Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Put));
+            Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Post));
+            Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Delete));
+            Assert.IsFalse(RestRequest.SupportsBody(HttpMethod.Get));
+            Assert.IsFalse(RestRequest.SupportsBody(HttpMethod.Head));
         }
 
         [TestMethod]
@@ -71,7 +75,7 @@ namespace RestTests
             var context = new SessionContext();
             var uri = new Uri("http://localhost/api");
             var factory = new RestRequestFactory();
-            var target = factory.Create(uri, context);
+            var restRequest = factory.Create(uri, context);
             var headers = new NameValueCollection
             {
                 {"header1", "value1"},
@@ -80,40 +84,29 @@ namespace RestTests
                 {"content-type", "application/xml"},
                 {"Authorization", "my-hash"}
             };
-            Assert.IsTrue(string.IsNullOrEmpty(target.HeaderValue("header1")), "header1 doesn't exist upfront");
-            Assert.IsTrue(target.HeaderValue("Accept").Contains("application/json"),
-                "Accept contains application/json upfront");
-            target.UpdateHeaders(headers);
-            Assert.AreEqual("value1", target.HeaderValue("header1"), "header1 exists afterwards");
-            Assert.AreEqual("UnitTest", target.HeaderValue("User-Agent"), "User-Agent changed");
-            Assert.AreEqual("plain/text", target.HeaderValue("Accept"), "Accept changed");
-            Assert.AreEqual("application/xml", target.HeaderValue("Content-Type"), "Content-Type changed");
-            Assert.AreEqual("my-hash", target.HeaderValue("Authorization"), "Authorization changed");
+            restRequest.SetBody(string.Empty, HttpMethod.Get);
+            Assert.IsFalse(restRequest.Headers.TryGetValues("header1", out _), "header1 doesn't exist upfront");
+            restRequest.UpdateHeaders(headers);
+            Assert.AreEqual("value1", FitNesseFormatter.GetHeader(restRequest.Headers, "header1"), "header1 exists afterwards");
+            Assert.AreEqual("UnitTest", restRequest.Headers.UserAgent.ToString(), "User-Agent changed");
+            Assert.AreEqual("plain/text", restRequest.Headers.Accept.ToString(), "Accept changed");
+            restRequest.Execute(HttpMethod.Get);
+            Assert.AreEqual("my-hash", restRequest.Headers.Authorization.ToString(), "Authorization changed");
+            Assert.IsNull(restRequest.ContentHeaders, "No content headers");
+
+            var restRequest2 = factory.Create(uri, context);
+            restRequest2.SetBody("<hello/>", HttpMethod.Post);
+            restRequest2.UpdateHeaders(headers);
+
+            Assert.AreEqual("value1", FitNesseFormatter.GetHeader(restRequest2.Headers, "header1"), "header1 exists afterwards");
+            Assert.AreEqual("UnitTest", restRequest2.Headers.UserAgent.ToString(), "User-Agent changed");
+            Assert.AreEqual("plain/text", restRequest2.Headers.Accept.ToString(), "Accept changed");
+            restRequest2.Execute(HttpMethod.Post);
+            Assert.AreEqual("my-hash", restRequest2.Headers.Authorization.ToString(), "Authorization changed");
+            Assert.AreEqual(new MediaTypeHeaderValue("application/xml"), restRequest2.ContentHeaders?.ContentType, "Content type OK");
+
+
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void RestRequestUpdateWrongHeaderTest()
-        {
-            var context = new SessionContext();
-            var uri = new Uri("http://localhost/api");
-            var factory = new RestRequestFactory();
-            var target = factory.Create(uri, context);
-
-            // We force a Date entry in the Headers property of the request by setting the request's Date property
-            // That will cause the case statement in UpdateHeaders to choose default (i.e. throw argumentexception).
-            var fieldInfo = target.GetType().GetField("_request", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(fieldInfo, "fieldInfo not null");
-            var request = fieldInfo.GetValue(target) as HttpWebRequest;
-            Assert.IsNotNull(request, "Request field captured");
-            request.Date = new DateTime(2019, 02, 23);
-
-            var headers = new NameValueCollection
-            {
-                {"Date", "1-Jan-2000"}
-            };
-            target.UpdateHeaders(headers);
-        }
     }
 }

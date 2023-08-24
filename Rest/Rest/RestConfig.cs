@@ -11,14 +11,12 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Rest.Model;
 
 namespace Rest
 {
     /// <summary>Fixture for the Rest Config table table, specifying the configuration data for the Rest Tester</summary>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
     public class RestConfig
     {
         private readonly SessionContext _context;
@@ -41,8 +39,6 @@ namespace Rest
         ///     list of the same size with empty values, and 'pass' in the second column where the related configuration was
         ///     set
         /// </returns>
-        [SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global",
-            Justification = "FitSharp doesn't handle that")]
         public List<object> DoTable(List<List<string>> table) => table.Select(ProcessLine).Cast<object>().ToList();
 
         /// <summary>Processes a line in the configuration and sets context accordingly</summary>

@@ -11,8 +11,7 @@
 
 using System;
 using System.Collections.Specialized;
-using System.IO;
-using System.Net;
+using System.Net.Http;
 using Rest.ContentObjects;
 using Rest.Utilities;
 
@@ -64,7 +63,32 @@ namespace Rest.Model
         public Uri EndPoint { get; set; }
         public RestRequest Request { get; private set; }
         public NameValueCollection RequestHeadersToAdd { get; }
-        public HttpWebResponse Response { get; private set; }
+
+        public HeaderDictionary RequestHeaders
+        {
+            get
+            {
+                var headers = new HeaderDictionary();
+                if (Request == null) return headers;
+                headers.AddHeaders(Request.Headers);
+                headers.AddHeaders(Request.ContentHeaders);
+                return headers;
+            }
+        }
+
+        public HttpResponseMessage Response { get; private set; }
+
+        public HeaderDictionary ResponseHeaders
+        {
+            get
+            {
+                var headers = new HeaderDictionary();
+                if (Response == null) return headers;
+                headers.AddHeaders(Response.Headers);
+                headers.AddHeaders(Response.Content.Headers);
+                return headers; 
+            }
+        }
 
         /// <summary>The response text (null if no response)</summary>
         public string ResponseText
@@ -74,12 +98,7 @@ namespace Rest.Model
                 if (Response == null) return null;
                 if (_responseText != null) return _responseText;
                 _responseText = string.Empty;
-                using (var responseStream = Response.GetResponseStream())
-                {
-                    using var reader = new StreamReader(responseStream);
-                    _responseText = reader.ReadToEnd();
-                }
-
+                _responseText = Response.Content.ReadAsStringAsync().Result;
                 return _responseText;
             }
         }
@@ -92,18 +111,22 @@ namespace Rest.Model
         /// <returns>true</returns>
         public bool MakeRequest(string method, string relativeUrl)
         {
-            // If we had a previous run, we no longer need it. Close so we can re-use
-            Response?.Close();
+            // If we had a previous run, we no longer need it. 
+            Response = null;
             _responseText = null;
 
             Request = _requestFactory.Create(new Uri(EndPoint, relativeUrl), Context);
+            var httpMethod = new HttpMethod(method);
+            Request.SetBody(Body, httpMethod);
             Request.UpdateHeaders(RequestHeadersToAdd);
             RequestHeadersToAdd.Clear();
-            Response = Request.Execute(method, Body);
+            Response = Request.Execute(httpMethod);
             return true;
         }
 
-        public string RequestHeaderValue(string header) => Request?.HeaderValue(header) ?? string.Empty;
-        public string ResponseHeaderValue(string header) => Response?.GetResponseHeader(header) ?? string.Empty;
+
+
+        public string RequestHeaderValue(string header) => FitNesseFormatter.GetHeader(RequestHeaders, header);
+        public string ResponseHeaderValue(string header) => FitNesseFormatter.GetHeader(ResponseHeaders, header);
     }
 }

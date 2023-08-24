@@ -12,8 +12,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using Rest.Utilities;
 
@@ -21,19 +22,14 @@ namespace Rest.Model
 {
     internal class SessionContext
     {
+        private HttpClientHandler _httpClientHandler;
+        private HttpClient _httpClient;
+        private bool _useProxy;
+
         public SessionContext()
         {
-            /* CookieContainer = new CookieContainer(); */
             Credentials = CredentialCache.DefaultCredentials;
-            DefaultAccept = "application/xml,application/json;q=0.9,*/*;q=0.8";
-            DefaultContentType = "application/json";
             Proxy = WebRequest.GetSystemWebProxy();
-            RequestEncoding = Encoding.GetEncoding("iso-8859-1");
-            DefaultUserAgent = "FitNesseRest";
-            DefaultXmlNameSpaceKey = "atom";
-            Timeout = 10D; // seconds
-            TrimWhitespace = false;
-            XmlValueTypeAttribute = string.Empty;
             ContentTypeMap = new NameValueCollection();
             ContentTypeMap.Set("application/xml", "xml");
             ContentTypeMap.Set("application/json", "json");
@@ -41,29 +37,29 @@ namespace Rest.Model
             ContentTypeMap.Set("multipart/mixed", "text");
             ContentTypeMap.Set("default", "json");
             Headers = new NameValueCollection();
-            // SystemDefault doesn't enable TLS 1.2, and we want at least that by default.
+
+            // until .NET 4.6, SystemDefault didn't enable TLS 1.2, and we want at least that by default.
             // See e.g. https://stackoverflow.com/questions/28286086/default-securityprotocol-in-net-4-5
             // By using |=, we ensure this is future proof - it will use the highest.
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+            // Should no longer be needed as we moved to .NET 4.8
+            //ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
 
         private NameValueCollection ContentTypeMap { get; }
         private string CookiesList { get; set; }
         /* private CookieContainer CookieContainer { get; } */
         private ICredentials Credentials { get; }
-        private string DefaultAccept { get; set; }
-        private string DefaultContentType { get; set; }
-        private string DefaultUserAgent { get; set; }
-        public string DefaultXmlNameSpaceKey { get; private set; }
+        private string DefaultAccept { get; set; } = "application/xml,application/json;q=0.9,*/*;q=0.8";
+        private string DefaultContentType { get; set; } = "application/json";
+        private string DefaultUserAgent { get; set; } = "FitNesseRest";
+        public string DefaultXmlNameSpaceKey { get; private set; } = "atom";
         private NameValueCollection Headers { get; }
         private IWebProxy Proxy { get; set; }
-        public Encoding RequestEncoding { get; private set; }
-        private double Timeout { get; set; }
-        public bool TrimWhitespace { get; set; }
-        public string XmlValueTypeAttribute { get; private set; }
+        public Encoding RequestEncoding { get; private set; } = Encoding.GetEncoding("iso-8859-1");
+        private double Timeout { get; set; } = 10D; // seconds
+        public bool TrimWhitespace { get; set; } = false;
+        public string XmlValueTypeAttribute { get; private set; } = string.Empty;
 
-        [SuppressMessage("Performance", "CA1822:Mark members as static",
-            Justification = "Consistency with other properties, and hiding of side effect")]
         public string SecurityProtocol
         {
             get => $"{ServicePointManager.SecurityProtocol}";
@@ -72,6 +68,37 @@ namespace Rest.Model
                 const bool ignoreCase = true;
                 var protocol = (SecurityProtocolType) Enum.Parse(typeof(SecurityProtocolType), value, ignoreCase);
                 ServicePointManager.SecurityProtocol = protocol;
+            }
+        }
+
+        public CookieContainer CookieContainer => ClientHandler.CookieContainer;
+
+        private HttpClientHandler ClientHandler =>
+            _httpClientHandler ??= new HttpClientHandler
+            {
+                Credentials = Credentials,
+                CookieContainer = new CookieContainer(),
+                Proxy = Proxy,
+#if NET5_0_OR_GREATER
+                AutomaticDecompression = DecompressionMethods.All
+#else
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+#endif
+            };
+
+        public HttpClient Client
+        {
+            get
+            {
+                if (_httpClient != null) return _httpClient;
+                _httpClient = new HttpClient(ClientHandler);
+                foreach (string entry in Headers)
+                {
+                    _httpClient.DefaultRequestHeaders.Add(entry, Headers[entry]);
+                }
+
+                _httpClient.Timeout = TimeSpan.FromSeconds(Timeout);
+                return _httpClient;
             }
         }
 
@@ -88,8 +115,7 @@ namespace Rest.Model
         /// <param name="key">
         ///     the identifier indicating the parameter (case insensitive).
         ///     Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent,
-        ///     DefaultUserAgent,
-        ///     DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, Cookies, SecurityProtocol
+        ///     DefaultUserAgent, DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, Cookies, SecurityProtocol
         /// </param>
         /// <param name="value">the value to set the context parameter to</param>
         /// <returns>true if successful, false if not</returns>
@@ -192,22 +218,20 @@ namespace Rest.Model
 
         /// <summary>Set the defaults for a request based on the context settings</summary>
         /// <param name="request">the request to be updated (must be valid)</param>
-        public void SetDefaults(HttpWebRequest request)
+        public void SetDefaults(HttpRequestMessage request)
         {
-            request.Credentials = Credentials;
-            request.CookieContainer = new CookieContainer();
-            if (!string.IsNullOrEmpty(CookiesList))
-            {
-                var defaultDomain = request.RequestUri.Host;
-                var cookies = FitNesseFormatter.ParseCookies(CookiesList, defaultDomain, DateTime.UtcNow);
-                request.CookieContainer.Add(cookies);
-            }
-            request.Accept = DefaultAccept;
-            request.ContentType = DefaultContentType;
-            request.Proxy = Proxy;
-            request.UserAgent = DefaultUserAgent;
-            request.Headers.Add(Headers);
-            request.Timeout = (int) (Timeout * 1000 + 0.5);
+            if (string.IsNullOrEmpty(CookiesList)) return;
+            var defaultDomain = request.RequestUri.Host;
+            var cookies = FitNesseFormatter.ParseCookies(CookiesList, defaultDomain, DateTime.UtcNow);
+            ClientHandler.CookieContainer.Add(cookies);
+            //_httpClient.DefaultRequestHeaders.Clear();
+
+ 
+            //foreach (string entry in Headers)
+            //{
+            //    Client.DefaultRequestHeaders.Add(entry, Headers[entry]);
+            //}
+            //Client.Timeout = TimeSpan.FromSeconds(Timeout);
         }
 
         /// <summary>Set the proxy</summary>
@@ -219,15 +243,24 @@ namespace Rest.Model
             {
                 case "System":
                     Proxy = WebRequest.GetSystemWebProxy();
+                    _useProxy  = true;
                     return true;
                 case "None":
                     Proxy = new WebProxy();
+                    _useProxy = false;
                     return true;
                 default:
                     if (!Uri.TryCreate(value, UriKind.Absolute, out var proxyUri)) return false;
                     Proxy = new WebProxy(proxyUri);
+                    _useProxy = true;
                     return true;
             }
+        }
+
+        public void PrepareClient()
+        {
+            Client.DefaultRequestHeaders.Accept.ParseAdd(DefaultAccept);
+            Client.DefaultRequestHeaders.UserAgent.ParseAdd(DefaultUserAgent);
         }
     }
 }

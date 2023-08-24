@@ -12,7 +12,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -88,8 +87,7 @@ namespace Rest.Utilities
         public static IEnumerable<string> SplitLines(this string input)
         {
             using var stringReader = new StringReader(input);
-            string line;
-            while ((line = stringReader.ReadLine()) != null) yield return line;
+            while (stringReader.ReadLine() is { } line) yield return line;
         }
 
         /// <param name="xmlString">string representing an XML document</param>
@@ -109,7 +107,6 @@ namespace Rest.Utilities
         /// <param name="xmlReader">Reader for an XML document</param>
         /// <requires>xmlReader represents a valid XML reader</requires>
         /// <returns>XML document loaded from the reader</returns>
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "False positive")]
         public static XmlDocument ToXmlDocument(this XmlReader xmlReader)
         {
             var document = new XmlDocument {XmlResolver = null};

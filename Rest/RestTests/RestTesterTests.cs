@@ -9,8 +9,8 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
+using System;
 using System.Collections.Generic;
-using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
 using Rest.Model;
@@ -22,7 +22,7 @@ namespace RestTests
     {
         [TestMethod]
         [TestCategory("Integration")]
-        [ExpectedException(typeof(WebException))]
+        [ExpectedException(typeof(AggregateException))]
         public void RestTesterInvalidUrlTest()
         {
             // Make sure we don't get any proxy intercepts
@@ -64,12 +64,12 @@ namespace RestTests
                 RequestBody = "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }"
             };
             Assert.IsNull(rt.RequestUri, "RequestUri null (OK)");
-            Assert.IsNull(rt.RequestCookies, "RequestCookies null (OK)");
+            Assert.IsNull(rt.Cookies, "RequestCookies null (OK)");
             rt.SetRequestHeaderTo("Content-Type", "application/json; charset=UTF-8");
             rt.SetRequestHeaderTo("header1", "dummy");
             rt.SetRequestHeaderTo("header1", "value for header 1");
 
-            Assert.IsTrue(string.IsNullOrEmpty(rt.RequestCookies), "Request Cookies empty");
+            Assert.IsTrue(string.IsNullOrEmpty(rt.Cookies), "Request Cookies empty");
             rt.SendTo("POST", "posts");
             Assert.AreEqual("https://jsonplaceholder.typicode.com/posts", rt.RequestUri, "RequestUri OK");
 
@@ -89,8 +89,8 @@ namespace RestTests
             Assert.AreEqual("Content-Length: 78\nContent-Type: application/json; charset=utf-8\n", responseHeaders);
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
-            Assert.IsTrue(string.IsNullOrEmpty(rt.ResponseCookies()), "Response cookies empty");
-            Assert.IsNull(rt.PropertyOfResponseCookie("test", "test"), "no property test or cookie test");
+            Assert.IsTrue(string.IsNullOrEmpty(rt.Cookies), "cookies empty");
+            Assert.IsNull(rt.PropertyOfCookie("test", "test"), "no property test for cookie test");
         }
 
         [TestMethod]
@@ -138,7 +138,11 @@ namespace RestTests
             rt.SendTo("POST", "posts");
             Assert.AreEqual(201, rt.ResponseCode);
             var requestHeaders = rt.RequestHeaders();
-            Assert.AreEqual("cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.RequestCookies, "Cookies OK");
+            Assert.AreEqual("cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.Cookies, "Cookies OK");
+            Assert.AreEqual("/",rt.PropertyOfCookie("Path", "cookie1"));
+            Assert.AreEqual("jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
+            Assert.AreEqual("/", rt.PropertyOfCookie("Path", 0));
+
             Assert.IsTrue(requestHeaders.Contains("Content-Type: application/json; foo=2"));
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
@@ -153,7 +157,7 @@ namespace RestTests
             var rt = new RestTester();
             Assert.IsNull(rt.EndPoint);
             Assert.IsNull(rt.RequestUri);
-            Assert.IsNull(rt.RequestCookies);
+            Assert.IsNull(rt.Cookies);
         }
 
         [TestMethod]

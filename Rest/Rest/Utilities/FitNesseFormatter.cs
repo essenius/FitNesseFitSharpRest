@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -37,6 +38,24 @@ namespace Rest.Utilities
         #endregion
 
         #region Public Methods
+
+
+        public static string GetHeader(HttpHeaders headers, string header)
+        {
+            if (header == null) return string.Empty;
+            return headers?.TryGetValues(header, out var values) ?? false
+                ? string.Join(",", values)
+                : string.Empty;
+        }
+
+        public static string GetHeader(HeaderDictionary headers, string header)
+        {
+            if (header == null) return string.Empty;
+            return headers?.TryGetValue(header, out var values) ?? false
+                ? string.Join(",", values)
+                : string.Empty;
+        }
+
 
         /// <param name="cookies">a cookie collection (can be null)</param>
         /// <returns>string representations of the cookies, each cookie on a separate line. Returns null if cookies is null</returns>
@@ -62,15 +81,15 @@ namespace Rest.Utilities
 
         /// <param name="headers">a name value collection representing HTTP headers</param>
         /// <returns>string representing the headers, each on a separate line, name and value separated by :</returns>
-        public static string HeaderList(NameValueCollection headers) => HeaderListWithout(headers, new List<string>());
+        public static string HeaderList(HeaderDictionary headers) => HeaderListWithout(headers, new List<string>());
 
         /// <param name="headers">a name value collection representing HTTP headers</param>
         /// <param name="filterHeaders">headers that should in the result</param>
         /// <returns>string representing the filterHeaders, each on a separate line, name and value separated by :</returns>
-        public static string HeaderList(NameValueCollection headers, IEnumerable<string> filterHeaders) =>
+        public static string HeaderList(HeaderDictionary headers, IEnumerable<string> filterHeaders) =>
             filterHeaders.Aggregate(
                 string.Empty,
-                (current, filter) => current + MultiLineHeader(filter, headers[filter]));
+                (current, filter) => current + MultiLineHeader(filter, GetHeader(headers, filter)));
 
         /// <param name="headers">a name value collection representing HTTP headers</param>
         /// <param name="headersToOmit">headers that should be filtered out in the result</param>
@@ -78,13 +97,11 @@ namespace Rest.Utilities
         ///     string representing the headers without the headersToOmit, each on a separate line, name and value separated
         ///     by :
         /// </returns>
-        public static string HeaderListWithout(NameValueCollection headers, List<string> headersToOmit)
+        public static string HeaderListWithout(HeaderDictionary headers, List<string> headersToOmit)
         {
-            var returnValue = string.Empty;
-            for (var i = 0; i < headers.Count; i++)
-                if (!headersToOmit.Contains(headers.Keys[i], StringComparer.CurrentCultureIgnoreCase))
-                    returnValue += MultiLineHeader(headers.Keys[i], headers[i]);
-            return returnValue;
+            return headers
+                .Where(entry => !headersToOmit.Contains(entry.Key, StringComparer.CurrentCultureIgnoreCase))
+                .Aggregate(string.Empty, (current, entry) => current + MultiLineHeader(entry.Key, GetHeader(headers, entry.Key)));
         }
 
 
@@ -93,8 +110,7 @@ namespace Rest.Utilities
         /// <param name="utcNow">current date and time in UTC</param>
         /// <param name="defaultPath">default path for the cookie (used if not specified)</param>
         /// <returns>a CookieCollection representing the cookie specification in the input</returns>
-        public static CookieCollection ParseCookies(string input, string defaultDomain, DateTime utcNow,
-            string defaultPath = "/")
+        public static CookieCollection ParseCookies(string input, string defaultDomain, DateTime utcNow, string defaultPath = "/")
         {
             var collection = new CookieCollection();
             var lines = input.SplitLines();
@@ -115,10 +131,7 @@ namespace Rest.Utilities
                         HttpOnly = httpCookie.HttpOnly,
                         Secure = httpCookie.Secure
                     };
-                    /*if (string.IsNullOrEmpty(cookie.Domain))
-                    {
-                        throw new ArgumentException($"Set CookieDomain or specify domain in the cookie specification for '{line}'");
-                    } */
+
                     collection.Add(cookie);
                 }
                 else
@@ -143,9 +156,6 @@ namespace Rest.Utilities
 
                     if (httpCookie.Expires != null) cookie.Expires = httpCookie.Expires.Value.UtcDateTime;
 
-                    /* if (string.IsNullOrEmpty(cookie.Domain))
-                        throw new ArgumentException(
-                            $"Set CookieDomain or specify domain in the cookie specification for '{line}'"); */
                     collection.Add(cookie);
                 }
                 else

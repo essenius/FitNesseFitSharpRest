@@ -10,13 +10,18 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Net;
+using System.Net.Http;
 
 namespace Rest.Model
 {
     internal class RestRequestFactory : IRestRequestFactory
     {
-        public RestRequest Create(Uri uri, SessionContext context) =>
-            new RestRequest((HttpWebRequest) WebRequest.Create(uri), context);
+        public RestRequest Create(Uri uri, SessionContext context)
+        {
+            context.PrepareClient();
+            return new RestRequest(new HttpRequestMessage { RequestUri = uri }, context);
+        }
+        /* public RestRequest Create(Uri uri, SessionContext context) =>
+            new RestRequest((HttpWebRequest) WebRequest.Create(uri), context); */
     }
 }

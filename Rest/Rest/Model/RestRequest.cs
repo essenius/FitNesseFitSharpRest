@@ -10,99 +10,111 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using Rest.Utilities;
 
 namespace Rest.Model
 {
     internal class RestRequest
     {
         private readonly SessionContext _context;
-        private readonly HttpWebRequest _request;
+        private readonly HttpRequestMessage _request;
 
-        public RestRequest(HttpWebRequest request, SessionContext context)
+        // check out https://stackoverflow.com/questions/46300390/switching-from-httpwebrequest-to-httpclient for the migration
+        // see also https://stackoverflow.com/questions/4015324/how-to-implement-httprequest-with-post-method-in-c-sharp
+
+        public RestRequest(HttpRequestMessage request, SessionContext context)
         {
             Debug.Assert(request != null, "request != null");
             Debug.Assert(context != null, "context != null");
             _request = request;
-            _request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             _context = context;
             _context.SetDefaults(_request);
         }
 
-        [SuppressMessage("ReSharper", "PossibleNullReferenceException", Justification = "Prevented in constructor")]
-        public CookieCollection Cookies => _request.CookieContainer.GetCookies(RequestUri);
-
-        public NameValueCollection Headers => _request.Headers;
+        public CookieCollection Cookies => _context.CookieContainer.GetCookies(RequestUri);
 
         public Uri RequestUri => _request.RequestUri;
 
         /// <param name="method">the HTTP method to be checked</param>
         /// <returns>whether or not the method supports the use of a body</returns>
-        public static bool SupportsBody(string method) =>
-            method != WebRequestMethods.Http.Get && method != WebRequestMethods.Http.Head;
+        public static bool SupportsBody(HttpMethod method) =>
+            method != HttpMethod.Get && method != HttpMethod.Head;
 
         /// <summary>Executes an HTTP request</summary>
         /// <param name="method">the method to execute (must be one of the recognized HTTP methods)</param>
         /// <param name="body">the associated body (can be null)</param>
         /// <returns>the response of the request</returns>
-        public virtual HttpWebResponse Execute(string method, string body)
+        public virtual HttpResponseMessage Execute(HttpMethod method)
         {
             _request.Method = method;
-            HttpWebResponse response;
-            try
-            {
-                SetBody(body, _context.RequestEncoding, _request.Method);
-                response = (HttpWebResponse) _request.GetResponse();
-            }
-            catch (WebException we)
-            {
-                // if we got a response error, give that back
-                // if we couldn't even send the request, rethrow the exception
-                response = (HttpWebResponse) we.Response;
-                if (response == null) throw;
-            }
-
+            var response = _context.Client.SendAsync(_request).Result;
             return response;
         }
 
-        /// <param name="header">the header name to return</param>
-        /// <returns>the value of the specified header</returns>
-        public string HeaderValue(string header) => _request.Headers[header] ?? string.Empty;
+        public HttpRequestHeaders Headers => _request.Headers;
 
-        /// <summary>Sets the body if the method supports a body and if it's not empty. Also sets ContentLength accordingly</summary>
+        public HttpContentHeaders ContentHeaders => _request.Content?.Headers;
+
+
+
+        /// <summary>Sets the body if the method supports a body and if it's not empty.</summary>
         /// <param name="body">the body text to be sent (can be null)</param>
         /// <param name="encoding">the request encoding</param>
         /// <param name="method">the HTTP method we want to use</param>
-        private void SetBody(string body, Encoding encoding, string method)
+        public void SetBody(string body, HttpMethod method)
         {
             {
-                // If the stream is empty, or if this is a GET/HEAD, don't send a request stream
-                // (those two don't support request streams)
                 if (!string.IsNullOrEmpty(body) && SupportsBody(method))
                 {
-                    var bytes = encoding.GetBytes(body);
-                    _request.ContentLength = bytes.Length;
-                    // WebException trapped in calling method
-                    using var writeStream = _request.GetRequestStream();
-                    writeStream.Write(bytes, 0, bytes.Length);
+                    _request.Content = new StringContent(body, _context.RequestEncoding);
                 }
                 else
                 {
-                    _request.ContentLength = 0;
+                    _request.Content = null;
+                }
+
+            }
+        }
+
+        private static void SetHeader(HttpHeaders headers, string headerName, string headerValue)
+        {
+            if (headers == null) return;
+            if (headers.Contains(headerName))
+            {
+                headers.Remove(headerName);
+            }
+            headers.Add(headerName, headerValue);
+        }
+
+        public virtual void UpdateHeaders(NameValueCollection headersToAdd)
+        {
+            foreach (var headerKey in headersToAdd.AllKeys)
+            {
+                try
+                {
+                    SetHeader(_request.Headers, headerKey, headersToAdd[headerKey]);
+                }
+                catch (InvalidOperationException)
+                {
+                    SetHeader(_request.Content?.Headers, headerKey, headersToAdd[headerKey]);
                 }
             }
         }
 
+        /*
         /// <summary>
         ///     Update the request headers with the values of a name value collection
         /// </summary>
         /// <param name="requestHeadersToAdd">The name value collection to take over the headers from</param>
-        public virtual void UpdateHeaders(NameValueCollection requestHeadersToAdd)
+        /// TODO delete
+        public virtual void UpdateHeaders(WebHeaderCollection requestHeadersToAdd)
         {
             foreach (var entry in requestHeadersToAdd.AllKeys)
             {
@@ -129,5 +141,6 @@ namespace Rest.Model
                     }
             }
         }
+        */
     }
 }

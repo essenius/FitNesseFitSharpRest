@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Utilities;
 
@@ -24,13 +23,14 @@ namespace RestTests
         [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListSelectionTest()
         {
-            var headerList = new NameValueCollection
+            var headers = new HeaderDictionary
             {
-                {"header1", "value1"},
-                {"header2", "value2"},
-                {"header3", "value3"}
+                {"header1", new List<string>{"value1"}},
+                {"header2", new List<string>{"value2"}},
+                {"header3", new List<string>{"value3"}}
             };
-            var result = FitNesseFormatter.HeaderList(headerList, new List<string> {"header1", "header2"});
+
+            var result = FitNesseFormatter.HeaderList(headers, new List<string> {"header1", "header2"});
             Assert.AreEqual("header1: value1\nheader2: value2\n", result);
         }
 
@@ -38,13 +38,13 @@ namespace RestTests
         [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListTest()
         {
-            var headerList = new NameValueCollection
+            var headers = new HeaderDictionary
             {
-                {"header1", "value1"},
-                {"header2", "value2"},
-                {"header3", "value3"}
+                {"header1", new List<string>{"value1"}},
+                {"header2", new List<string>{"value2"}},
+                {"header3", new List<string>{"value3"}}
             };
-            var result = FitNesseFormatter.HeaderList(headerList);
+            var result = FitNesseFormatter.HeaderList(headers);
             Assert.AreEqual("header1: value1\nheader2: value2\nheader3: value3\n", result);
         }
 
@@ -52,13 +52,13 @@ namespace RestTests
         [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListWithoutTest()
         {
-            var headerList = new NameValueCollection
+            var headers = new HeaderDictionary
             {
-                {"header1", "value1"},
-                {"header2", "value2"},
-                {"header3", "value3"}
+                {"header1",  new List<string>{"value1"}},
+                {"header2",  new List<string>{"value2"}},
+                {"header3",  new List<string>{"value3"}}
             };
-            var result = FitNesseFormatter.HeaderListWithout(headerList, new List<string> {"header2"});
+            var result = FitNesseFormatter.HeaderListWithout(headers, new List<string> {"header2"});
             Assert.AreEqual("header1: value1\nheader3: value3\n", result);
         }
 
@@ -86,15 +86,6 @@ namespace RestTests
                 "maxAgeTest3=bad; Expires=Mon, 17 Jun 2019 11:12:15 GMT; Path=/; Domain=default.org\n" +
                 "maxAgeTest4=ugly; Expires=Mon, 17 Jun 2019 11:12:16 GMT; Path=/; Domain=default.org", cookieList);
         }
-
-        /*[TestMethod]
-        [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void FitNesseFormatterParseCookiesNoDomainTest()
-        {
-            const string input = "cookie2=test";
-            _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
-        } */
 
         [TestMethod]
         [TestCategory("Unit")]

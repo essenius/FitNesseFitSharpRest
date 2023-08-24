@@ -26,3 +26,5 @@
 3.1.0 Introduced assembly locator
 3.2.0 Introduced AddToAt for Text objects, code reformatted, made RestTesterInvalidUrlTest resilient against proxy influences.
 3.3.0 Enhanced Cookie handling; eliminated CookieDomain in RestConfig (default is now the Host of the request URI). Increased code coverage to >98%
+3.4.0 Migrated to .NET 6.0
+3.5.0 Migrated from deprecated HttpWebRequest to HttpClient

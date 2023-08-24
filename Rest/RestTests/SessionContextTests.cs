@@ -10,10 +10,14 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Model;
+using Rest.Utilities;
 
 namespace RestTests
 {
@@ -74,10 +78,9 @@ namespace RestTests
             var uri = new Uri("http://localhost");
             /* context.SetConfig("CookieDomain", "localhost");*/
             context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
-            var request = WebRequest.Create(uri) as HttpWebRequest;
-            Assert.IsNotNull(request);
-            context.SetDefaults(request);
-            var cookieContainer = request.CookieContainer;
+            var message = new HttpRequestMessage { RequestUri = uri };
+            context.SetDefaults(message);
+            var cookieContainer = context.CookieContainer;
             Assert.IsNotNull(cookieContainer);
             Assert.AreEqual(2, cookieContainer.Count);
             var collection = cookieContainer.GetCookies(uri);
@@ -88,21 +91,25 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void SessionContextAddHeaderTest()
+        {
+            var context = new SessionContext();
+            context.SetConfig("Headers", "header3:value3\r\nheader4:value4");
+            var client = context.Client;
+            var headers = client.DefaultRequestHeaders;
+            Assert.AreEqual(2, headers.Count());
+            Assert.AreEqual("value3", FitNesseFormatter.GetHeader(headers, "header3"));
+            Assert.AreEqual("value4", FitNesseFormatter.GetHeader(headers, "header4"));
+        }
+        /*
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextSecurityProtocolTest()
         {
             var context = new SessionContext();
             Assert.IsTrue(context.SecurityProtocol.Contains("Tls12"));
             context.SecurityProtocol = "SystemDefault";
             Assert.IsFalse(context.SecurityProtocol.Contains("Tls12"));
-        }
-
-        /* [TestMethod]
-        [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SessionContextCookieWithoutDomainTest()
-        {
-            var context = new SessionContext();
-            context.SetConfig("Cookies", "cookie1=value1");
         } */
     }
 }

@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using Rest.ContentObjects;
@@ -44,6 +43,8 @@ namespace Rest
         {
         }
 
+        public string Cookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
+
         /// <summary>Set/get endpoint for the service (base URL)</summary>
         public string EndPoint
         {
@@ -59,7 +60,8 @@ namespace Rest
         }
 
         /// <summary>Get all cookie names and values in the request (for debugging)</summary>
-        public string RequestCookies => FitNesseFormatter.CookieList(_session.Request?.Cookies);
+        [Obsolete ("Use Cookies instead")]
+        public string RequestCookies => Cookies;
 
         /// <summary>The absolute URI used for the request</summary>
         public string RequestUri => _session.Request?.RequestUri.AbsoluteUri;
@@ -68,21 +70,23 @@ namespace Rest
         public int ResponseCode => (int) _session.Response.StatusCode;
 
         /// <summary>Description of the HTTP response code</summary>
-        public string ResponseCodeDescription => _session.Response.StatusDescription;
+        public string ResponseCodeDescription => _session.Response.ReasonPhrase;
 
         /// <summary>"Try to create a JSON, XML or Text object from the response by parsing the response string</summary>
         public ContentObject ResponseObject
         {
             get
             {
-                var contentType = _session.Response.GetResponseHeader("Content-Type");
+                var contentType = _session.Response.Headers.TryGetValues("Content-Type", out var values)
+                    ? string.Join(",", values)
+                    : string.Empty;
                 return _contentObjectFactory.Create(contentType, _session.ResponseText);
             }
         }
 
         /// <summary>
         ///     Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class
-        ///     can be used
+        ///     can be used. This is no longer relevant as there is only one cookie collection in the session.
         /// </summary>
         /// <param name="propertyName">name or index of the cookie property</param>
         /// <param name="cookieName">name of the cookie</param>
@@ -95,18 +99,37 @@ namespace Rest
         ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
         ///     specified name
         /// </guarantees>
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "OK to propagate to FitNesse")]
+        [Obsolete("Use PropertyOfCookie(propertyName, cookieName) instead")]
         public object PropertyOfResponseCookie(string propertyName, object cookieName)
+        {
+            return PropertyOfCookie(propertyName, cookieName);
+        }
+
+        /// <summary>
+        ///     Get a property of a cookie (on name or index). All public properties of the C# Cookie class can be used
+        /// </summary>
+        /// <param name="propertyName">name or index of the cookie property</param>
+        /// <param name="cookieName">name of the cookie</param>
+        /// <returns>the value of the cookie property</returns>
+        /// <requires>
+        ///     propertyName is a valid public cookie property name; cookieName is either a valid cookie index or a valid
+        ///     cookie name
+        /// </requires>
+        /// <guarantees>
+        ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
+        ///     specified name
+        /// </guarantees>
+        public object PropertyOfCookie(string propertyName, object cookieName)
         {
             Cookie cookie;
             if (cookieName is int id)
             {
-                cookie = _session.Response.Cookies[id];
+                cookie = _session.Request.Cookies[id];
             }
             else
             {
                 // OK to throw exception, this will be returned to FitNesse
-                cookie = _session.Response.Cookies[cookieName.ToString()];
+                cookie = _session.Request.Cookies[cookieName.ToString()];
             }
 
 
@@ -114,40 +137,42 @@ namespace Rest
                 propertyName,
                 BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             return method?.GetValue(cookie);
+
         }
 
         /// <summary>All request headers separated by newlines</summary>
-        public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.Request.Headers);
+        public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.RequestHeaders);
 
         /// <param name="requiredHeaders">the list of headers to retrieve</param>
         /// <returns>the headers and their values separated by newlines</returns>
         public string RequestHeaders(List<string> requiredHeaders) =>
-            FitNesseFormatter.HeaderList(_session.Request.Headers, requiredHeaders);
+            FitNesseFormatter.HeaderList(_session.RequestHeaders, requiredHeaders);
 
         /// <summary>The request headers except those specified in the list</summary>
         /// <param name="headersToOmit">the headers not to include in the result</param>
         /// <returns>the list of headers and their values that are not in headersToOmit</returns>
         public string RequestHeadersWithout(List<string> headersToOmit) =>
-            FitNesseFormatter.HeaderListWithout(_session.Request.Headers, headersToOmit);
+            FitNesseFormatter.HeaderListWithout(_session.RequestHeaders, headersToOmit);
 
         /// <returns>The response payload (serialized to string). Can only be used after executing a Send To command</returns>
         public string Response() => _session.ResponseText;
 
         /// <returns>list of all cookies in the response, each in its own row</returns>
-        public string ResponseCookies() => FitNesseFormatter.CookieList(_session.Response.Cookies);
+        [Obsolete("Use Cookies() instead")]
+        public string ResponseCookies() => Cookies;
 
         /// <returns>All response headers</returns>
-        public string ResponseHeaders() => FitNesseFormatter.HeaderList(_session.Response.Headers);
+        public string ResponseHeaders() => FitNesseFormatter.HeaderList(_session.ResponseHeaders);
 
         /// <param name="requiredHeaders">the header filter (i.e. only show the ones specified)</param>
         /// <returns>All response headers in the list separated by newlines</returns>
         public string ResponseHeaders(List<string> requiredHeaders) =>
-            FitNesseFormatter.HeaderList(_session.Response.Headers, requiredHeaders);
+            FitNesseFormatter.HeaderList(_session.ResponseHeaders, requiredHeaders);
 
         /// <param name="headersToOmit">the headers to exclude from the result</param>
         /// <returns>The response headers except for those in the list</returns>
         public string ResponseHeadersWithout(List<string> headersToOmit) =>
-            FitNesseFormatter.HeaderListWithout(_session.Response.Headers, headersToOmit);
+            FitNesseFormatter.HeaderListWithout(_session.ResponseHeaders, headersToOmit);
 
         /// <summary>Send a REST request to an endpoint</summary>
         /// <param name="requestType">the HTTP request type</param>
@@ -209,7 +234,7 @@ namespace Rest
         /// <returns>the extracted value from the response</returns>
         public string ValueFromResponseMatching(string matcher)
         {
-            var responseContentType = _session.Response.GetResponseHeader("Content-Type");
+            var responseContentType = _session.ResponseHeaderValue("Content-Type");
             return _contentObjectFactory.Create(responseContentType, _session.ResponseText).Evaluate(matcher);
         }
 
