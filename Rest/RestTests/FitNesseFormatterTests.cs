@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Utilities;
 
@@ -50,6 +51,33 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void FitNesseFormatterGetHeaderTest()
+        {
+            var headers = new HeaderDictionary
+            {
+                {"header1",  new List<string>{"value1"}},
+                {"header2",  new List<string>{"value1", "value2"}},
+
+            };
+            Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(headers, null));
+            Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(headers, "bogus"));
+            Assert.AreEqual("value1", FitNesseFormatter.GetHeader(headers, "header1"));
+            Assert.AreEqual("value1,value2", FitNesseFormatter.GetHeader(headers, "header2"));
+
+            var request = new HttpRequestMessage();
+            var requestHeaders = request.Headers;
+            foreach (var entry in headers)
+            {
+                requestHeaders.Add(entry.Key, entry.Value);
+            }
+            Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(requestHeaders, null));
+            Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(requestHeaders, "bogus"));
+            Assert.AreEqual("value1", FitNesseFormatter.GetHeader(requestHeaders, "header1"));
+            Assert.AreEqual("value1,value2", FitNesseFormatter.GetHeader(requestHeaders, "header2"));
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListWithoutTest()
         {
             var headers = new HeaderDictionary
@@ -70,7 +98,7 @@ namespace RestTests
                 "id=abc;expires=Sun, 14 Jun 2020 20:45:30 GMT;path=/;   domain=.example.com; HttpOnly\n" +
                 "cookie2=test\n" +
                 "_qa=name=john&age=47;domain=voorbeeld.nl;secure;path=/a/b\n" +
-                "maxAgeTest1=ok;max-Age=86400\n" +
+                "maxAgeTest1=ok;max-Age=86400;path=/\n" +
                 "maxAgeTest2=good; max-Age=86401; Expires=bogus value with 12:34:56\n" +
                 "maxAgeTest3=bad; max-Age=86402; MyExpires=bogus value with 12:34:56\n" +
                 "maxAgeTest4=ugly;Expires=; max-Age=86403";

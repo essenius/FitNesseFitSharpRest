@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -10,14 +10,12 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using Rest.Utilities;
+using Rest.ContentObjects;
 
 namespace Rest.Model
 {
@@ -35,21 +33,19 @@ namespace Rest.Model
             Debug.Assert(context != null, "context != null");
             _request = request;
             _context = context;
-            _context.SetDefaults(_request);
+            _context.SetCookies(_request);
         }
 
         public CookieCollection Cookies => _context.CookieContainer.GetCookies(RequestUri);
 
         public Uri RequestUri => _request.RequestUri;
 
-        /// <param name="method">the HTTP method to be checked</param>
-        /// <returns>whether or not the method supports the use of a body</returns>
-        public static bool SupportsBody(HttpMethod method) =>
-            method != HttpMethod.Get && method != HttpMethod.Head;
+        public HttpRequestHeaders Headers => _request.Headers;
+
+        public HttpContentHeaders ContentHeaders => _request.Content?.Headers;
 
         /// <summary>Executes an HTTP request</summary>
         /// <param name="method">the method to execute (must be one of the recognized HTTP methods)</param>
-        /// <param name="body">the associated body (can be null)</param>
         /// <returns>the response of the request</returns>
         public virtual HttpResponseMessage Execute(HttpMethod method)
         {
@@ -58,15 +54,8 @@ namespace Rest.Model
             return response;
         }
 
-        public HttpRequestHeaders Headers => _request.Headers;
-
-        public HttpContentHeaders ContentHeaders => _request.Content?.Headers;
-
-
-
         /// <summary>Sets the body if the method supports a body and if it's not empty.</summary>
         /// <param name="body">the body text to be sent (can be null)</param>
-        /// <param name="encoding">the request encoding</param>
         /// <param name="method">the HTTP method we want to use</param>
         public void SetBody(string body, HttpMethod method)
         {
@@ -74,12 +63,14 @@ namespace Rest.Model
                 if (!string.IsNullOrEmpty(body) && SupportsBody(method))
                 {
                     _request.Content = new StringContent(body, _context.RequestEncoding);
+                    var co = ContentObject.Parse(body);
+                    var contentType = _context.ContentTypeFor(co.ContentType.ToString());
+                    _request.Content.Headers.ContentType.MediaType = contentType;
                 }
                 else
                 {
                     _request.Content = null;
                 }
-
             }
         }
 
@@ -90,8 +81,14 @@ namespace Rest.Model
             {
                 headers.Remove(headerName);
             }
+
             headers.Add(headerName, headerValue);
         }
+
+        /// <param name="method">the HTTP method to be checked</param>
+        /// <returns>whether or not the method supports the use of a body</returns>
+        public static bool SupportsBody(HttpMethod method) =>
+            method != HttpMethod.Get && method != HttpMethod.Head && method != HttpMethod.Delete;
 
         public virtual void UpdateHeaders(NameValueCollection headersToAdd)
         {
@@ -107,40 +104,5 @@ namespace Rest.Model
                 }
             }
         }
-
-        /*
-        /// <summary>
-        ///     Update the request headers with the values of a name value collection
-        /// </summary>
-        /// <param name="requestHeadersToAdd">The name value collection to take over the headers from</param>
-        /// TODO delete
-        public virtual void UpdateHeaders(WebHeaderCollection requestHeadersToAdd)
-        {
-            foreach (var entry in requestHeadersToAdd.AllKeys)
-            {
-                Debug.Assert(entry != null, $"{nameof(entry)} != null");
-                // if it doesn't exist already, it's probably non-standard.
-                // we try adding it, and if it was standard an ArgumentException is thrown
-                if (_request.Headers[entry] == null)
-                    _request.Headers.Add(entry, requestHeadersToAdd[entry]);
-                else
-                    switch (entry.ToUpperInvariant())
-                    {
-                        case "CONTENT-TYPE":
-                            _request.ContentType = requestHeadersToAdd[entry];
-                            break;
-                        case "ACCEPT":
-                            _request.Accept = requestHeadersToAdd[entry];
-                            break;
-                        case "USER-AGENT":
-                            _request.UserAgent = requestHeadersToAdd[entry];
-                            break;
-                        default:
-                            throw new ArgumentException("Unrecognized standard header: " + requestHeadersToAdd[entry] +
-                                                        "This was not expected to happen.");
-                    }
-            }
-        }
-        */
     }
 }

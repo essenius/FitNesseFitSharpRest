@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -21,6 +21,9 @@ namespace Rest.Model
     {
         private static SessionContext _sessionContext;
 
+        /// <remarks>Not for production usage. Testing purposes only</remarks>
+        internal static void CleanSessionContext() => _sessionContext = null;
+
         public static ContentObjectFactory InjectContentObjectFactory() =>
             new ContentObjectFactory(InjectSessionContext());
 
@@ -31,8 +34,5 @@ namespace Rest.Model
 
         /// <remarks>only one instance</remarks>
         public static SessionContext InjectSessionContext() => _sessionContext ??= new SessionContext();
-
-        /// <remarks>Not for production usage. Testing purposes only</remarks>
-        internal static void CleanSessionContext() => _sessionContext = null;
     }
 }

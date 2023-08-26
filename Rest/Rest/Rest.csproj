@@ -5,7 +5,7 @@
     <LangVersion>8.0</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysysMode>AllEnabledByDefault</AnalysysMode>
-    <Version>3.5.0</Version>
+    <Version>3.5.1</Version>
     <Authors>Rik Essenius</Authors>
     <Description>A FitNesse/FitSharp fixture to test REST services</Description>
     <Copyright>Copyright © Rik Essenius 2015-2023</Copyright>
@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">

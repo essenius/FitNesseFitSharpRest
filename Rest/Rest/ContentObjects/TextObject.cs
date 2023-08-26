@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -33,6 +33,8 @@ namespace Rest.ContentObjects
                 throw new NotImplementedException("binary objects not supported for Text object creation");
             _content = content.ToString();
         }
+
+        public override ContentType ContentType => ContentType.Text;
 
         /// <summary>Adding serialized version of an object at a location indicated by a regular expression</summary>
         /// <param name="objToAdd">the content object to be serialized and added</param>

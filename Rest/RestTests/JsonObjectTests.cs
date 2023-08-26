@@ -153,6 +153,16 @@ namespace RestTests
         [TestMethod]
         [TestCategory("Unit")]
         [ExpectedException(typeof(ArgumentException))]
+        public void JsonObjectWrongPropertyTest()
+        {
+            const string source = "{\"text\":\"   aa   \"}";
+            const string locator = "bogus";
+            _ = new JsonObject(source).GetProperty(locator);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
         public void JsonObjectWrongContentTest() => _ = new JsonObject("qwe");
 
         [TestMethod]

@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -11,11 +11,9 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.Model;
 using Rest.Utilities;
@@ -59,11 +57,23 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void RestRequestBinaryBodyTest()
+        {
+            var context = new SessionContext();
+            var uri = new Uri("http://localhost/api");
+            var factory = new RestRequestFactory();
+            var unknownContentRequest = factory.Create(uri, context);
+            unknownContentRequest.SetBody("\u0001", HttpMethod.Post);
+            Assert.AreEqual( "application/octet-stream",unknownContentRequest.ContentHeaders?.ContentType?.MediaType);
+        }
+
+    [TestMethod]
+        [TestCategory("Unit")]
         public void RestRequestSupportsBodyTest()
         {
             Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Put));
             Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Post));
-            Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Delete));
+            Assert.IsFalse(RestRequest.SupportsBody(HttpMethod.Delete));
             Assert.IsFalse(RestRequest.SupportsBody(HttpMethod.Get));
             Assert.IsFalse(RestRequest.SupportsBody(HttpMethod.Head));
         }
@@ -91,6 +101,7 @@ namespace RestTests
             Assert.AreEqual("UnitTest", restRequest.Headers.UserAgent.ToString(), "User-Agent changed");
             Assert.AreEqual("plain/text", restRequest.Headers.Accept.ToString(), "Accept changed");
             restRequest.Execute(HttpMethod.Get);
+            Assert.IsNotNull(restRequest.Headers.Authorization, "restRequest.Headers.Authorization != null");
             Assert.AreEqual("my-hash", restRequest.Headers.Authorization.ToString(), "Authorization changed");
             Assert.IsNull(restRequest.ContentHeaders, "No content headers");
 
@@ -102,6 +113,7 @@ namespace RestTests
             Assert.AreEqual("UnitTest", restRequest2.Headers.UserAgent.ToString(), "User-Agent changed");
             Assert.AreEqual("plain/text", restRequest2.Headers.Accept.ToString(), "Accept changed");
             restRequest2.Execute(HttpMethod.Post);
+            Assert.IsNotNull(restRequest2.Headers.Authorization, "restRequest2.Headers.Authorization != null");
             Assert.AreEqual("my-hash", restRequest2.Headers.Authorization.ToString(), "Authorization changed");
             Assert.AreEqual(new MediaTypeHeaderValue("application/xml"), restRequest2.ContentHeaders?.ContentType, "Content type OK");
 

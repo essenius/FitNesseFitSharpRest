@@ -9,7 +9,6 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest.ContentObjects;
 
@@ -38,8 +37,12 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ContentObjectTextParseFail() => ContentObject.Parse("abc" + (char) 2);
+        public void ContentObjectUnknownParse()
+        {
+            var c = ContentObject.Parse("abc" + (char)2);
+            Assert.AreEqual("Binary Object", c.ToString());
+            Assert.AreEqual("abc\u0002", c.Serialize());
+        }
 
         [TestMethod]
         [TestCategory("Unit")]

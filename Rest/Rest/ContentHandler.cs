@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -71,20 +71,11 @@ namespace Rest
         /// <returns>whether or not the deletion succeeded</returns>
         public static bool DeleteFrom(string locator, ContentObject contentObject) => contentObject.Delete(locator);
 
-        /// <remarks>Don't use. Will be removed in a future release</remarks>
-        [Obsolete("Use EvaluateOn instead")]
-        public static string Evaluate(ContentObject contentObject, string matcher) =>
-            EvaluateOn(matcher, contentObject);
-
         /// <summary>Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)</summary>
         /// <param name="matcher">the query to be evaluated</param>
         /// <param name="contentObject">the object to evaluate the query on</param>
         /// <returns>the result of the query</returns>
         public static string EvaluateOn(string matcher, ContentObject contentObject) => contentObject.Evaluate(matcher);
-
-        /// <remarks>Don't use. Will be removed in a future release</remarks>
-        [Obsolete("Use ClassesIn instead")]
-        public static List<string> GetClasses(string assembly) => ClassesIn(assembly);
 
         /// <summary>Load an object from a file. It will establish the format (JSON, XML, TEXT) by parsing it</summary>
         /// <param name="sourceFile">the path of the file to be loaded</param>
@@ -195,7 +186,6 @@ namespace Rest
         /// <returns>a serialized version of the object that can be saved or transmitted</returns>
         public static string SerializeProperty(string locator, ContentObject contentObject) =>
             contentObject.SerializeProperty(locator);
-
 
         /// <summary>Set the value of an existing property</summary>
         /// <param name="locator">the specification of the property</param>

@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -10,7 +10,6 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -32,10 +31,11 @@ namespace RestTests
             Assert.AreEqual("json", context.ContentHandler("application/json"), "default json");
             Assert.AreEqual("xml", context.ContentHandler("application/xml"), "default xml");
             Assert.AreEqual("text", context.ContentHandler("text/plain"), "default text");
-            Assert.AreEqual("json", context.ContentHandler("unknown/content"), "unknown content type");
-            Assert.AreEqual("json", context.ContentHandler("application/atom+xml"), "atom not set by default");
-            context.SetConfig("ContentTypeMapping", "application/atom+xml : xml");
-            Assert.AreEqual("xml", context.ContentHandler("application/atom+xml"),
+            Assert.AreEqual("unknown", context.ContentHandler("unknown/content"), "unknown content type");
+            Assert.AreEqual("xml", context.ContentHandler("application/atom+xml"), "atom is an XML variant");
+            Assert.AreEqual("unknown", context.ContentHandler("application/rss+xml"), "rss is not handled by default");
+            context.SetConfig("ContentTypeMapping", "application/rss+xml : xml");
+            Assert.AreEqual("xml", context.ContentHandler("application/rss+xml"),
                 "atom returns xml after config update");
         }
 
@@ -79,7 +79,7 @@ namespace RestTests
             /* context.SetConfig("CookieDomain", "localhost");*/
             context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
             var message = new HttpRequestMessage { RequestUri = uri };
-            context.SetDefaults(message);
+            context.SetCookies(message);
             var cookieContainer = context.CookieContainer;
             Assert.IsNotNull(cookieContainer);
             Assert.AreEqual(2, cookieContainer.Count);
@@ -101,15 +101,12 @@ namespace RestTests
             Assert.AreEqual("value3", FitNesseFormatter.GetHeader(headers, "header3"));
             Assert.AreEqual("value4", FitNesseFormatter.GetHeader(headers, "header4"));
         }
-        /*
+        
         [TestMethod]
         [TestCategory("Unit")]
         public void SessionContextSecurityProtocolTest()
         {
-            var context = new SessionContext();
-            Assert.IsTrue(context.SecurityProtocol.Contains("Tls12"));
-            context.SecurityProtocol = "SystemDefault";
-            Assert.IsFalse(context.SecurityProtocol.Contains("Tls12"));
-        } */
+            Assert.AreEqual("SystemDefault", SessionContext.SecurityProtocol);
+        }
     }
 }

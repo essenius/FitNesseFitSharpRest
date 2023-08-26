@@ -29,10 +29,10 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
         public void ContentObjectFactoryCreateWrongTypeTest()
         {
-            _ = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
+            var q = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
+            Assert.AreEqual(ContentType.Unknown, q.ContentType);
         }
     }
 }

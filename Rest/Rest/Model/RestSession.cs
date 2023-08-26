@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -53,7 +53,7 @@ namespace Rest.Model
 
                 // Json doesn't like newlines, so remove those. Leave them in for XML and Text
                 var contentType = ContentObjectFactory.InferType(value);
-                _body = contentType == ContentObjects.ContentHandler.Json
+                _body = contentType == ContentType.Json
                     ? FitNesseFormatter.ReplaceNewLines(value, string.Empty)
                     : value;
             }
@@ -86,7 +86,7 @@ namespace Rest.Model
                 if (Response == null) return headers;
                 headers.AddHeaders(Response.Headers);
                 headers.AddHeaders(Response.Content.Headers);
-                return headers; 
+                return headers;
             }
         }
 
@@ -123,8 +123,6 @@ namespace Rest.Model
             Response = Request.Execute(httpMethod);
             return true;
         }
-
-
 
         public string RequestHeaderValue(string header) => FitNesseFormatter.GetHeader(RequestHeaders, header);
         public string ResponseHeaderValue(string header) => FitNesseFormatter.GetHeader(ResponseHeaders, header);

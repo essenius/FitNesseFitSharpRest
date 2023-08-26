@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rest;
+using ContentType = Rest.ContentObjects.ContentType;
 
 namespace RestTests
 {
@@ -139,8 +140,7 @@ namespace RestTests
         public void ContentHandlerObjectFromTypeInAssemblyWithParamNonExisting()
         {
             var h = new ContentHandler();
-            var obj = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.Bogus", "RestTests.dll",
-                new[] { "true" });
+           _ = h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.Bogus", "RestTests.dll", new[] { "true" });
         }
 
         [TestMethod]
@@ -208,7 +208,6 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
         public void ContentHandlerLoadBinaryObjectFromTest()
         {
             var file = Path.GetTempFileName();
@@ -219,7 +218,9 @@ namespace RestTests
             }
 
             var h = new ContentHandler();
-            _ = h.LoadObjectFrom(file);
+            var q = h.LoadObjectFrom(file);
+            Assert.AreEqual(ContentType.Unknown, q.ContentType);
+
         }
 
         [TestMethod]

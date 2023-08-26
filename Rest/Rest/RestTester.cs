@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using Rest.ContentObjects;
@@ -60,14 +61,14 @@ namespace Rest
         }
 
         /// <summary>Get all cookie names and values in the request (for debugging)</summary>
-        [Obsolete ("Use Cookies instead")]
+        [Obsolete("Use Cookies instead")]
         public string RequestCookies => Cookies;
 
         /// <summary>The absolute URI used for the request</summary>
         public string RequestUri => _session.Request?.RequestUri.AbsoluteUri;
 
         /// <summary>The HTTP response code of the REST request</summary>
-        public int ResponseCode => (int) _session.Response.StatusCode;
+        public int ResponseCode => (int)_session.Response.StatusCode;
 
         /// <summary>Description of the HTTP response code</summary>
         public string ResponseCodeDescription => _session.Response.ReasonPhrase;
@@ -77,33 +78,16 @@ namespace Rest
         {
             get
             {
-                var contentType = _session.Response.Headers.TryGetValues("Content-Type", out var values)
-                    ? string.Join(",", values)
+                var contentType = _session.ResponseHeaders.TryGetValue("Content-Type", out var value)
+                    ? string.Join(",", value)
                     : string.Empty;
                 return _contentObjectFactory.Create(contentType, _session.ResponseText);
             }
         }
 
-        /// <summary>
-        ///     Get a property of a cookie (on name or index) in the response. All public properties of the C# Cookie class
-        ///     can be used. This is no longer relevant as there is only one cookie collection in the session.
-        /// </summary>
-        /// <param name="propertyName">name or index of the cookie property</param>
-        /// <param name="cookieName">name of the cookie</param>
-        /// <returns>the value of the cookie property</returns>
-        /// <requires>
-        ///     propertyName is a valid public cookie property name; cookieName is either a valid cookie index or a valid
-        ///     cookie name
-        /// </requires>
-        /// <guarantees>
-        ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
-        ///     specified name
-        /// </guarantees>
-        [Obsolete("Use PropertyOfCookie(propertyName, cookieName) instead")]
-        public object PropertyOfResponseCookie(string propertyName, object cookieName)
-        {
-            return PropertyOfCookie(propertyName, cookieName);
-        }
+        /// <returns>list of all cookies in the response, each in its own row</returns>
+        [Obsolete("Use Cookies() instead")]
+        public string ResponseCookies => Cookies;
 
         /// <summary>
         ///     Get a property of a cookie (on name or index). All public properties of the C# Cookie class can be used
@@ -121,6 +105,8 @@ namespace Rest
         /// </guarantees>
         public object PropertyOfCookie(string propertyName, object cookieName)
         {
+            if (_session.Request == null) throw new ArgumentException("Request was not initialized yet");
+            if (cookieName == null) throw new ArgumentException("Cookie name cannot be null");
             Cookie cookie;
             if (cookieName is int id)
             {
@@ -132,13 +118,12 @@ namespace Rest
                 cookie = _session.Request.Cookies[cookieName.ToString()];
             }
 
-
-            var method = typeof(Cookie).GetProperty(
-                propertyName,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            return method?.GetValue(cookie);
-
+            var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            return method?.GetValue(cookie) ?? throw new ArgumentException($"Property {propertyName} does not exist on Cookie {cookieName}");
         }
+
+        [Obsolete("Use PropertyOfCookie(propertyName, cookieName) instead")]
+        public object PropertyOfResponseCookie(string propertyName, object cookieName) => PropertyOfCookie(propertyName, cookieName);
 
         /// <summary>All request headers separated by newlines</summary>
         public string RequestHeaders() => FitNesseFormatter.HeaderList(_session.RequestHeaders);
@@ -156,10 +141,6 @@ namespace Rest
 
         /// <returns>The response payload (serialized to string). Can only be used after executing a Send To command</returns>
         public string Response() => _session.ResponseText;
-
-        /// <returns>list of all cookies in the response, each in its own row</returns>
-        [Obsolete("Use Cookies() instead")]
-        public string ResponseCookies() => Cookies;
 
         /// <returns>All response headers</returns>
         public string ResponseHeaders() => FitNesseFormatter.HeaderList(_session.ResponseHeaders);

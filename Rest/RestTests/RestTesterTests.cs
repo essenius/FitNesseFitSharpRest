@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -20,6 +20,21 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
+
+        private static void ExpectException(Type exceptionType, Action action, string message)
+        {
+            try
+            {
+                action();
+                Assert.Fail("Expected exception of type " + exceptionType);
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual(exceptionType, e.GetType());
+                Assert.AreEqual(message, e.Message);
+            }
+        }
+
         [TestMethod]
         [TestCategory("Integration")]
         [ExpectedException(typeof(AggregateException))]
@@ -90,7 +105,6 @@ namespace RestTests
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
             Assert.IsTrue(string.IsNullOrEmpty(rt.Cookies), "cookies empty");
-            Assert.IsNull(rt.PropertyOfCookie("test", "test"), "no property test for cookie test");
         }
 
         [TestMethod]
@@ -143,6 +157,9 @@ namespace RestTests
             Assert.AreEqual("jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
             Assert.AreEqual("/", rt.PropertyOfCookie("Path", 0));
 
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"), "Property bogus does not exist on Cookie cookie1");
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", null), "Cookie name cannot be null");
+
             Assert.IsTrue(requestHeaders.Contains("Content-Type: application/json; foo=2"));
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));
             Assert.IsTrue(requestHeaders.Contains("Accept: application/json; test=3"));
@@ -158,6 +175,7 @@ namespace RestTests
             Assert.IsNull(rt.EndPoint);
             Assert.IsNull(rt.RequestUri);
             Assert.IsNull(rt.Cookies);
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "bogus"), "Request was not initialized yet");
         }
 
         [TestMethod]
@@ -165,6 +183,18 @@ namespace RestTests
         public void RestTesterVersionInfoTest()
         {
             Assert.AreEqual(ApplicationInfo.Version, RestTester.VersionInfo("SHORT"));
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException( typeof(ArgumentException))]
+        [Obsolete("Remove in next major release")]
+        public void RestTesterObsoleteTest()
+        {
+            var rt = new RestTester();
+            Assert.IsNull(rt.RequestCookies);
+            Assert.IsNull(rt.ResponseCookies);
+            _ = rt.PropertyOfResponseCookie("bogus", "bogus");
         }
 
         [TestInitialize]

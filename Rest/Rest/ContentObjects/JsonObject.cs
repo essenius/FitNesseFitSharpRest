@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -55,6 +55,8 @@ namespace Rest.ContentObjects
             }
         }
 
+        public override ContentType ContentType => ContentType.Json;
+
         /// <summary>Add an object at a certain location in the JSON object</summary>
         /// <param name="objToAdd">the object to be added</param>
         /// <param name="locator">JPath query indicating the location in the JSON object</param>
@@ -76,7 +78,7 @@ namespace Rest.ContentObjects
                 return false;
             }
 
-            location.Add(((JsonObject) objToAdd)._jsonObject.Children());
+            location.Add(((JsonObject)objToAdd)._jsonObject.Children());
             return true;
         }
 
@@ -114,7 +116,7 @@ namespace Rest.ContentObjects
         /// <summary>Evaluate the object using a matcher</summary>
         /// <param name="matcher">JPath query to be matched</param>
         /// <returns>the value that satisfy the matcher, or null if no match</returns>
-        internal override string Evaluate(string matcher) => TrimIfNeeded((string) _jsonObject.SelectToken(matcher));
+        internal override string Evaluate(string matcher) => TrimIfNeeded((string)_jsonObject.SelectToken(matcher));
 
         /// <summary>Get the property values satisfying the locator (can be more than one)</summary>
         /// <param name="locator">JPath query indicating the properties in the JSON object</param>
@@ -150,8 +152,8 @@ namespace Rest.ContentObjects
                 return TrimIfNeeded(tokenValue.Value?.ToString());
             }
 
-            var container = _jsonObject.SelectToken(locator) as JContainer;
-            Debug.Assert(container != null, $"{nameof(container)} != null");
+            var container = _jsonObject.SelectToken(locator) as JContainer ??
+                            throw new ArgumentException($"Property {locator} could not be found");
             return TrimIfNeeded(container.ToString(Formatting.None));
         }
 
@@ -197,7 +199,7 @@ namespace Rest.ContentObjects
         {
             // not using JOBject.Parse because that changes date formats
             using var reader = new JsonTextReader(new StringReader(content))
-                {DateParseHandling = DateParseHandling.None};
+                { DateParseHandling = DateParseHandling.None };
             try
             {
                 _jsonObject = JObject.Load(reader);

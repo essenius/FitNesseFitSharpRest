@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -10,7 +10,6 @@
 //   See the License for the specific language governing permissions and limitations under the License.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Rest.Model;
 using Rest.Utilities;
@@ -18,7 +17,6 @@ using Rest.Utilities;
 namespace Rest.ContentObjects
 {
     /// <summary>Abstract content object</summary>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by FitSharp")]
     public abstract class ContentObject
     {
         private readonly bool _trimWhitespace;
@@ -26,6 +24,8 @@ namespace Rest.ContentObjects
         /// <summary>Create new content object.</summary>
         /// <param name="trimWhitespace">whether whitespace in resulting property values or evaluations is trimmed</param>
         protected ContentObject(bool trimWhitespace = false) => _trimWhitespace = trimWhitespace;
+
+        public abstract ContentType ContentType { get; }
 
         internal abstract bool AddAt(ContentObject objToAdd, string locator);
         internal abstract bool Delete(string locator);

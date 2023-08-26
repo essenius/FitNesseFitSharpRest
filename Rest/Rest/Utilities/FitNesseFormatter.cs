@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,7 @@
 using System.Web;
 #else
 using Microsoft.Net.Http.Headers;
+using System.Text;
 #endif
 using System;
 using System.Collections.Generic;
@@ -20,23 +21,12 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Rest.Utilities
 {
     internal static class FitNesseFormatter
     {
-        #region Private Fields
-
-        /// <summary>
-        ///     Valid cookie options.
-        /// </summary>
-        private static readonly HashSet<string> CookieOptions = new HashSet<string>
-            {"expires", "max-age", "domain", "path", "secure", "httponly", "samesite"};
-
-        #endregion
-
         #region Public Methods
 
 
@@ -63,13 +53,13 @@ namespace Rest.Utilities
         {
             if (cookies == null) return null;
             var result = new List<string>();
-            foreach (Cookie cookie in cookies)
+            foreach (Cookie cookie in cookies.Cast<Cookie>())
             {
                 var httpOnly = cookie.HttpOnly ? "HttpOnly; " : string.Empty;
                 var expires = cookie.Expires.Ticks == 0
                     ? string.Empty
                     : $"Expires={cookie.Expires.ToUniversalTime():R}; ";
-                var path = string.IsNullOrEmpty(cookie.Path) ? string.Empty : $"Path={cookie.Path}; ";
+                var path = $"Path={cookie.Path}; ";
                 var secure = cookie.Secure ? "Secure; " : string.Empty;
                 result.Add(
                     $"{cookie.Name}={cookie.Value}; {expires}{path}Domain={cookie.Domain}; {httpOnly}{secure}"
@@ -226,6 +216,13 @@ namespace Rest.Utilities
         }
 
 #if NET5_0_OR_GREATER
+
+        /// <summary>
+        ///     Valid cookie options.
+        /// </summary>
+        private static readonly HashSet<string> CookieOptions = new HashSet<string>
+            {"expires", "max-age", "domain", "path", "secure", "httponly", "samesite"};
+
 
         /// <summary>
         ///     Validate the input cookie string and remove the invalid field/option.

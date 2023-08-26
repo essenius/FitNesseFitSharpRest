@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -64,6 +64,28 @@ namespace Rest.ContentObjects
 
         private string DefaultNameSpace { get; }
 
+        public override ContentType ContentType => ContentType.Xml;
+
+        /// <summary>Add an object at a certain location in the XML object</summary>
+        /// <param name="objToAdd">the object to be added</param>
+        /// <param name="locator">XPath query indicating the location in the XML object</param>
+        /// <returns>whether the operation succeeded</returns>
+        internal override bool AddAt(ContentObject objToAdd, string locator)
+        {
+            var node = SelectElement(locator);
+            if (!node.MoveNext())
+            {
+                return false;
+            }
+
+            var nav = ((XmlObject)objToAdd)._navigator.Clone();
+            nav.MoveToRoot();
+            nav.MoveToFollowing(XPathNodeType.Element);
+            Debug.Assert(node.Current != null, "node.Current != null");
+            node.Current.AppendChild(nav);
+            return true;
+        }
+
         /// <summary>Convert a JSON string into an XML document. Throws an exception if it cannot be done</summary>
         /// <param name="contentString">the JSON input</param>
         /// <returns>the resulting XML document</returns>
@@ -89,52 +111,38 @@ namespace Rest.ContentObjects
             return xmlReader.ToXmlDocument();
         }
 
-        /// <summary>Convert the content to a string</summary>
-        /// <param name="content">the input content</param>
-        /// <returns>
-        ///     the string representation of the object. If the input is a string, return that.
-        ///     Else return a serialized XML representation of the object
-        /// </returns>
-        private static string StringContent(object content)
+        /// <summary>Delete a certain part of the object</summary>
+        /// <param name="locator">XPath query indicating the location in the XML object</param>
+        /// <returns>whether the part could be removed</returns>
+        internal override bool Delete(string locator)
         {
-            if (content is string)
+            var node = SelectElement(locator);
+            if (!node.MoveNext())
             {
-                return content.ToString();
+                return false;
             }
 
-            var x = new XmlSerializer(content.GetType());
-            using var sw = new StringWriter();
-            x.Serialize(sw, content);
-            return sw.ToString();
+            Debug.Assert(node.Current != null, "node.Current != null");
+            node.Current.DeleteSelf();
+            return true;
         }
 
-        /// <summary>
-        ///     Parse content into XML document. If the content doesn't have a root element, add that.
-        ///     If the content happens to be JSON, convert it to XML. Throws an exception if parsing didn't succeed.
-        /// </summary>
-        /// <param name="contentString">the input string</param>
-        /// <returns>the parsed XMLDocument</returns>
-        private static XmlDocument ParseContent(string contentString)
+        /// <summary>Evaluate the object using a matcher</summary>
+        /// <param name="matcher">XPath query to be matched</param>
+        /// <returns>the value that satisfies the matcher, or null if no match</returns>
+        internal override string Evaluate(string matcher) => TrimIfNeeded(EvaluateInternal(matcher)?.ToString());
+
+        private object EvaluateInternal(string matcher)
         {
-            try
+            var expr = _navigator.Compile(matcher);
+            expr.SetContext(_namespaceManager);
+            var eval = _navigator.Evaluate(expr);
+            return eval switch
             {
-                return contentString.ToXmlDocument();
-            }
-            catch (XmlException xe)
-            {
-                if (xe.Message.Contains("multiple root elements"))
-                {
-                    return ("<root>" + contentString + "</root>").ToXmlDocument();
-                }
-
-                if (xe.Message.Contains("Data at the root level is invalid"))
-                    // No XML. Try if it is JSON
-                {
-                    return ConvertJsonToXml(contentString);
-                }
-
-                throw new ArgumentException("Unable to parse content as XML");
-            }
+                bool _ => eval,
+                string _ => eval,
+                _ => eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current?.InnerXml : null
+            };
         }
 
         /// <param name="element">the element to find the index for</param>
@@ -173,75 +181,6 @@ namespace Rest.ContentObjects
         {
             var xni = node.SelectAncestors(XPathNodeType.All, false);
             return xni.MoveNext() ? xni.Current : null;
-        }
-
-        /// <param name="input">an input string that might be in XML format</param>
-        /// <returns>whether the input is valid XML</returns>
-        public static bool IsValid(string input)
-        {
-            try
-            {
-                _ = input.ToXmlDocument();
-                return true;
-            }
-            catch (XmlException)
-            {
-                return false;
-            }
-        }
-
-        /// <summary>Add an object at a certain location in the XML object</summary>
-        /// <param name="objToAdd">the object to be added</param>
-        /// <param name="locator">XPath query indicating the location in the XML object</param>
-        /// <returns>whether the operation succeeded</returns>
-        internal override bool AddAt(ContentObject objToAdd, string locator)
-        {
-            var node = SelectElement(locator);
-            if (!node.MoveNext())
-            {
-                return false;
-            }
-
-            var nav = ((XmlObject) objToAdd)._navigator.Clone();
-            nav.MoveToRoot();
-            nav.MoveToFollowing(XPathNodeType.Element);
-            Debug.Assert(node.Current != null, "node.Current != null");
-            node.Current.AppendChild(nav);
-            return true;
-        }
-
-        /// <summary>Delete a certain part of the object</summary>
-        /// <param name="locator">XPath query indicating the location in the XML object</param>
-        /// <returns>whether the part could be removed</returns>
-        internal override bool Delete(string locator)
-        {
-            var node = SelectElement(locator);
-            if (!node.MoveNext())
-            {
-                return false;
-            }
-
-            Debug.Assert(node.Current != null, "node.Current != null");
-            node.Current.DeleteSelf();
-            return true;
-        }
-
-        /// <summary>Evaluate the object using a matcher</summary>
-        /// <param name="matcher">XPath query to be matched</param>
-        /// <returns>the value that satisfies the matcher, or null if no match</returns>
-        internal override string Evaluate(string matcher) => TrimIfNeeded(EvaluateInternal(matcher)?.ToString());
-
-        private object EvaluateInternal(string matcher)
-        {
-            var expr = _navigator.Compile(matcher);
-            expr.SetContext(_namespaceManager);
-            var eval = _navigator.Evaluate(expr);
-            return eval switch
-            {
-                bool _ => eval,
-                string _ => eval,
-                _ => eval is XPathNodeIterator iterator && iterator.MoveNext() ? iterator.Current?.InnerXml : null,
-            };
         }
 
         /// <summary>Construct an XPath query to find a node</summary>
@@ -304,8 +243,12 @@ namespace Rest.ContentObjects
         internal override string GetProperty(string locator)
         {
             var element = SelectElement(locator);
+            if (element.MoveNext())
+            {
+                return TrimIfNeeded(element.Current.Value);
+            }
 
-            return element.MoveNext() ? TrimIfNeeded(element.Current.Value) : string.Empty;
+            throw new ArgumentException($"Property {locator} could not be found");
         }
 
         /// <summary>Get the property type satisfying the locator</summary>
@@ -329,6 +272,21 @@ namespace Rest.ContentObjects
             return atVal != null ? atVal.Value : element.Current.ValueType.ToString();
         }
 
+        /// <param name="input">an input string that might be in XML format</param>
+        /// <returns>whether the input is valid XML</returns>
+        public static bool IsValid(string input)
+        {
+            try
+            {
+                _ = input.ToXmlDocument();
+                return true;
+            }
+            catch (XmlException)
+            {
+                return false;
+            }
+        }
+
         private string NodeName(XPathNavigator node)
         {
             var stringBuilder = new StringBuilder();
@@ -339,6 +297,35 @@ namespace Rest.ContentObjects
             }
 
             return stringBuilder.ToString();
+        }
+
+        /// <summary>
+        ///     Parse content into XML document. If the content doesn't have a root element, add that.
+        ///     If the content happens to be JSON, convert it to XML. Throws an exception if parsing didn't succeed.
+        /// </summary>
+        /// <param name="contentString">the input string</param>
+        /// <returns>the parsed XMLDocument</returns>
+        private static XmlDocument ParseContent(string contentString)
+        {
+            try
+            {
+                return contentString.ToXmlDocument();
+            }
+            catch (XmlException xe)
+            {
+                if (xe.Message.Contains("multiple root elements"))
+                {
+                    return ("<root>" + contentString + "</root>").ToXmlDocument();
+                }
+
+                if (xe.Message.Contains("Data at the root level is invalid"))
+                    // No XML. Try if it is JSON
+                {
+                    return ConvertJsonToXml(contentString);
+                }
+
+                throw new ArgumentException("Unable to parse content as XML");
+            }
         }
 
         private XPathNodeIterator SelectElement(string xPath) => _navigator.Select(xPath, _namespaceManager);
@@ -370,6 +357,25 @@ namespace Rest.ContentObjects
 
             element.Current?.SetValue(value);
             return true;
+        }
+
+        /// <summary>Convert the content to a string</summary>
+        /// <param name="content">the input content</param>
+        /// <returns>
+        ///     the string representation of the object. If the input is a string, return that.
+        ///     Else return a serialized XML representation of the object
+        /// </returns>
+        private static string StringContent(object content)
+        {
+            if (content is string)
+            {
+                return content.ToString();
+            }
+
+            var x = new XmlSerializer(content.GetType());
+            using var sw = new StringWriter();
+            x.Serialize(sw, content);
+            return sw.ToString();
         }
 
         public override string ToString() => "XML Object";
