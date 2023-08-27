@@ -28,5 +28,5 @@
 3.3.0 Enhanced Cookie handling; eliminated CookieDomain in RestConfig (default is now the Host of the request URI). Increased code coverage to >98%
 3.4.0 Migrated to .NET 6.0
 3.5.0 Migrated from deprecated HttpWebRequest to HttpClient
-3.5.1 Fixed a few defects, Introduced BinaryObject. Eliminated deprecations from version 2. Corrected deoendency on AspNetCore using FrameworkReference
-3.5.2 Fixed wrong content type deduction if mime type is unexpoected. Made some names clearer. Cleaned up some commented out code
+3.5.1 Fixed a few defects, Introduced BinaryObject. Eliminated deprecations from version 2. Corrected dependency on AspNetCore using FrameworkReference
+3.5.2 Fixed wrong content type deduction if mime type is unexpected. Made some names clearer. Cleaned up some commented out code
