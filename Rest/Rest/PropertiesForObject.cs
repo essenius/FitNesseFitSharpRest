@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -56,8 +56,6 @@ namespace Rest
         /// <summary>Decision column: Whether the value of the property was changed by this line</summary>
         public bool ValueWasSet { get; private set; }
 
-        private static string Report(string input) => "report:" + input;
-
         /// <summary>Table interface returning properties for the object</summary>
         /// <param name="table">Ignored, only used to satisfy the Table Table interface</param>
         /// <requires>content object and locator were specified</requires>
@@ -71,7 +69,7 @@ namespace Rest
                 Report(_contentObject.GetPropertyType(property)),
                 Report(_contentObject.GetProperty(property))
             }).Cast<object>().ToList();
-            returnList.Insert(0, new List<string> {Report("Property"), Report("Type"), Report("Value")});
+            returnList.Insert(0, new List<string> { Report("Property"), Report("Type"), Report("Value") });
             return returnList;
         }
 
@@ -100,11 +98,13 @@ namespace Rest
         {
             return _contentObject.GetProperties(_locator).Select(property => new List<object>
             {
-                new List<object> {"Property", property},
-                new List<object> {"Type", _contentObject.GetPropertyType(property)},
-                new List<object> {"Value", _contentObject.GetProperty(property)}
+                new List<object> { "Property", property },
+                new List<object> { "Type", _contentObject.GetPropertyType(property) },
+                new List<object> { "Value", _contentObject.GetProperty(property) }
             }).Cast<object>().ToList();
         }
+
+        private static string Report(string input) => "report:" + input;
 
         /// <summary>Support for the Decision interface; new row start</summary>
         /// <guarantees>Property, Type and Value are Null</guarantees>

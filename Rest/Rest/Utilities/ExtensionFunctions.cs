@@ -20,6 +20,17 @@ namespace Rest.Utilities
 {
     internal static class ExtensionFunctions
     {
+        /// <param name="input">string that may represent an int, long, double, or bool</param>
+        /// <returns>an object with the value cast to the type it represents (can also remain string)</returns>
+        public static object CastToInferredType(this string input)
+        {
+            if (int.TryParse(input, out var intValue)) return intValue;
+            if (long.TryParse(input, out var longValue)) return longValue;
+            if (double.TryParse(input, out var doubleValue)) return doubleValue;
+            if (bool.TryParse(input, out var boolValue)) return boolValue;
+            return input;
+        }
+
         /// <param name="input">the input to be matched</param>
         /// <param name="pattern">the glob pattern</param>
         /// <requires>input is not null and pattern is not null</requires>
@@ -35,17 +46,6 @@ namespace Rest.Utilities
         /// <returns>whether or not the input matches the pattern</returns>
         public static bool Matches(this string input, string pattern) =>
             new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline).IsMatch(input);
-
-        /// <param name="input">string that may represent an int, long, double, or bool</param>
-        /// <returns>an object with the value cast to the type it represents (can also remain string)</returns>
-        public static object CastToInferredType(this string input)
-        {
-            if (int.TryParse(input, out var intValue)) return intValue;
-            if (long.TryParse(input, out var longValue)) return longValue;
-            if (double.TryParse(input, out var doubleValue)) return doubleValue;
-            if (bool.TryParse(input, out var boolValue)) return boolValue;
-            return input;
-        }
 
         /// <param name="token">representation of key value pair, delimited by :</param>
         /// <requires>token is not null</requires>
@@ -73,6 +73,17 @@ namespace Rest.Utilities
             return new KeyValuePair<string, string>(key, value);
         }
 
+        /// <param name="input">input string that can contain multiple lines</param>
+        /// <returns>list of strings with every line from the input in a separate string</returns>
+        public static IEnumerable<string> SplitLines(this string input)
+        {
+            using var stringReader = new StringReader(input);
+            while (stringReader.ReadLine() is { } line)
+            {
+                yield return line;
+            }
+        }
+
         /// <param name="input">input value</param>
         /// <param name="delimiter">the string that demarcates the last part of the result</param>
         /// <returns>a string with the section after the delimiter removed</returns>
@@ -80,14 +91,6 @@ namespace Rest.Utilities
         {
             var position = input.IndexOf(delimiter, StringComparison.Ordinal);
             return position >= 0 ? input.Substring(0, position) : input;
-        }
-
-        /// <param name="input">input string that can contain multiple lines</param>
-        /// <returns>list of strings with every line from the input in a separate string</returns>
-        public static IEnumerable<string> SplitLines(this string input)
-        {
-            using var stringReader = new StringReader(input);
-            while (stringReader.ReadLine() is { } line) yield return line;
         }
 
         /// <param name="xmlString">string representing an XML document</param>
@@ -100,7 +103,7 @@ namespace Rest.Utilities
         public static XmlDocument ToXmlDocument(this string xmlString)
         {
             using var stringReader = new StringReader(xmlString);
-            using var xmlReader = XmlReader.Create(stringReader, new XmlReaderSettings {XmlResolver = null});
+            using var xmlReader = XmlReader.Create(stringReader, new XmlReaderSettings { XmlResolver = null });
             return xmlReader.ToXmlDocument();
         }
 
@@ -109,7 +112,7 @@ namespace Rest.Utilities
         /// <returns>XML document loaded from the reader</returns>
         public static XmlDocument ToXmlDocument(this XmlReader xmlReader)
         {
-            var document = new XmlDocument {XmlResolver = null};
+            var document = new XmlDocument { XmlResolver = null };
             document.Load(xmlReader);
             return document;
         }

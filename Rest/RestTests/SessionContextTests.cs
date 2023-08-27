@@ -25,6 +25,19 @@ namespace RestTests
     {
         [TestMethod]
         [TestCategory("Unit")]
+        public void SessionContextAddHeaderTest()
+        {
+            var context = new SessionContext();
+            context.SetConfig("Headers", "header3:value3\r\nheader4:value4");
+            var client = context.Client;
+            var headers = client.DefaultRequestHeaders;
+            Assert.AreEqual(2, headers.Count());
+            Assert.AreEqual("value3", FitNesseFormatter.GetHeader(headers, "header3"));
+            Assert.AreEqual("value4", FitNesseFormatter.GetHeader(headers, "header4"));
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void SessionContextContentTypeMapperTest()
         {
             var context = new SessionContext();
@@ -37,6 +50,24 @@ namespace RestTests
             context.SetConfig("ContentTypeMapping", "application/rss+xml : xml");
             Assert.AreEqual("xml", context.ContentType("application/rss+xml"),
                 "atom returns xml after config update");
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void SessionContextCookieTest()
+        {
+            var context = new SessionContext();
+            var uri = new Uri("http://localhost");
+            context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
+            var message = new HttpRequestMessage { RequestUri = uri };
+            context.SetCookies(message);
+            var cookieContainer = context.CookieContainer;
+            Assert.IsNotNull(cookieContainer);
+            Assert.AreEqual(2, cookieContainer.Count);
+            var collection = cookieContainer.GetCookies(uri);
+            Assert.AreEqual(2, collection.Count);
+            Assert.AreEqual("value1", collection["cookie1"]?.Value);
+            Assert.AreEqual("value2", collection["cookie2"]?.Value);
         }
 
         [TestMethod]
@@ -70,37 +101,6 @@ namespace RestTests
             Assert.AreEqual(proxyAddress, iProxy.GetProxy(new Uri("http://www.google.com")));
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
-        public void SessionContextCookieTest()
-        {
-            var context = new SessionContext();
-            var uri = new Uri("http://localhost");
-            context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
-            var message = new HttpRequestMessage { RequestUri = uri };
-            context.SetCookies(message);
-            var cookieContainer = context.CookieContainer;
-            Assert.IsNotNull(cookieContainer);
-            Assert.AreEqual(2, cookieContainer.Count);
-            var collection = cookieContainer.GetCookies(uri);
-            Assert.AreEqual(2, collection.Count);
-            Assert.AreEqual("value1", collection["cookie1"]?.Value);
-            Assert.AreEqual("value2", collection["cookie2"]?.Value);
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
-        public void SessionContextAddHeaderTest()
-        {
-            var context = new SessionContext();
-            context.SetConfig("Headers", "header3:value3\r\nheader4:value4");
-            var client = context.Client;
-            var headers = client.DefaultRequestHeaders;
-            Assert.AreEqual(2, headers.Count());
-            Assert.AreEqual("value3", FitNesseFormatter.GetHeader(headers, "header3"));
-            Assert.AreEqual("value4", FitNesseFormatter.GetHeader(headers, "header4"));
-        }
-        
         [TestMethod]
         [TestCategory("Unit")]
         public void SessionContextSecurityProtocolTest()

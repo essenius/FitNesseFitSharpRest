@@ -22,42 +22,12 @@ namespace RestTests
     {
         [TestMethod]
         [TestCategory("Unit")]
-        public void FitNesseFormatterHeaderListSelectionTest()
-        {
-            var headers = new HeaderDictionary
-            {
-                {"header1", new List<string>{"value1"}},
-                {"header2", new List<string>{"value2"}},
-                {"header3", new List<string>{"value3"}}
-            };
-
-            var result = FitNesseFormatter.HeaderList(headers, new List<string> {"header1", "header2"});
-            Assert.AreEqual("header1: value1\nheader2: value2\n", result);
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
-        public void FitNesseFormatterHeaderListTest()
-        {
-            var headers = new HeaderDictionary
-            {
-                {"header1", new List<string>{"value1"}},
-                {"header2", new List<string>{"value2"}},
-                {"header3", new List<string>{"value3"}}
-            };
-            var result = FitNesseFormatter.HeaderList(headers);
-            Assert.AreEqual("header1: value1\nheader2: value2\nheader3: value3\n", result);
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
         public void FitNesseFormatterGetHeaderTest()
         {
             var headers = new HeaderDictionary
             {
-                {"header1",  new List<string>{"value1"}},
-                {"header2",  new List<string>{"value1", "value2"}},
-
+                { "header1", new List<string> { "value1" } },
+                { "header2", new List<string> { "value1", "value2" } }
             };
             Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(headers, null));
             Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(headers, "bogus"));
@@ -70,6 +40,7 @@ namespace RestTests
             {
                 requestHeaders.Add(entry.Key, entry.Value);
             }
+
             Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(requestHeaders, null));
             Assert.AreEqual(string.Empty, FitNesseFormatter.GetHeader(requestHeaders, "bogus"));
             Assert.AreEqual("value1", FitNesseFormatter.GetHeader(requestHeaders, "header1"));
@@ -78,16 +49,54 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
+        public void FitNesseFormatterHeaderListSelectionTest()
+        {
+            var headers = new HeaderDictionary
+            {
+                { "header1", new List<string> { "value1" } },
+                { "header2", new List<string> { "value2" } },
+                { "header3", new List<string> { "value3" } }
+            };
+
+            var result = FitNesseFormatter.HeaderList(headers, new List<string> { "header1", "header2" });
+            Assert.AreEqual("header1: value1\nheader2: value2\n", result);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void FitNesseFormatterHeaderListTest()
+        {
+            var headers = new HeaderDictionary
+            {
+                { "header1", new List<string> { "value1" } },
+                { "header2", new List<string> { "value2" } },
+                { "header3", new List<string> { "value3" } }
+            };
+            var result = FitNesseFormatter.HeaderList(headers);
+            Assert.AreEqual("header1: value1\nheader2: value2\nheader3: value3\n", result);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void FitNesseFormatterHeaderListWithoutTest()
         {
             var headers = new HeaderDictionary
             {
-                {"header1",  new List<string>{"value1"}},
-                {"header2",  new List<string>{"value2"}},
-                {"header3",  new List<string>{"value3"}}
+                { "header1", new List<string> { "value1" } },
+                { "header2", new List<string> { "value2" } },
+                { "header3", new List<string> { "value3" } }
             };
-            var result = FitNesseFormatter.HeaderListWithout(headers, new List<string> {"header2"});
+            var result = FitNesseFormatter.HeaderListWithout(headers, new List<string> { "header2" });
             Assert.AreEqual("header1: value1\nheader3: value3\n", result);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void FitNesseFormatterParseCookiesErrorTest()
+        {
+            const string input = "=";
+            _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
         }
 
         [TestMethod]
@@ -113,15 +122,6 @@ namespace RestTests
                 "maxAgeTest2=good; Expires=Mon, 17 Jun 2019 11:12:14 GMT; Path=/; Domain=default.org\n" +
                 "maxAgeTest3=bad; Expires=Mon, 17 Jun 2019 11:12:15 GMT; Path=/; Domain=default.org\n" +
                 "maxAgeTest4=ugly; Expires=Mon, 17 Jun 2019 11:12:16 GMT; Path=/; Domain=default.org", cookieList);
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void FitNesseFormatterParseCookiesErrorTest()
-        {
-            const string input = "=";
-            _ = FitNesseFormatter.ParseCookies(input, null, DateTime.UtcNow);
         }
 
         [TestMethod]

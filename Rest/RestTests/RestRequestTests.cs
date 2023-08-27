@@ -25,6 +25,18 @@ namespace RestTests
     {
         [TestMethod]
         [TestCategory("Unit")]
+        public void RestRequestBinaryBodyTest()
+        {
+            var context = new SessionContext();
+            var uri = new Uri("http://localhost/api");
+            var factory = new RestRequestFactory();
+            var unknownContentRequest = factory.Create(uri, context);
+            unknownContentRequest.SetBody("\u0001", HttpMethod.Post);
+            Assert.AreEqual("application/octet-stream", unknownContentRequest.ContentHeaders?.ContentType?.MediaType);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
         public void RestRequestCreateTest()
         {
             var context = new SessionContext();
@@ -57,18 +69,6 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
-        public void RestRequestBinaryBodyTest()
-        {
-            var context = new SessionContext();
-            var uri = new Uri("http://localhost/api");
-            var factory = new RestRequestFactory();
-            var unknownContentRequest = factory.Create(uri, context);
-            unknownContentRequest.SetBody("\u0001", HttpMethod.Post);
-            Assert.AreEqual( "application/octet-stream",unknownContentRequest.ContentHeaders?.ContentType?.MediaType);
-        }
-
-    [TestMethod]
-        [TestCategory("Unit")]
         public void RestRequestSupportsBodyTest()
         {
             Assert.IsTrue(RestRequest.SupportsBody(HttpMethod.Put));
@@ -88,11 +88,11 @@ namespace RestTests
             var restRequest = factory.Create(uri, context);
             var headers = new NameValueCollection
             {
-                {"header1", "value1"},
-                {"User-Agent", "UnitTest"},
-                {"accept", "plain/text"},
-                {"content-type", "application/xml"},
-                {"Authorization", "my-hash"}
+                { "header1", "value1" },
+                { "User-Agent", "UnitTest" },
+                { "accept", "plain/text" },
+                { "content-type", "application/xml" },
+                { "Authorization", "my-hash" }
             };
             restRequest.SetBody(string.Empty, HttpMethod.Get);
             Assert.IsFalse(restRequest.Headers.TryGetValues("header1", out _), "header1 doesn't exist upfront");
@@ -116,9 +116,6 @@ namespace RestTests
             Assert.IsNotNull(restRequest2.Headers.Authorization, "restRequest2.Headers.Authorization != null");
             Assert.AreEqual("my-hash", restRequest2.Headers.Authorization.ToString(), "Authorization changed");
             Assert.AreEqual(new MediaTypeHeaderValue("application/xml"), restRequest2.ContentHeaders?.ContentType, "Content type OK");
-
-
         }
-
     }
 }

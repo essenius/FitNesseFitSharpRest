@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2021 Rik Essenius
+﻿// Copyright 2015-2023 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -30,8 +30,17 @@ namespace RestTests
             };
             Assert.IsTrue(h.MakeRequest("Get", "api"), "MakeRequest succeeds");
             Assert.AreEqual("http://localhost/api", h.Request.RequestUri.AbsoluteUri, "RequestUri OK");
-            var m = (RestRequestMock) h.Request;
+            var m = (RestRequestMock)h.Request;
             Assert.IsTrue(m.ExecuteWasCalled, "Execute was called");
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void RestSessionNullValueTest()
+        {
+            var session = new RestSession(null, null, null) { Body = null };
+            Assert.IsNull(session.ResponseText);
+            Assert.IsNull(session.Body);
         }
 
         [TestMethod]
@@ -48,22 +57,13 @@ namespace RestTests
         public void RestSessionSetBodyTest()
         {
             const string textBody = "Text Line 1\r\nTextLine2\r\n";
-            var h = new RestSession(null, null, null) {Body = textBody};
+            var h = new RestSession(null, null, null) { Body = textBody };
             Assert.AreEqual(h.Body, textBody);
 
             const string jsonBodyIn = "{\"title\": \"Test Data\",\r\n \"body\": \"Test Body\",\r\n \"userId\":96\r\n }";
             const string jsonBodyOut = "{\"title\": \"Test Data\", \"body\": \"Test Body\", \"userId\":96 }";
             h.Body = jsonBodyIn;
             Assert.AreEqual(h.Body, jsonBodyOut);
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
-        public void RestSessionNullValueTest()
-        {
-            var session = new RestSession(null, null, null) {Body = null};
-            Assert.IsNull(session.ResponseText);
-            Assert.IsNull(session.Body);
         }
     }
 }

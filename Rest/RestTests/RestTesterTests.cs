@@ -20,7 +20,6 @@ namespace RestTests
     [TestClass]
     public class RestTesterTests
     {
-
         private static void ExpectException(Type exceptionType, Action action, string message)
         {
             try
@@ -36,6 +35,17 @@ namespace RestTests
         }
 
         [TestMethod]
+        [TestCategory("Unit")]
+        public void RestTesterEndPointNullTest()
+        {
+            var rt = new RestTester();
+            Assert.IsNull(rt.EndPoint);
+            Assert.IsNull(rt.RequestUri);
+            Assert.IsNull(rt.Cookies);
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "bogus"), "Request was not initialized yet");
+        }
+
+        [TestMethod]
         [TestCategory("Integration")]
         [ExpectedException(typeof(AggregateException))]
         public void RestTesterInvalidUrlTest()
@@ -44,7 +54,7 @@ namespace RestTests
             var restConfig = new RestConfig();
             var input = new List<List<string>>
             {
-                new List<string> {"Proxy", "None"}
+                new List<string> { "Proxy", "None" }
             };
 
             _ = restConfig.DoTable(input);
@@ -58,6 +68,18 @@ namespace RestTests
             rt.SendTo("Post", "posts");
 
             Assert.AreEqual(403, rt.ResponseCode);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        [ExpectedException(typeof(ArgumentException))]
+        [Obsolete("Remove in next major release")]
+        public void RestTesterObsoleteTest()
+        {
+            var rt = new RestTester();
+            Assert.IsNull(rt.RequestCookies);
+            Assert.IsNull(rt.ResponseCookies);
+            _ = rt.PropertyOfResponseCookie("bogus", "bogus");
         }
 
         [TestMethod]
@@ -90,17 +112,17 @@ namespace RestTests
 
             var requestHeaders = rt.RequestHeaders();
             Assert.IsTrue(requestHeaders.Contains("User-Agent:"), "request header contains User Agent");
-            var requestHeadersWithout = rt.RequestHeadersWithout(new List<string> {"User-Agent"});
+            var requestHeadersWithout = rt.RequestHeadersWithout(new List<string> { "User-Agent" });
             Assert.IsFalse(requestHeadersWithout.Contains("User-Agent:"), "request header without User Agent OK");
             Assert.IsTrue(requestHeadersWithout.Contains("Content-Type: application/json"),
                 "request header Content-Type OK");
-            var customRequestHeader = rt.RequestHeaders(new List<string> {"header1"});
+            var customRequestHeader = rt.RequestHeaders(new List<string> { "header1" });
             Assert.IsTrue(customRequestHeader.Contains("header1: value for header 1"), "custom header exists");
             Assert.IsTrue(requestHeadersWithout.Contains("Content-Length: 57"), "request header Content-Length OK");
             Assert.AreEqual(201, rt.ResponseCode, "Response code OK");
             Assert.AreEqual("Created", rt.ResponseCodeDescription);
             Assert.AreEqual("101", rt.ValueFromResponseMatching("id"), "Response ID OK");
-            var responseHeaders = rt.ResponseHeaders(new List<string> {"Content-Length", "Content-Type"});
+            var responseHeaders = rt.ResponseHeaders(new List<string> { "Content-Length", "Content-Type" });
             Assert.AreEqual("Content-Length: 78\nContent-Type: application/json; charset=utf-8\n", responseHeaders);
             var ro = rt.ResponseObject;
             Assert.AreEqual("JSON Object", ro.ToString());
@@ -126,7 +148,7 @@ namespace RestTests
             var responseHeaders = rt.ResponseHeaders();
             Assert.IsTrue(responseHeaders.Contains("Date:"), "response header Date OK");
 
-            var responseHeadersWithout = rt.ResponseHeadersWithout(new List<string> {"Date"});
+            var responseHeadersWithout = rt.ResponseHeadersWithout(new List<string> { "Date" });
             Assert.IsFalse(responseHeadersWithout.Contains("Date"), "response header without Date OK");
             Assert.IsTrue(responseHeadersWithout.Contains("Cache-Control:"), "Response headers contain Cache Control");
 
@@ -153,11 +175,12 @@ namespace RestTests
             Assert.AreEqual(201, rt.ResponseCode);
             var requestHeaders = rt.RequestHeaders();
             Assert.AreEqual("cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.Cookies, "Cookies OK");
-            Assert.AreEqual("/",rt.PropertyOfCookie("Path", "cookie1"));
+            Assert.AreEqual("/", rt.PropertyOfCookie("Path", "cookie1"));
             Assert.AreEqual("jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
             Assert.AreEqual("/", rt.PropertyOfCookie("Path", 0));
 
-            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"), "Property 'bogus' does not exist on Cookie 'cookie1'");
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"),
+                "Property 'bogus' does not exist on Cookie 'cookie1'");
             ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", null), "Cookie name cannot be null");
             ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("", ""), "Cookie '' does not exist");
 
@@ -170,32 +193,9 @@ namespace RestTests
 
         [TestMethod]
         [TestCategory("Unit")]
-        public void RestTesterEndPointNullTest()
-        {
-            var rt = new RestTester();
-            Assert.IsNull(rt.EndPoint);
-            Assert.IsNull(rt.RequestUri);
-            Assert.IsNull(rt.Cookies);
-            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "bogus"), "Request was not initialized yet");
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
         public void RestTesterVersionInfoTest()
         {
             Assert.AreEqual(ApplicationInfo.Version, RestTester.VersionInfo("SHORT"));
-        }
-
-        [TestMethod]
-        [TestCategory("Unit")]
-        [ExpectedException( typeof(ArgumentException))]
-        [Obsolete("Remove in next major release")]
-        public void RestTesterObsoleteTest()
-        {
-            var rt = new RestTester();
-            Assert.IsNull(rt.RequestCookies);
-            Assert.IsNull(rt.ResponseCookies);
-            _ = rt.PropertyOfResponseCookie("bogus", "bogus");
         }
 
         [TestInitialize]

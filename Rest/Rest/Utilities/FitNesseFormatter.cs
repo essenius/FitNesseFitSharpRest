@@ -9,12 +9,7 @@
 //   is distributed on an "AS IS" BASIS WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and limitations under the License.
 
-#if NET48
-using System.Web;
-#else
-using Microsoft.Net.Http.Headers;
-using System.Text;
-#endif
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -22,13 +17,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+#if NET48
+using System.Web;
+#else
+using Microsoft.Net.Http.Headers;
+using System.Text;
+#endif
 
 namespace Rest.Utilities
 {
     internal static class FitNesseFormatter
     {
         #region Public Methods
-
 
         public static string GetHeader(HttpHeaders headers, string header)
         {
@@ -53,7 +53,7 @@ namespace Rest.Utilities
         {
             if (cookies == null) return null;
             var result = new List<string>();
-            foreach (Cookie cookie in cookies.Cast<Cookie>())
+            foreach (var cookie in cookies.Cast<Cookie>())
             {
                 var httpOnly = cookie.HttpOnly ? "HttpOnly; " : string.Empty;
                 var expires = cookie.Expires.Ticks == 0
@@ -167,7 +167,10 @@ namespace Rest.Utilities
             foreach (
                 var keyValuePair in
                 lines.Select(line => line.ParseKeyValuePair()).Where(keyValuePair => keyValuePair.Key != null))
+            {
                 collection.Set(keyValuePair.Key, keyValuePair.Value);
+            }
+
             return collection;
         }
 
@@ -216,7 +219,6 @@ namespace Rest.Utilities
         }
 
 #if NET5_0_OR_GREATER
-
         /// <summary>
         ///     Valid cookie options.
         /// </summary>

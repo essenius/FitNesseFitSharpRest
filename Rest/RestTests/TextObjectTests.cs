@@ -89,7 +89,7 @@ namespace RestTests
         public void TextObjectIsValidTest()
         {
             Assert.IsTrue(TextObject.IsValid("abc"), "abc is valid text");
-            Assert.IsFalse(TextObject.IsValid("abc" + (char) 2), "abc with control char is not valid text");
+            Assert.IsFalse(TextObject.IsValid("abc" + (char)2), "abc with control char is not valid text");
         }
 
         [TestMethod]

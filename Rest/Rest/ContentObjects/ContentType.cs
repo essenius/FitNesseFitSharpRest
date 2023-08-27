@@ -26,5 +26,4 @@ namespace Rest.ContentObjects
         ///<summary>Unknown content (e.g. binary)</summary>
         Unknown
     }
-
 }
