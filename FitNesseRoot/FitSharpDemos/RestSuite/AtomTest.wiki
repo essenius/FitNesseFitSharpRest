@@ -15,10 +15,13 @@
 |$serviceBase=|echo                        |OData/OData.svc/                          |
 |Send         |Get                         |to|$serviceBase/Categories|expect code|200|
 |$id=         |value from response matching|//a:entry[1]//d:Id                        |
+|show|request headers|
+|show| response headers|
+|show|response|
 |$response=   |Response Object                                                        |
 
 !|script                                                                                                                                          |
-|show              |property value                                  |/a:feed/a:entry[2]/a:content/m:properties/d:Id|of       |$response           |
+|show              |property value                                  |/a:feed/a:entry[2]/a:content/m:properties/d:ID|of       |$response           |
 |show              |properties                                      |/a:feed/a:entry[2]//*                         |of       |$response           |
 |set property value|/a:feed/a:entry[2]/a:content/m:properties/d:Name|of                                            |$response|to|New Property Name|
 

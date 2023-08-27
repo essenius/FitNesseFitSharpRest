@@ -46,6 +46,9 @@ We can also set values in objects using the decision tables.
 |ShortValue                      |-32768          |true          |      |
 |StringValue                     |clean code      |true          |      |
 
+
+the non-existing value should cause an exception
+
 !|decision: properties for object|$testobject                                              |
 |Property                        |Value                               |Value was set?|Type?|
 |NonExistingValue                |irrelevant value                    |false         |     |

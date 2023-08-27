@@ -12,27 +12,42 @@ We are going to be using Json.
 |DefaultAccept     |application/json|
 |DefaultContentType|application/json|
 |DefaultUserAgent  |FitNesseRest    |
-|DefaultMatcher    |Json            |
-|Encoding          |iso-8859-1      |
+|Encoding          |utf-8           |
 |Headers                            |!-header1:value1
 header2:value2-!|
 |ContentTypeMapping|!-application/xml:XML
 application/json:JSON
 text/plain:TEXT
 default:JSON-!|
+|Cookies|!-cookie1=value1
+cookie2=value2-!|
 
 Post some data to a test service, and capture its response into a JSon object. Also show some response headers and the request body (handy for debugging)
+The first show statement should cause an exception as you can only inspect cookies after a request was sent.
 
-!|script         |RestTester                  |https://jsonplaceholder.typicode.com/|
-|Set Request Body|{"title": "Test Data", "body": "Test Body", "userId":96 }        |
-|Send            |POST                        |to              |posts              |
-|check           |response code               |201                                 |
-|$id=            |value from response matching|id                                  |
+!|script           |RestTester                  |https://jsonplaceholder.typicode.com/|
+|Set Request Body  |{"title": "Test Data", "body": "Test Body", "userId":96 }         |
+|show              |property                    |bogus   |of cookie       |bogus      |
+|set request header|Content-Type                |to      |application/json; foo=2     |
+|Send              |POST                        |to      |posts                       |
+|check             |response code               |201                                  |
+|$id=              |value from response matching|id                                   |
 
-|script                                                      |
-|show|response                                               |
-|show|response headers        |[Content-Length, Content-Type]|
-|show|response headers without|[Content-Length]            |
+|script                                                                              |
+|show |response                                                                      |
+|show |response headers        |[Content-Length, Content-Type]                       |
+|show |response headers without|[Content-Length]                                     |
+
+Several of these property inquiries should cause an exception because something is wrong with them
+
+!|script|
+|show |cookies                                                                       |
+|check|property                |Path  |of cookie|cookie1|/                           |
+|check|property                |Domain|of cookie|cookie2|jsonplaceholder.typicode.com|
+|check|property                |bogus |of cookie|cookie1|irrelevant                  |
+|check|property                |path  |of cookie|cookie3|irrelevant                  |
+|check|property                |      |of cookie|       |irrelevant                  |
+|check|request headers         |=~/foo=2/                                            |
 
 |script                                                                    |
 |show  |request headers  without  |[Authorization]                         |
@@ -64,7 +79,7 @@ The response is a Json array, so we use the default property name _
 !|script                                 |
 |Send      |GET|to|/users|expect code|200|
 |$response=|Response Object              |
-|show|response|
+|show      |response                     |
 
 |table: properties for object|$response|_[0].address|
 

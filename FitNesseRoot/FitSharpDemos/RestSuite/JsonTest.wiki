@@ -6,6 +6,7 @@ Get a JSON payload via a table on a FitNesse page, and manipulate that a bit.
 
 !|script           |Rest Tester                 |http://localhost:${Port}                                                                                 |
 |Send              |Get                         |to                          |FitSharpDemos.RestSuite.RestTest.BodyPage?packet|expect code     |200       |
+|show              |response headers                                                                                                                      |
 |$response=        |Response Object                                                                                                                       |
 |show              |property value              |tables[0].Customer.addr.city|of                                              |$response                  |
 |set property value|tables[0].Customer.addr.city|of                          |$response                                       |to              |Smallville|

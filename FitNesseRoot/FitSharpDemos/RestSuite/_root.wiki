@@ -1,2 +1,4 @@
+#!define COMMAND_PATTERN {%m ${FITSHARP_HOME}\..\net6.0-windows\RunnerW.dll -c ${FIXTURE_FOLDER}\config.xml}
+
 !define RestTestDll {RestTests.dll}
 !contents -R2 -g -p -f -h
