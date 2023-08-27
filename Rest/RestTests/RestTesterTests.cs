@@ -157,8 +157,9 @@ namespace RestTests
             Assert.AreEqual("jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
             Assert.AreEqual("/", rt.PropertyOfCookie("Path", 0));
 
-            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"), "Property bogus does not exist on Cookie cookie1");
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"), "Property 'bogus' does not exist on Cookie 'cookie1'");
             ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", null), "Cookie name cannot be null");
+            ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("", ""), "Cookie '' does not exist");
 
             Assert.IsTrue(requestHeaders.Contains("Content-Type: application/json; foo=2"));
             Assert.IsTrue(requestHeaders.Contains("User-Agent: FitNesseClient"));

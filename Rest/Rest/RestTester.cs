@@ -120,8 +120,9 @@ namespace Rest
                 cookie = _session.Request.Cookies[cookieName.ToString()];
             }
 
+            if (cookie == null) throw new ArgumentException($"Cookie '{cookieName}' does not exist");
             var method = typeof(Cookie).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            return method?.GetValue(cookie) ?? throw new ArgumentException($"Property {propertyName} does not exist on Cookie {cookieName}");
+            return method?.GetValue(cookie) ?? throw new ArgumentException($"Property '{propertyName}' does not exist on Cookie '{cookieName}'");
         }
 
         [Obsolete("Use PropertyOfCookie(propertyName, cookieName) instead")]
