@@ -28,14 +28,14 @@ namespace RestTests
         public void SessionContextContentTypeMapperTest()
         {
             var context = new SessionContext();
-            Assert.AreEqual("json", context.ContentHandler("application/json"), "default json");
-            Assert.AreEqual("xml", context.ContentHandler("application/xml"), "default xml");
-            Assert.AreEqual("text", context.ContentHandler("text/plain"), "default text");
-            Assert.AreEqual("unknown", context.ContentHandler("unknown/content"), "unknown content type");
-            Assert.AreEqual("xml", context.ContentHandler("application/atom+xml"), "atom is an XML variant");
-            Assert.AreEqual("unknown", context.ContentHandler("application/rss+xml"), "rss is not handled by default");
+            Assert.AreEqual("json", context.ContentType("application/json"), "default json");
+            Assert.AreEqual("xml", context.ContentType("application/xml"), "default xml");
+            Assert.AreEqual("text", context.ContentType("text/plain"), "default text");
+            Assert.IsNull(context.ContentType("unknown/content"), "unknown content type");
+            Assert.AreEqual("xml", context.ContentType("application/atom+xml"), "atom is an XML variant");
+            Assert.IsNull(context.ContentType("application/rss+xml"), "rss is not handled by default");
             context.SetConfig("ContentTypeMapping", "application/rss+xml : xml");
-            Assert.AreEqual("xml", context.ContentHandler("application/rss+xml"),
+            Assert.AreEqual("xml", context.ContentType("application/rss+xml"),
                 "atom returns xml after config update");
         }
 
@@ -76,7 +76,6 @@ namespace RestTests
         {
             var context = new SessionContext();
             var uri = new Uri("http://localhost");
-            /* context.SetConfig("CookieDomain", "localhost");*/
             context.SetConfig("Cookies", "cookie1=value1\r\ncookie2=value2");
             var message = new HttpRequestMessage { RequestUri = uri };
             context.SetCookies(message);

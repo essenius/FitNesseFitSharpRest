@@ -41,20 +41,16 @@ namespace Rest.ContentObjects
 
         private ContentType InferContentHandler(string contentType, object content)
         {
-            if (contentType == null)
+            if (contentType != null)
             {
-                if (content is string) return InferType(content.ToString());
-                throw new ArgumentNullException(nameof(contentType),
-                    "Content type cannot be null when serializing binary objects");
+                if (Enum.TryParse(contentType, true, out ContentType validContentHandler)) return validContentHandler;
+                // Check if we have a known mimetype (could become null)
+                contentType = _sessionContext.ContentType(contentType);
+                if (Enum.TryParse(contentType, true, out validContentHandler)) return validContentHandler;
             }
 
-            if (Enum.TryParse(contentType, true, out ContentType validContentHandler)) return validContentHandler;
-
-            // we only want the main content type - eliminate additional descriptors as feed etc.
-            contentType = contentType.StripAfter(";");
-            var rawContentHandler = _sessionContext.ContentHandler(contentType);
-            // rawContentHandler should now be a valid content handler, so Parse should always succeed
-            return (ContentType)Enum.Parse(typeof(ContentType), rawContentHandler, true);
+            // we don't know the content type, so we'll have to infer it
+            return content is string ? InferType(content.ToString()) : ContentType.Unknown;
         }
 
         /// <summary>Infer the type of content by inspecting it</summary>

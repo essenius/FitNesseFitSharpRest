@@ -101,23 +101,25 @@ namespace Rest.Model
             }
         }
 
-        /// <summary>Determine the type of content handler we need  based on the content type</summary>
-        /// <param name="contentType">the content type of the payload</param>
+        /// <summary>Determine the type of content we need  based on the mime type</summary>
+        /// <param name="mimeType">the content type of the payload</param>
         /// <returns>the content handler (xml, json, text)</returns>
-        public string ContentHandler(string contentType)
+        public string ContentType(string mimeType)
         {
-            var contentHandler = ContentTypeMap.Get(contentType);
-            return string.IsNullOrEmpty(contentHandler) ? ContentTypeMap.Get("default") : contentHandler;
+            // remove all the parameters, if present
+            mimeType = mimeType.StripAfter(";");
+
+            return ContentTypeMap.Get(mimeType);
         }
 
-        /// <summary>Ge the first content type registered for a content handler</summary>
-        /// <param name="contentHandler">json, text, or xml</param>
-        /// <returns>the first content type associated with the handler, or DefaultContentType if none</returns>
-        public string ContentTypeFor(string contentHandler)
+        /// <summary>Get the first mime type registered for a content type</summary>
+        /// <param name="contentType">json, text, or xml</param>
+        /// <returns>the first mime type associated with the handler, or DefaultContentType if none</returns>
+        public string MimeTypeFor(string contentType)
         {
-            foreach (string contentType in ContentTypeMap)
+            foreach (string mimeType in ContentTypeMap)
             {
-                if (ContentTypeMap[contentType].Equals(contentHandler, StringComparison.OrdinalIgnoreCase)) return contentType;
+                if (ContentTypeMap[mimeType].Equals(contentType, StringComparison.OrdinalIgnoreCase)) return mimeType;
             }
 
             return DefaultContentType;
@@ -210,8 +212,6 @@ namespace Rest.Model
                     @"COOKIES", v =>
                     {
                         CookiesList = v;
-                        /* var cookies = FitNesseFormatter.ParseCookies(v, CookieDomain, DateTime.UtcNow);
-                        CookieContainer.Add(cookies); */
                         return true;
                     }
                 },

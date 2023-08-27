@@ -21,18 +21,18 @@ namespace RestTests
     {
         [TestMethod]
         [TestCategory("Unit")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ContentObjectFactoryCreateNullTest()
         {
-            _ = new ContentObjectFactory(null).Create(null, 1);
+            var contentObject = new ContentObjectFactory(null).Create(null, 1);
+            Assert.AreEqual(ContentType.Unknown, contentObject.ContentType);
         }
 
         [TestMethod]
         [TestCategory("Unit")]
         public void ContentObjectFactoryCreateWrongTypeTest()
         {
-            var q = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
-            Assert.AreEqual(ContentType.Unknown, q.ContentType);
+            var contentObject = new ContentObjectFactory(new SessionContext()).Create("cs", 1);
+            Assert.AreEqual(ContentType.Unknown, contentObject.ContentType);
         }
     }
 }

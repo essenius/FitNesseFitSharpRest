@@ -64,7 +64,7 @@ namespace Rest.Model
                 {
                     _request.Content = new StringContent(body, _context.RequestEncoding);
                     var co = ContentObject.Parse(body);
-                    var contentType = _context.ContentTypeFor(co.ContentType.ToString());
+                    var contentType = _context.MimeTypeFor(co.ContentType.ToString());
                     _request.Content.Headers.ContentType.MediaType = contentType;
                 }
                 else

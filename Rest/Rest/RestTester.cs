@@ -78,9 +78,11 @@ namespace Rest
         {
             get
             {
-                var contentType = _session.ResponseHeaders.TryGetValue("Content-Type", out var value)
+                var mimeeType = _session.ResponseHeaders.TryGetValue("Content-Type", out var value)
                     ? string.Join(",", value)
                     : string.Empty;
+                var contentType = _session.Context.ContentType(mimeeType);
+                // this can be a null, in case the mime tyoe was not in the content type map
                 return _contentObjectFactory.Create(contentType, _session.ResponseText);
             }
         }
