@@ -11,6 +11,7 @@
     <Description>Unit tests for FitNesse/FitSharp fixture to test REST services</Description>
     <Copyright>Copyright © Rik Essenius 2015-2024</Copyright>
     <RepositoryUrl>https://github.com/essenius/FitNesseFitSharpRest</RepositoryUrl>
+    <ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
