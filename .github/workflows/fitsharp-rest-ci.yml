@@ -26,5 +26,6 @@ jobs:
       run: dotnet build .\Rest\Rest.sln
       
     - name: Test
-      run: dotnet test .\Rest\Rest.sln
+      run: dotnet test .\Rest\Rest.sln --settings .\Rest\actions.runsettings 
+    
 
