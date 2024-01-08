@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -174,9 +174,9 @@ namespace RestTests
             rt.SendTo("POST", "posts");
             Assert.AreEqual(201, rt.ResponseCode);
             var requestHeaders = rt.RequestHeaders();
-            Assert.AreEqual("cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.Cookies, "Cookies OK");
+            Assert.AreEqual(@"cookie1=value1; Path=/; Domain=jsonplaceholder.typicode.com", rt.Cookies, "Cookies OK");
             Assert.AreEqual("/", rt.PropertyOfCookie("Path", "cookie1"));
-            Assert.AreEqual("jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
+            Assert.AreEqual(@"jsonplaceholder.typicode.com", rt.PropertyOfCookie("Domain", "cookie1"));
             Assert.AreEqual("/", rt.PropertyOfCookie("Path", 0));
 
             ExpectException(typeof(ArgumentException), () => rt.PropertyOfCookie("bogus", "cookie1"),

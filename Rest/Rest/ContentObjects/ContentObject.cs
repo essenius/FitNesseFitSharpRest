@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -34,7 +34,7 @@ namespace Rest.ContentObjects
         internal abstract string GetProperty(string locator);
         internal abstract string GetPropertyType(string locator);
 
-        /// <summary>Parse a string value into a concrete object. Tries to figure out itself it it is XML, JSON or TEXT</summary>
+        /// <summary>Parse a string value into a concrete object. Tries to figure out itself if it is XML, JSON or TEXT</summary>
         /// <param name="input">the input string to be parsed</param>
         /// <remarks>
         ///     We need this one since FitNesse uses it to try and parse parameter values into objects
@@ -60,7 +60,7 @@ namespace Rest.ContentObjects
 
         /// <summary>Trim return values if the trim whitespace parameter is true</summary>
         /// <remarks>
-        ///     We may need trimming values sometimes because FitNesse does trimming too for the comparison values.
+        ///     We may need trimming values sometimes because FitNesse trims too for the comparison values.
         ///     Leading or trailing whitespace in property values shouldn't happen too often, just making things more robust
         /// </remarks>
         /// <param name="input">raw input</param>

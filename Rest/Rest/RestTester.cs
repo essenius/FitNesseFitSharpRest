@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using Rest.ContentObjects;
@@ -78,11 +77,11 @@ namespace Rest
         {
             get
             {
-                var mimeeType = _session.ResponseHeaders.TryGetValue("Content-Type", out var value)
+                var mimeType = _session.ResponseHeaders.TryGetValue("Content-Type", out var value)
                     ? string.Join(",", value)
                     : string.Empty;
-                var contentType = _session.Context.ContentType(mimeeType);
-                // this can be a null, in case the mime tyoe was not in the content type map
+                var contentType = _session.Context.ContentType(mimeType);
+                // this can be a null, in case the mime type was not in the content type map
                 return _contentObjectFactory.Create(contentType, _session.ResponseText);
             }
         }
@@ -102,7 +101,7 @@ namespace Rest
         ///     cookie name
         /// </requires>
         /// <guarantees>
-        ///     if the cookieName is integer, uses the cookie at the speficied index, else uses the cookie with the
+        ///     if the cookieName is integer, uses the cookie at the specified index, else uses the cookie with the
         ///     specified name
         /// </guarantees>
         public object PropertyOfCookie(string propertyName, object cookieName)
@@ -117,7 +116,7 @@ namespace Rest
             else
             {
                 // OK to throw exception, this will be returned to FitNesse
-                cookie = _session.Request.Cookies[cookieName.ToString()];
+                cookie = _session.Request.Cookies[cookieName.ToString()!];
             }
 
             if (cookie == null) throw new ArgumentException($"Cookie '{cookieName}' does not exist");

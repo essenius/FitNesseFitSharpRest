@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -35,7 +35,7 @@ namespace Rest.ContentObjects
         /// <param name="content">the content to be parsed to XML</param>
         /// <param name="defaultNameSpaceKey">the default namespace</param>
         /// <param name="valueTypeAttribute">the attribute used to indicate what value type we have (can be null)</param>
-        /// <param name="trimWhitespace">whether or not to trim whitespace from values</param>
+        /// <param name="trimWhitespace">whether to trim whitespace from values</param>
         public XmlObject(object content, string defaultNameSpaceKey, string valueTypeAttribute,
             bool trimWhitespace = false) : base(trimWhitespace)
         {
@@ -47,11 +47,11 @@ namespace Rest.ContentObjects
             _xmlDocument = ParseContent(contentString);
             _navigator = _xmlDocument.CreateNavigator();
             Debug.Assert(_navigator != null, nameof(_navigator) + " != null");
-            _navigator.MoveToFollowing(XPathNodeType.Element);
+            _navigator!.MoveToFollowing(XPathNodeType.Element);
             var namespaces = _navigator.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
             Debug.Assert(namespaces != null, nameof(namespaces) + " != null");
             _namespaceManager = new XmlNamespaceManager(_navigator.NameTable);
-            foreach (var entry in namespaces)
+            foreach (var entry in namespaces!)
             {
                 _namespaceManager.AddNamespace(string.IsNullOrEmpty(entry.Key) ? defaultNameSpaceKey : entry.Key,
                     entry.Value);
@@ -82,7 +82,7 @@ namespace Rest.ContentObjects
             nav.MoveToRoot();
             nav.MoveToFollowing(XPathNodeType.Element);
             Debug.Assert(node.Current != null, "node.Current != null");
-            node.Current.AppendChild(nav);
+            node.Current!.AppendChild(nav);
             return true;
         }
 
@@ -107,7 +107,7 @@ namespace Rest.ContentObjects
             }
 
             Debug.Assert(node != null, nameof(node) + " != null");
-            using var xmlReader = node.CreateReader();
+            using var xmlReader = node!.CreateReader();
             return xmlReader.ToXmlDocument();
         }
 
@@ -123,7 +123,7 @@ namespace Rest.ContentObjects
             }
 
             Debug.Assert(node.Current != null, "node.Current != null");
-            node.Current.DeleteSelf();
+            node.Current!.DeleteSelf();
             return true;
         }
 
@@ -160,7 +160,7 @@ namespace Rest.ContentObjects
             while (children.MoveNext())
             {
                 Debug.Assert(children.Current != null, "children.Current != null");
-                if (children.Current.Name != element.Name)
+                if (children.Current!.Name != element.Name)
                 {
                     continue;
                 }
@@ -245,7 +245,7 @@ namespace Rest.ContentObjects
             var element = SelectElement(locator);
             if (element.MoveNext())
             {
-                return TrimIfNeeded(element.Current.Value);
+                return TrimIfNeeded(element.Current!.Value);
             }
 
             throw new ArgumentException($"Property {locator} could not be found");
@@ -265,10 +265,10 @@ namespace Rest.ContentObjects
             Debug.Assert(element.Current != null, "element.Current != null");
             if (string.IsNullOrEmpty(_valueTypeAttribute))
             {
-                return element.Current.ValueType.ToString();
+                return element.Current!.ValueType.ToString();
             }
 
-            var atVal = element.Current.SelectSingleNode("@" + _valueTypeAttribute, _namespaceManager);
+            var atVal = element.Current!.SelectSingleNode("@" + _valueTypeAttribute, _namespaceManager);
             return atVal != null ? atVal.Value : element.Current.ValueType.ToString();
         }
 

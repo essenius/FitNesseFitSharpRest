@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -50,7 +50,7 @@ namespace Rest.ContentObjects
 
         /// <summary>Delete a part of the text</summary>
         /// <param name="locator">Regular expression indicating the part to be deleted</param>
-        /// <returns>whether or not the operation succeeded</returns>
+        /// <returns>whether the operation succeeded</returns>
         internal override bool Delete(string locator) => SetProperty(locator, string.Empty);
 
 
@@ -59,7 +59,7 @@ namespace Rest.ContentObjects
         /// <returns>the value that satisfy the matcher, or null if no match</returns>
         internal override string Evaluate(string matcher)
         {
-            // Singleline is a bit of a misnomer, it means that it also matches cr and lf
+            // Singleline is a bit of a misnomer, it means that it also matches cr and lf,
             // and we need that to make the MatchGroupPattern work across multiple lines
             var regex = new Regex(matcher, RegexOptions.Singleline);
             var match = regex.Match(_content);

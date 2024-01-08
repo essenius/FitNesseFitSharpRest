@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -43,7 +43,7 @@ namespace Rest.Utilities
 
         /// <param name="input">the input to be matched</param>
         /// <param name="pattern">the regex pattern to match against</param>
-        /// <returns>whether or not the input matches the pattern</returns>
+        /// <returns>whether the input matches the pattern</returns>
         public static bool Matches(this string input, string pattern) =>
             new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline).IsMatch(input);
 

@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -26,9 +26,9 @@ namespace RestTests
             var testObj = new TextObject("abc");
             var objToAdd = new TextObject("def");
             testObj.AddAt(objToAdd, ".*()$");
-            Assert.AreEqual("abcdef", testObj.Serialize());
+            Assert.AreEqual(@"abcdef", testObj.Serialize());
             testObj.AddAt(objToAdd, "^()");
-            Assert.AreEqual("defabcdef", testObj.Serialize());
+            Assert.AreEqual(@"defabcdef", testObj.Serialize());
         }
 
         [TestMethod]

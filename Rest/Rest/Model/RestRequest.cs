@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -65,7 +65,7 @@ namespace Rest.Model
                     _request.Content = new StringContent(body, _context.RequestEncoding);
                     var co = ContentObject.Parse(body);
                     var contentType = _context.MimeTypeFor(co.ContentType.ToString());
-                    _request.Content.Headers.ContentType.MediaType = contentType;
+                    _request.Content.Headers.ContentType!.MediaType = contentType;
                 }
                 else
                 {
@@ -86,7 +86,7 @@ namespace Rest.Model
         }
 
         /// <param name="method">the HTTP method to be checked</param>
-        /// <returns>whether or not the method supports the use of a body</returns>
+        /// <returns>whether the method supports the use of a body</returns>
         public static bool SupportsBody(HttpMethod method) =>
             method != HttpMethod.Get && method != HttpMethod.Head && method != HttpMethod.Delete;
 

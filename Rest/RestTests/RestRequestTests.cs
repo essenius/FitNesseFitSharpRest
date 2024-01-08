@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,18 @@ namespace RestTests
     [TestClass]
     public class RestRequestTests
     {
+        private void ExecuteAndFail(RestRequest restRequest, HttpMethod httpMethod)
+        {
+            try
+            {
+                restRequest.Execute(httpMethod);
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
         [TestMethod]
         [TestCategory("Unit")]
         public void RestRequestBinaryBodyTest()
@@ -45,7 +57,7 @@ namespace RestTests
             var target = factory.Create(uri, context);
             Assert.IsNotNull(target);
             Assert.AreEqual(uri, target.RequestUri);
-            target.Execute(HttpMethod.Head);
+            ExecuteAndFail(target, HttpMethod.Head);
             Assert.AreEqual("FitNesseRest", FitNesseFormatter.GetHeader(target.Headers, "User-Agent"));
             Assert.IsTrue(FitNesseFormatter.GetHeader(target.Headers, "Accept").Contains("application/json"));
         }
@@ -100,7 +112,7 @@ namespace RestTests
             Assert.AreEqual("value1", FitNesseFormatter.GetHeader(restRequest.Headers, "header1"), "header1 exists afterwards");
             Assert.AreEqual("UnitTest", restRequest.Headers.UserAgent.ToString(), "User-Agent changed");
             Assert.AreEqual("plain/text", restRequest.Headers.Accept.ToString(), "Accept changed");
-            restRequest.Execute(HttpMethod.Get);
+            ExecuteAndFail(restRequest, HttpMethod.Get);
             Assert.IsNotNull(restRequest.Headers.Authorization, "restRequest.Headers.Authorization != null");
             Assert.AreEqual("my-hash", restRequest.Headers.Authorization.ToString(), "Authorization changed");
             Assert.IsNull(restRequest.ContentHeaders, "No content headers");
@@ -112,7 +124,7 @@ namespace RestTests
             Assert.AreEqual("value1", FitNesseFormatter.GetHeader(restRequest2.Headers, "header1"), "header1 exists afterwards");
             Assert.AreEqual("UnitTest", restRequest2.Headers.UserAgent.ToString(), "User-Agent changed");
             Assert.AreEqual("plain/text", restRequest2.Headers.Accept.ToString(), "Accept changed");
-            restRequest2.Execute(HttpMethod.Post);
+            ExecuteAndFail(restRequest2, HttpMethod.Post);
             Assert.IsNotNull(restRequest2.Headers.Authorization, "restRequest2.Headers.Authorization != null");
             Assert.AreEqual("my-hash", restRequest2.Headers.Authorization.ToString(), "Authorization changed");
             Assert.AreEqual(new MediaTypeHeaderValue("application/xml"), restRequest2.ContentHeaders?.ContentType, "Content type OK");

@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -167,7 +167,7 @@ namespace RestTests
         public void XmlObjectDeleteTest()
         {
             var a = new XmlObject("<root><c>test</c></root>", "a", null);
-            Assert.IsFalse(a.Delete("/root/b"), "Delete nonexisting XPath fails");
+            Assert.IsFalse(a.Delete("/root/b"), "Delete non-existing XPath fails");
             Assert.AreEqual("<root><c>test</c></root>", a.Serialize());
             Assert.IsTrue(a.Delete("/root/c"), "Delete existing XPath passes");
             // TODO: find out why we don't get <root/> here.
@@ -198,7 +198,7 @@ namespace RestTests
                     CompareOptions.IgnoreSymbols));
             Assert.AreEqual("True", xmlObject.Evaluate("5 > 2"));
             Assert.AreEqual("abc", xmlObject.Evaluate("'abc'"));
-            Assert.AreEqual(null, xmlObject.Evaluate("/data/nonexistingitem"));
+            Assert.AreEqual(null, xmlObject.Evaluate(@"/data/nonexistingitem"));
         }
 
         [TestMethod]

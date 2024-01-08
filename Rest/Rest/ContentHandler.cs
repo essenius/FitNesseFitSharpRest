@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -68,7 +68,7 @@ namespace Rest
         /// <summary>Delete a property from an object</summary>
         /// <param name="locator">specification of the property that needs to be deleted</param>
         /// <param name="contentObject">the object that the property needs to be deleted from</param>
-        /// <returns>whether or not the deletion succeeded</returns>
+        /// <returns>whether the deletion succeeded</returns>
         public static bool DeleteFrom(string locator, ContentObject contentObject) => contentObject.Delete(locator);
 
         /// <summary>Evaluate a query (regex for TEXT, JPath for JSON, XPath for XML)</summary>
@@ -191,7 +191,7 @@ namespace Rest
         /// <param name="locator">the specification of the property</param>
         /// <param name="contentObject">the object to set a property value of</param>
         /// <param name="value">the value to be set</param>
-        /// <returns>whether or not setting the value succeeded</returns>
+        /// <returns>whether setting the value succeeded</returns>
         public static bool SetPropertyValueOfTo(string locator, ContentObject contentObject, string value) =>
             contentObject.SetProperty(locator, value);
     }

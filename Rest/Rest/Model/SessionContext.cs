@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -40,7 +40,7 @@ namespace Rest.Model
 
             // until .NET 4.6, SystemDefault didn't enable TLS 1.2, and we want at least that by default.
             // See e.g. https://stackoverflow.com/questions/28286086/default-securityprotocol-in-net-4-5
-            // By using |=, we ensure this is future proof - it will use the highest.
+            // By using |=, we ensure this is future-proof - it will use the highest.
             // Should no longer be needed as we moved to .NET 4.8
             //ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
@@ -119,7 +119,7 @@ namespace Rest.Model
         {
             foreach (string mimeType in ContentTypeMap)
             {
-                if (ContentTypeMap[mimeType].Equals(contentType, StringComparison.OrdinalIgnoreCase)) return mimeType;
+                if (ContentTypeMap[mimeType]!.Equals(contentType, StringComparison.OrdinalIgnoreCase)) return mimeType;
             }
 
             return DefaultContentType;
@@ -133,8 +133,8 @@ namespace Rest.Model
 
         /// <summary>Set session context parameter based on an identifier</summary>
         /// <param name="key">
-        ///     the identifier indicating the parameter (case insensitive).
-        ///     Allowed are DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent,
+        ///     the identifier indicating the parameter (case-insensitive).
+        ///     Allowed: DefaultAccept, DefaultContentType, Encoding, Proxy, Timeout, TrimWhitespace, DefaultUserAgent,
         ///     DefaultUserAgent, DefaultXmlNamespaceKey, XmlValueTypeAttribute, Headers, ContentTypeMapping, Cookies,
         ///     SecurityProtocol
         /// </param>
@@ -240,7 +240,7 @@ namespace Rest.Model
         public void SetCookies(HttpRequestMessage request)
         {
             if (string.IsNullOrEmpty(CookiesList)) return;
-            var defaultDomain = request.RequestUri.Host;
+            var defaultDomain = request.RequestUri!.Host;
             var cookies = FitNesseFormatter.ParseCookies(CookiesList, defaultDomain, DateTime.UtcNow);
             ClientHandler.CookieContainer.Add(cookies);
         }
