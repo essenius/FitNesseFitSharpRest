@@ -59,9 +59,7 @@ namespace Rest.ContentObjects
         {
             if (JsonObject.IsValid(input)) return ContentType.Json;
             if (XmlObject.IsValid(input)) return ContentType.Xml;
-            if (TextObject.IsValid(input)) return ContentType.Text;
-            return ContentType.Unknown;
-            //throw new ArgumentException("Could not parse the input to XML, JSON or Text");
+            return TextObject.IsValid(input) ? ContentType.Text : ContentType.Unknown;
         }
     }
 }

@@ -106,7 +106,7 @@ namespace RestTests
         {
             var h = new ContentHandler();
             var obj = h.ObjectFrom("contains 21, 3000000000, 51.6 and no other true numbers");
-            const string regex = "((\\b\\d+(\\.\\d+)?)|true|numbers)";
+            const string regex = @"((\b\d+(\.\d+)?)|true|numbers)";
             var a = new PropertiesForObject(obj, regex);
             var multiPattern = string.Format(TextObject.MatchGroupPattern, regex, "{{0}}");
             var expected = new[]

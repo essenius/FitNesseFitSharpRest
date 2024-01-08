@@ -200,13 +200,13 @@ namespace Rest.Utilities
         private static string UpdateExpiresFromMaxAge(string cookieText, DateTime utcNow)
         {
             // Try finding the max-age attribute with its integer value in Group[1].
-            var matchMaxAge = new Regex("\\bmax-age=(\\d*)\\b", RegexOptions.IgnoreCase).Match(cookieText);
+            var matchMaxAge = new Regex(@"\bmax-age=(\d*)\b", RegexOptions.IgnoreCase).Match(cookieText);
             if (!matchMaxAge.Success) return cookieText;
             var maxAge = Convert.ToInt64(matchMaxAge.Groups[1].Value);
             // Transform maxAge into an expires attribute and use the format as per the specification
             var expires = (utcNow + TimeSpan.FromSeconds(maxAge)).ToString("R");
             // If the expires attribute was there already, replace it
-            var regex = new Regex("\\bexpires=(.*?)((;)|($))", RegexOptions.IgnoreCase);
+            var regex = new Regex(@"\bexpires=(.*?)((;)|($))", RegexOptions.IgnoreCase);
             if (regex.IsMatch(cookieText))
                 return regex.Replace(cookieText, match =>
                 {

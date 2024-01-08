@@ -2,5 +2,9 @@
 <RunSettings>
   <MSTest>
     <DeploymentEnabled>False</DeploymentEnabled>
+    <Parallelize>
+      <Workers>16</Workers>
+      <Scope>ClassLevel</Scope>
+    </Parallelize>
   </MSTest>  
 </RunSettings>
