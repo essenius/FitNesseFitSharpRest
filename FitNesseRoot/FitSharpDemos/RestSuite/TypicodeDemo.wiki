@@ -22,8 +22,11 @@ default:JSON-!|
 |Cookies|!-cookie1=value1
 cookie2=value2-!|
 
-Post some data to a test service, and capture its response into a JSon object. Also show some response headers and the request body (handy for debugging)
-The first show statement should cause an exception as you can only inspect cookies after a request was sent.
+Post some data to a test service, and capture its response into a Json object. Also show some response headers and the request body (handy for debugging)
+The first !style_code[show] statement should cause an exception as you can only inspect cookies after a request was sent.
+
+If the !style_code[Send] command throws an exception, then you need to update !-FitSharp-!'s !style_code[Runner.runtimeconfig.json] to refer to !style_code[Microsoft.AspNetCore.App] instead of !style_code[Microsoft.NETCore.App].
+This is because the header functionality is provided by !style_code[System.Net.Http.Headers], which is in the ASP.NET Core shared framework.
 
 !|script           |RestTester                  |https://jsonplaceholder.typicode.com/|
 |Set Request Body  |{"title": "Test Data", "body": "Test Body", "userId":96 }         |
@@ -74,7 +77,7 @@ We can also use regular expressions (regex) to parse response values.
 |show|response code description|
 
 Let's get a list of all the users that are stored in the test service.
-The response is a Json array, so we use the default property name _
+The response is a Json array, so we use the default property name !style_code[_]
 
 !|script                                 |
 |Send      |GET|to|/users|expect code|200|
@@ -83,7 +86,7 @@ The response is a Json array, so we use the default property name _
 
 |table: properties for object|$response|_[0].address|
 
-A Put command updates an existing element. Do that, and then check if the element was indeed (pretended to be) updated.
+A !style_code[Put] command updates an existing element. Do that, and then check if the element was indeed (pretended to be) updated.
 
 !|script                                                                      |
 |$body=|echo                        |New Body Text                            |
@@ -91,8 +94,8 @@ A Put command updates an existing element. Do that, and then check if the elemen
 |check |response code               |200                                      |
 |check |value from response matching|body|$body                               |
 
-#HEAD is not supported by this server, so check if it returns the right error
+!style_code[HEAD] is not supported by this server, so check if it returns the right error
 
-#!|script                                                       |
-#|set request body|                                             |
-#|Send            |HEAD|to|/RestService.svc/Data|expect code|404|
+!|script                                                       |
+|set request body|                                             |
+|Send            |HEAD|to|/RestService.svc/Data|expect code|404|

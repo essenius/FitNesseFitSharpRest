@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RunSettings>
   <MSTest>
-    <DeploymentEnabled>True</DeploymentEnabled>
+    <DeploymentEnabled>False</DeploymentEnabled>
     <Parallelize>
       <Workers>16</Workers>
       <Scope>ClassLevel</Scope>
