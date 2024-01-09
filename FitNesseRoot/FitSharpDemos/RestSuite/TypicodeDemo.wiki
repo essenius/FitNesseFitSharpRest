@@ -25,7 +25,7 @@ cookie2=value2-!|
 Post some data to a test service, and capture its response into a Json object. Also show some response headers and the request body (handy for debugging)
 The first !style_code[show] statement should cause an exception as you can only inspect cookies after a request was sent.
 
-If the !style_code[Send] command throws an exception, then you need to update !-FitSharp-!'s !style_code[Runner.runtimeconfig.json] to refer to !style_code[Microsoft.AspNetCore.App] instead of !style_code[Microsoft.NETCore.App].
+If the !style_code[Send] command throws an exception, then you need to update !-FitSharp-!'s !style_code[Runner.runtimeconfig.json] to refer to !style_code[Microsoft.AspNetCore.App] next to !style_code[Microsoft.NETCore.App].
 This is because the header functionality is provided by !style_code[System.Net.Http.Headers], which is in the ASP.NET Core shared framework.
 
 !|script           |RestTester                  |https://jsonplaceholder.typicode.com/|
