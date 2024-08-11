@@ -109,49 +109,43 @@ namespace Rest.Utilities
 #if NET48
                 var cookieText = UpdateExpiresFromMaxAge(line, utcNow);
 
-                if (HttpCookie.TryParse(cookieText, out var httpCookie))
-                {
-                    var cookie = new Cookie
-                    {
-                        Name = httpCookie.Name,
-                        Value = httpCookie.Value,
-                        Domain = httpCookie.Domain ?? defaultDomain,
-                        Expires = httpCookie.Expires,
-                        Path = httpCookie.Path,
-                        HttpOnly = httpCookie.HttpOnly,
-                        Secure = httpCookie.Secure
-                    };
-
-                    collection.Add(cookie);
-                }
-                else
+                if (!HttpCookie.TryParse(cookieText, out var httpCookie))
                 {
                     throw new ArgumentException($"Could not parse '{line}' as a cookie");
                 }
+                var cookie = new Cookie
+                {
+                    Name = httpCookie.Name,
+                    Value = httpCookie.Value,
+                    Domain = httpCookie.Domain ?? defaultDomain,
+                    Expires = httpCookie.Expires,
+                    Path = httpCookie.Path,
+                    HttpOnly = httpCookie.HttpOnly,
+                    Secure = httpCookie.Secure
+                };
+
+                collection.Add(cookie);
 #else
                 var cookieText = RemoveInvalidCookieOptions(line);
                 cookieText = UpdateExpiresFromMaxAge(cookieText, utcNow);
 
-                if (SetCookieHeaderValue.TryParse(cookieText, out var httpCookie))
-                {
-                    var cookie = new Cookie
-                    {
-                        Name = httpCookie.Name.Value,
-                        Value = httpCookie.Value.Value,
-                        Domain = httpCookie.Domain.Value ?? defaultDomain,
-                        Path = httpCookie.Path.Value ?? defaultPath,
-                        HttpOnly = httpCookie.HttpOnly,
-                        Secure = httpCookie.Secure
-                    };
-
-                    if (httpCookie.Expires != null) cookie.Expires = httpCookie.Expires.Value.UtcDateTime;
-
-                    collection.Add(cookie);
-                }
-                else
+                if (!SetCookieHeaderValue.TryParse(cookieText, out var httpCookie))
                 {
                     throw new ArgumentException($"Could not parse '{line}' as a cookie");
                 }
+                var cookie = new Cookie
+                {
+                    Name = httpCookie.Name.Value,
+                    Value = httpCookie.Value.Value,
+                    Domain = httpCookie.Domain.Value ?? defaultDomain,
+                    Path = httpCookie.Path.Value ?? defaultPath,
+                    HttpOnly = httpCookie.HttpOnly,
+                    Secure = httpCookie.Secure
+                };
+
+                if (httpCookie.Expires != null) cookie.Expires = httpCookie.Expires.Value.UtcDateTime;
+
+                collection.Add(cookie);
 #endif
             }
 

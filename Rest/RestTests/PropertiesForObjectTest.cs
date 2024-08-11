@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2023 Rik Essenius
+﻿// Copyright 2015-2024 Rik Essenius
 // 
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -39,8 +39,7 @@ namespace RestTests
             }
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
+        [TestMethod, TestCategory("Unit"), DeploymentItem("RestTests.dll")]
         public void PropertiesForObjectDecisionTest()
         {
             var h = new ContentHandler();
@@ -62,8 +61,7 @@ namespace RestTests
             Assert.AreEqual("1", a.Value, "Value was correctly set");
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
+        [TestMethod, TestCategory("Unit")]
         public void PropertiesForObjectJsonTableTest()
         {
             var h = new ContentHandler();
@@ -72,36 +70,27 @@ namespace RestTests
             var a = new PropertiesForObject(obj, "StringArray");
             var expected = new[]
             {
-                new[] { "report:Property", "report:Type", "report:Value" },
-                new[] { "report:StringArray", "report:Array", "report:[\"hi\",\"there\"]" },
-                new[] { "report:StringArray[0]", "report:String", "report:hi" },
-                new[] { "report:StringArray[1]", "report:String", "report:there" }
+                new[] { "report:Property", "report:Type", "report:Value" }, new[] { "report:StringArray", "report:Array", "report:[\"hi\",\"there\"]" },
+                new[] { "report:StringArray[0]", "report:String", "report:hi" }, new[] { "report:StringArray[1]", "report:String", "report:there" }
             };
             var myList = a.DoTable(new List<List<string>>());
             AssertListEqualsArray(myList, expected);
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
+        [TestMethod, TestCategory("Unit")]
         public void PropertiesForObjectQueryTest()
         {
             var h = new ContentHandler();
             var obj =
                 h.ObjectFromTypeInAssemblyWithParams("xml", "RestTests.FewTypes", "RestTests.dll", new[] { "true" });
             var a = new PropertiesForObject(obj, "/FewTypes/StringValue");
-            var expected = new[]
-            {
-                new[] { "Property", "/FewTypes[1]/StringValue[1]" },
-                new[] { "Type", "System.String" },
-                new[] { "Value", "string value" }
-            };
+            var expected = new[] { new[] { "Property", "/FewTypes[1]/StringValue[1]" }, new[] { "Type", "System.String" }, new[] { "Value", "string value" } };
             var myList = a.Query().First() as List<object>;
             Assert.IsNotNull(myList);
             AssertListEqualsArray(myList, expected);
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
+        [TestMethod, TestCategory("Unit")]
         public void PropertiesForObjectTextTableTest()
         {
             var h = new ContentHandler();
@@ -122,8 +111,7 @@ namespace RestTests
             AssertListEqualsArray(myList, expected);
         }
 
-        [TestMethod]
-        [TestCategory("Unit")]
+        [TestMethod, TestCategory("Unit")]
         public void PropertiesForObjectXmlTableTest()
         {
             var h = new ContentHandler();

@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Rik Essenius
+﻿// Copyright 2023-2024 Rik Essenius
 //
 //   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
 //   except in compliance with the License. You may obtain a copy of the License at
@@ -19,23 +19,23 @@ namespace RestTests
     [TestClass]
     public class AssemblyLocatorTest
     {
-        [TestMethod]
+        [TestMethod, DeploymentItem("config.xml")]
         public void TestAssemblyFoundInCurrentFolder()
         {
             var locator = new AssemblyLocator("Rest.dll", ".");
             Assert.AreEqual("Rest.dll", locator.FindAssemblyPath());
         }
 
-        [TestMethod]
-        [DeploymentItem("bogus.xml")] // only needed for .NET Framework
+        [TestMethod, DeploymentItem("bogus.xml")]
+         // only needed for .NET Framework
         public void TestAssemblyNotFound()
         {
             var locator = new AssemblyLocator("bogus.dll", ".");
             Assert.IsNull(locator.FindAssemblyPath());
         }
 
-        [TestMethod]
-        [DeploymentItem("TestConfig.xml")] // only needed for .NET Framework
+        [TestMethod, DeploymentItem("TestConfig.xml")]
+         // only needed for .NET Framework
         public void TestAssemblySearchXml()
         {
             var locator = new AssemblyLocator("MyTest2.dll", ".");
