@@ -1,0 +1,12 @@
+{
+    "rule_sets": [
+        {
+            "rules": [
+                {
+                    "name": "Large Assertion Blocks",
+                    "weight": 0
+                }
+            ]
+       }
+    ]
+}
