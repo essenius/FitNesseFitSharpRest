@@ -40,6 +40,7 @@ namespace Rest.ContentObjects
 
         private ContentType InferContentHandler(string contentType, object content)
         {
+            // ReSharper disable once InvertIf -- we should not repeat the complex return statement 
             if (contentType != null)
             {
                 if (Enum.TryParse(contentType, true, out ContentType validContentHandler)) return validContentHandler;

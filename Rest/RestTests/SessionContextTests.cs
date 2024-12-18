@@ -41,11 +41,13 @@ namespace RestTests
         public void SessionContextContentTypeMapperTest()
         {
             var context = new SessionContext();
+            Assert.IsNull(context.ContentType(null));
             Assert.AreEqual("json", context.ContentType("application/json"), "default json");
             Assert.AreEqual("xml", context.ContentType("application/xml"), "default xml");
             Assert.AreEqual("text", context.ContentType("text/plain"), "default text");
             Assert.IsNull(context.ContentType("unknown/content"), "unknown content type");
             Assert.AreEqual("xml", context.ContentType("application/atom+xml"), "atom is an XML variant");
+            Assert.AreEqual("unknown", context.ContentType("default"), "default is unknown");
             Assert.IsNull(context.ContentType("application/rss+xml"), "rss is not handled by default");
             context.SetConfig("ContentTypeMapping", "application/rss+xml : xml");
             Assert.AreEqual("xml", context.ContentType("application/rss+xml"),

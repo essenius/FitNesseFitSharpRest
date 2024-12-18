@@ -103,12 +103,12 @@ namespace Rest.Model
 
         /// <summary>Determine the type of content we need  based on the mime type</summary>
         /// <param name="mimeType">the content type of the payload</param>
-        /// <returns>the content handler (xml, json, text)</returns>
+        /// <returns>string representation of the content handler (xml, json, text, unknown) or null if mimeType not found</returns>
         public string ContentType(string mimeType)
         {
+            if (mimeType == null) return null;
             // remove all the parameters, if present
             mimeType = mimeType.StripAfter(";");
-
             return ContentTypeMap.Get(mimeType);
         }
 
