@@ -33,3 +33,4 @@
 3.5.3 Better exception message in PropertyOfCookie when cookies don't exist.
 3.5.4 Updated packages and fixed static analysis findings
 3.5.5 Made FitNesseFormatter simpler and fixed deployment issues with tests.
+3.6.0 Migrated to .NET 8 and fixed some static analysis findings
